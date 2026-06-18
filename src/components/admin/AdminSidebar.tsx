@@ -57,9 +57,7 @@ export function AdminSidebar({ role, user }: Props) {
       >
         {/* Logo */}
         <div className="p-5 flex items-center gap-3 border-b border-white/8 shrink-0">
-          <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center font-black text-[#0B0F14] text-sm shrink-0">
-            LG
-          </div>
+          <img src="/livegoali.png" alt="LiveGoali" className="w-9 h-9 object-contain shrink-0" />
           {!collapsed && (
             <div>
               <span className="font-black text-lg">

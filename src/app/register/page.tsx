@@ -79,7 +79,7 @@ export default function RegisterPage() {
         <div className="glass rounded-3xl p-8 border border-white/10">
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center font-black text-[#0B0F14]">LG</div>
+              <img src="/livegoali.png" alt="LiveGoali" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black">
                 <span className="text-gradient">Live</span><span className="text-white">Goali</span>
               </span>

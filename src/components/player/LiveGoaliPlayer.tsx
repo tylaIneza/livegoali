@@ -382,7 +382,7 @@ export function LiveGoaliPlayer({
 
         {/* Branding — non-interactive overlay */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none z-10">
-          <div className="w-6 h-6 rounded-md gradient-primary flex items-center justify-center text-[#0B0F14] font-black text-[10px] shadow-lg">LG</div>
+          <img src="/livegoali.png" alt="LiveGoali" className="w-6 h-6 object-contain" />
           <span className="text-white text-xs font-bold drop-shadow-lg">LiveGoali</span>
         </div>
 
@@ -445,7 +445,7 @@ export function LiveGoaliPlayer({
 
       {/* Watermark */}
       <div className="absolute top-3 left-3 flex items-center gap-1.5 opacity-75 pointer-events-none z-10">
-        <div className="w-6 h-6 rounded-md gradient-primary flex items-center justify-center text-[#0B0F14] font-black text-[10px] shadow-lg">LG</div>
+        <img src="/livegoali.png" alt="LiveGoali" className="w-6 h-6 object-contain" />
         <span className="text-white text-xs font-bold drop-shadow-lg">LiveGoali</span>
       </div>
 
@@ -515,7 +515,7 @@ export function LiveGoaliPlayer({
       {/* No stream */}
       {activeStreams.length === 0 && !isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0B0F14] gap-4">
-          <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-[#0B0F14] font-black text-xl">LG</div>
+          <img src="/livegoali.png" alt="LiveGoali" className="w-16 h-16 object-contain" />
           <p className="text-white font-bold text-lg">No Stream Available</p>
           <p className="text-gray-500 text-sm">Stream will begin at kickoff</p>
         </div>
