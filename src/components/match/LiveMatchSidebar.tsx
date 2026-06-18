@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { MessageSquare, TrendingUp, Clock, Goal } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MessageSquare, TrendingUp, Clock } from "lucide-react";
 import { LiveChat } from "@/components/match/LiveChat";
 import { CommentSection } from "@/components/match/CommentSection";
 import { cn } from "@/lib/utils";
@@ -49,12 +49,42 @@ export function LiveMatchSidebar({
   matchId,
   enableChat,
   enableComments,
-  events,
-  prediction,
+  events: initialEvents,
+  prediction: initialPrediction,
   homeTeam,
   awayTeam,
 }: SidebarProps) {
   const [tab, setTab] = useState<Tab>(enableChat ? "chat" : "commentary");
+  const [prediction, setPrediction] = useState(initialPrediction);
+  const [events, setEvents] = useState(initialEvents);
+
+  // Refresh prediction every 60 seconds
+  const fetchPrediction = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/predictions?matchId=${matchId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data) setPrediction(data);
+      }
+    } catch {}
+  }, [matchId]);
+
+  // Refresh events (commentary) every 30 seconds
+  const fetchEvents = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/matches/${matchId}/events`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setEvents(data);
+      }
+    } catch {}
+  }, [matchId]);
+
+  useEffect(() => {
+    const predInterval = setInterval(fetchPrediction, 60_000);
+    const eventsInterval = setInterval(fetchEvents, 30_000);
+    return () => { clearInterval(predInterval); clearInterval(eventsInterval); };
+  }, [fetchPrediction, fetchEvents]);
 
   const tabs: Array<{ id: Tab; label: string; icon: React.ComponentType<{className?: string}> }> = [
     ...(enableChat ? [{ id: "chat" as Tab, label: "Live Chat", icon: MessageSquare }] : []),
