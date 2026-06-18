@@ -1,0 +1,83 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Activity, Eye } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface Match {
+  id: string;
+  status: string;
+  homeTeam: { name: string; shortName: string | null };
+  awayTeam: { name: string; shortName: string | null };
+  league: { name: string };
+  streams: { id: string }[];
+}
+
+export function ActiveMatchesWidget() {
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetch_ = () => {
+    fetch("/api/matches?status=LIVE&take=8")
+      .then((r) => r.json())
+      .then((data) => { setMatches(Array.isArray(data) ? data : []); setLoading(false); })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetch_();
+    const interval = setInterval(fetch_, 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between text-base">
+          <span className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-[#00FF84]" /> Active Matches
+          </span>
+          {matches.length > 0 && (
+            <span className="flex items-center gap-1 text-[10px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded-full font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
+              {matches.length} LIVE
+            </span>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <div className="w-6 h-6 rounded-full border-2 border-[#00FF84]/30 border-t-[#00FF84] animate-spin" />
+          </div>
+        ) : matches.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-4">No active matches</p>
+        ) : (
+          <div className="space-y-2">
+            {matches.map((match) => (
+              <div key={match.id} className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F14] border border-white/5">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                    {match.homeTeam.name} vs {match.awayTeam.name}
+                  </p>
+                  <p className="text-xs text-gray-500">{match.league.name}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    match.status === "LIVE" || match.status === "HALFTIME"
+                      ? "bg-red-500/10 text-red-400"
+                      : "bg-blue-500/10 text-blue-400"
+                  }`}>{match.status}</span>
+                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                    <Eye className="w-3 h-3" /> {match.streams.length}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="text-[10px] text-gray-700 mt-3">Refreshes every 30 seconds</p>
+      </CardContent>
+    </Card>
+  );
+}
