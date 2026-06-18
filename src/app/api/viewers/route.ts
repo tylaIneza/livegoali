@@ -3,16 +3,23 @@ import { auth } from "@/lib/auth";
 import { heartbeat, leave, getAllViewers, getViewers } from "@/lib/viewerStore";
 
 export async function POST(req: NextRequest) {
-  const { action, matchId, sessionId } = await req.json();
-  if (!matchId || !sessionId) return NextResponse.json({ ok: false });
+  try {
+    const { action, matchId, sessionId } = await req.json();
+    if (!matchId || !sessionId) return NextResponse.json({ ok: false });
 
-  const session = await auth();
-  const isUser = !!session?.user;
+    let isUser = false;
+    try {
+      const session = await auth();
+      isUser = !!session?.user;
+    } catch {}
 
-  if (action === "heartbeat") heartbeat(matchId, sessionId, isUser);
-  if (action === "leave") leave(matchId, sessionId);
+    if (action === "heartbeat") heartbeat(matchId, sessionId, isUser);
+    if (action === "leave") leave(matchId, sessionId);
 
-  return NextResponse.json({ ok: true, ...getViewers(matchId) });
+    return NextResponse.json({ ok: true, ...getViewers(matchId) });
+  } catch {
+    return NextResponse.json({ ok: false });
+  }
 }
 
 export async function GET(req: NextRequest) {

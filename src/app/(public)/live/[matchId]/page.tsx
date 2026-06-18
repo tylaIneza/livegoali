@@ -55,7 +55,7 @@ export default async function LiveMatchPage({ params }: Props) {
     });
   } catch (err) {
     console.error("[LiveMatchPage] DB error:", err);
-    notFound();
+    return notFound();
   }
 
   if (!match) notFound();

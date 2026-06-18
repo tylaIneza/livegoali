@@ -17,8 +17,11 @@ async function incrementSetting(key: string) {
 export async function POST(req: NextRequest) {
   try {
     const { type, matchId } = await req.json();
-    const session = await auth();
-    const isUser = !!session?.user;
+    let isUser = false;
+    try {
+      const session = await auth();
+      isUser = !!session?.user;
+    } catch {}
 
     if (type === "match" && matchId) {
       await prisma.match.update({
