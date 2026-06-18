@@ -70,37 +70,37 @@ export default async function LiveMatchPage({ params }: Props) {
 
         {/* Match header */}
         <div className="mb-6 p-4 rounded-2xl glass border border-white/8">
-          <div className="flex flex-col sm:flex-row items-center gap-4 flex-wrap">
-            {/* League */}
-            <Link href={`/league/${match.league.slug}`} className="flex items-center gap-2 hover:text-[#00FF84] transition-colors">
+          {/* Top row: league + live badge */}
+          <div className="flex items-center justify-between mb-4">
+            <Link href={`/league/${match.league.slug}`} className="flex items-center gap-2 min-w-0">
               {match.league.logo && (
-                <Image src={match.league.logo} alt={match.league.name} width={20} height={20} className="object-contain" />
+                <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain shrink-0" />
               )}
-              <span className="text-sm text-gray-400 hover:text-[#00FF84] transition-colors">{match.league.name}</span>
+              <span className="text-xs text-gray-400 truncate">{match.league.name}</span>
+            </Link>
+            {isLive && <LiveBadge minute={match.matchMinute} status={match.status} />}
+          </div>
+
+          {/* Teams row */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Home */}
+            <Link href={`/team/${match.homeTeam.slug}`} className="flex flex-col sm:flex-row items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
+              {match.homeTeam.logo && (
+                <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={40} height={40} className="object-contain shrink-0" />
+              )}
+              <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-left truncate">{match.homeTeam.name}</span>
             </Link>
 
-            {isLive && <LiveBadge minute={match.matchMinute} status={match.status} />}
+            {/* VS */}
+            <div className="text-xl sm:text-2xl font-black text-gray-500 shrink-0 px-2">VS</div>
 
-            {/* Teams + score */}
-            <div className="flex items-center justify-center gap-6 flex-1">
-              <Link href={`/team/${match.homeTeam.slug}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                {match.homeTeam.logo && (
-                  <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={36} height={36} className="object-contain" />
-                )}
-                <span className="font-bold text-white text-lg hidden sm:block">{match.homeTeam.name}</span>
-              </Link>
-
-              <div className="text-center">
-                <div className="text-2xl font-black text-gray-500">VS</div>
-              </div>
-
-              <Link href={`/team/${match.awayTeam.slug}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <span className="font-bold text-white text-lg hidden sm:block">{match.awayTeam.name}</span>
-                {match.awayTeam.logo && (
-                  <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={36} height={36} className="object-contain" />
-                )}
-              </Link>
-            </div>
+            {/* Away */}
+            <Link href={`/team/${match.awayTeam.slug}`} className="flex flex-col sm:flex-row-reverse items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
+              {match.awayTeam.logo && (
+                <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={40} height={40} className="object-contain shrink-0" />
+              )}
+              <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-right truncate">{match.awayTeam.name}</span>
+            </Link>
           </div>
         </div>
 
