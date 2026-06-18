@@ -135,9 +135,7 @@ export default async function HomePage() {
                           )}
                           <span className="font-black text-white text-lg sm:text-xl truncate">{match.homeTeam.name}</span>
                         </div>
-                        <div className="text-3xl sm:text-4xl font-black text-[#00FF84] tabular-nums shrink-0 px-3">
-                          {match.homeScore ?? 0} – {match.awayScore ?? 0}
-                        </div>
+                        <div className="text-2xl font-black text-[#00FF84] shrink-0 px-3">VS</div>
                         <div className="flex items-center gap-3 flex-1 justify-end min-w-0">
                           <span className="font-black text-white text-lg sm:text-xl truncate text-right">{match.awayTeam.name}</span>
                           {match.awayTeam.logo && (
