@@ -9,8 +9,8 @@ import { MatchesTable } from "@/components/admin/MatchesTable";
 export default async function AdminMatchesPage() {
   const matches = await prisma.match.findMany({
     include: {
-      homeTeam: { select: { name: true } },
-      awayTeam: { select: { name: true } },
+      homeTeam: { select: { name: true, logo: true } },
+      awayTeam: { select: { name: true, logo: true } },
       league: { select: { name: true } },
       streams: { where: { isActive: true }, select: { id: true } },
     },

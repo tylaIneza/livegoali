@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { generateSlug } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   const leagues = await prisma.league.findMany({
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
   const league = await prisma.league.create({
     data: { name, country, season, logo: logo || null, slug },
   });
+  revalidatePath("/leagues");
+  revalidatePath("/");
   return NextResponse.json(league, { status: 201 });
 }
 
@@ -35,6 +38,7 @@ export async function PATCH(req: NextRequest) {
   }
   const { id, name, country, season, logo, isActive, isFeatured } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+
   const league = await prisma.league.update({
     where: { id },
     data: {
@@ -46,6 +50,12 @@ export async function PATCH(req: NextRequest) {
       ...(isFeatured !== undefined && { isFeatured }),
     },
   });
+
+  // Bust the cache for all league-related public pages
+  revalidatePath("/leagues");
+  revalidatePath(`/league/${league.slug}`);
+  revalidatePath("/");
+
   return NextResponse.json(league);
 }
 
@@ -55,6 +65,10 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const { id } = await req.json();
+  const league = await prisma.league.findUnique({ where: { id }, select: { slug: true } });
   await prisma.league.delete({ where: { id } });
+  revalidatePath("/leagues");
+  if (league?.slug) revalidatePath(`/league/${league.slug}`);
+  revalidatePath("/");
   return NextResponse.json({ success: true });
 }

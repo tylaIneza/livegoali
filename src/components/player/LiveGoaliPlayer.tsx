@@ -176,6 +176,10 @@ export function LiveGoaliPlayer({
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
         if (!mountedRef.current) return;
         setQualityLevels(data.levels.map((l) => ({ height: l.height, bitrate: l.bitrate })));
+        // Disable subtitle tracks on mobile
+        if (window.matchMedia("(max-width: 767px)").matches) {
+          hls.subtitleTrack = -1;
+        }
         setIsLoading(false);
         setStreamHealth("good");
         safePlay(video);
@@ -288,6 +292,20 @@ export function LiveGoaliPlayer({
     };
   // Re-run when effectiveUrl changes so listeners attach even if component initially rendered without a video element
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveUrl]);
+
+  // Disable subtitle/caption tracks on mobile devices
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !window.matchMedia("(max-width: 767px)").matches) return;
+    const disable = () => {
+      for (let i = 0; i < video.textTracks.length; i++) {
+        video.textTracks[i].mode = "disabled";
+      }
+    };
+    disable();
+    video.textTracks.addEventListener("addtrack", disable);
+    return () => video.textTracks.removeEventListener("addtrack", disable);
   }, [effectiveUrl]);
 
   useEffect(() => {

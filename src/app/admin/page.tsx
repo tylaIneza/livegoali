@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { Users, Radio, Trophy, Newspaper, TrendingUp, MessageSquare, Eye, Globe, UserCheck, UserX } from "lucide-react";
+import { Users, Radio, TrendingUp, MessageSquare, Eye, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LiveViewersWidget } from "@/components/admin/LiveViewersWidget";
 import { ActiveMatchesWidget } from "@/components/admin/ActiveMatchesWidget";
@@ -73,9 +73,7 @@ async function getAdminStats() {
 export default async function AdminDashboard() {
   const [session, stats] = await Promise.all([auth(), getAdminStats()]);
 
-  const totalMatchViews = stats.topMatches.reduce((s, m) => s + m.views, 0);
-  const totalUserViews = stats.topMatches.reduce((s, m) => s + m.userViews, 0);
-  const totalAnonViews = stats.topMatches.reduce((s, m) => s + m.anonViews, 0);
+  const totalMatchViews = stats.topMatches.reduce((s, m) => s + (m.views ?? 0), 0);
 
   const statCards = [
     { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-blue-400", bg: "bg-blue-400/10" },
@@ -122,25 +120,6 @@ export default async function AdminDashboard() {
 
       {/* Live viewers */}
       <LiveViewersWidget />
-
-      {/* Views breakdown */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Total Match Views", value: totalMatchViews, icon: Eye, color: "text-white", bg: "bg-white/5" },
-          { label: "Logged-in Views", value: totalUserViews, icon: UserCheck, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
-          { label: "Guest Views", value: totalAnonViews, icon: UserX, color: "text-yellow-400", bg: "bg-yellow-400/10" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-white/8 bg-[#121821] p-5 flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl ${s.bg} flex items-center justify-center shrink-0`}>
-              <s.icon className={`w-6 h-6 ${s.color}`} />
-            </div>
-            <div>
-              <div className={`text-3xl font-black ${s.color}`}>{s.value.toLocaleString()}</div>
-              <p className="text-sm text-gray-500 mt-0.5">{s.label}</p>
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Match views table — removed per user request */}
       {false && stats.topMatches.length > 0 && (

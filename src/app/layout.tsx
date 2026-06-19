@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { ViewTracker } from "@/components/ViewTracker";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
@@ -44,7 +43,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${inter.variable} dark`} suppressHydrationWarning>
       <body className="min-h-screen bg-[#0B0F14] text-white antialiased">
         <Providers>
-          <ViewTracker type="site" />
           {children}
           <Toaster
             position="top-right"

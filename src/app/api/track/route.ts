@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { randomBytes } from "crypto";
 
+// Atomic increment using MySQL ON DUPLICATE KEY UPDATE to avoid race conditions
 async function incrementSetting(key: string) {
-  const existing = await prisma.settings.findUnique({ where: { key } });
-  if (existing) {
-    await prisma.settings.update({
-      where: { key },
-      data: { value: String(parseInt(existing.value) + 1) },
-    });
-  } else {
-    await prisma.settings.create({ data: { key, value: "1" } });
-  }
+  const id = randomBytes(12).toString("hex");
+  await prisma.$executeRaw`
+    INSERT INTO Settings (id, \`key\`, value, updatedAt)
+    VALUES (${id}, ${key}, '1', NOW())
+    ON DUPLICATE KEY UPDATE value = CAST(CAST(value AS UNSIGNED) + 1 AS CHAR), updatedAt = NOW()
+  `;
 }
 
 export async function POST(req: NextRequest) {

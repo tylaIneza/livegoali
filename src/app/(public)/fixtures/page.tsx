@@ -173,7 +173,7 @@ export default async function FixturesPage({
                           <div className={`text-sm font-black tabular-nums w-14 text-center shrink-0 ${
                             isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-gray-600"
                           }`}>
-                            {isFinished || isLive
+                            {isFinished
                               ? `${match.homeScore ?? 0} - ${match.awayScore ?? 0}`
                               : "vs"}
                           </div>

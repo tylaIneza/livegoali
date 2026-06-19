@@ -54,16 +54,20 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(matches);
 }
 
-async function findOrCreateTeam(name: string, leagueId: string): Promise<string> {
+async function findOrCreateTeam(name: string, leagueId: string, logo?: string): Promise<string> {
   const trimmed = name.trim();
   const existing = await prisma.team.findFirst({
     where: { name: { equals: trimmed } },
   });
-  if (existing) return existing.id;
+  if (existing) {
+    // Update logo if a new one is provided
+    if (logo) await prisma.team.update({ where: { id: existing.id }, data: { logo } });
+    return existing.id;
+  }
 
   const slug = `${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}-${Date.now()}`;
   const team = await prisma.team.create({
-    data: { name: trimmed, slug, leagueId },
+    data: { name: trimmed, slug, leagueId, logo: logo || null },
   });
   return team.id;
 }
@@ -77,8 +81,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   // Accept either IDs (legacy) or team names (new)
-  const homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId);
-  const awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId);
+  const homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId, body.homeTeamLogo);
+  const awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId, body.awayTeamLogo);
 
   const match = await prisma.match.create({
     data: {

@@ -12,10 +12,14 @@ export default async function EditMatchPage({ params }: Props) {
   const [match, leagues, teams] = await Promise.all([
     prisma.match.findUnique({
       where: { id },
-      include: { streams: { orderBy: { priority: "asc" } } },
+      include: {
+        streams: { orderBy: { priority: "asc" } },
+        homeTeam: { select: { id: true, name: true, logo: true } },
+        awayTeam: { select: { id: true, name: true, logo: true } },
+      },
     }),
     prisma.league.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-    prisma.team.findMany({ orderBy: { name: "asc" }, include: { league: { select: { name: true } } } }),
+    prisma.team.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, logo: true } }),
   ]);
 
   if (!match) notFound();

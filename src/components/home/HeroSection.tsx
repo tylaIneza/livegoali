@@ -222,15 +222,11 @@ function FeaturedLiveCard({ match }: { match: Match }) {
           <LiveBadge minute={match.matchMinute} status={match.status} size="md" />
         </div>
 
-        {/* Teams + score */}
+        {/* Teams */}
         <div className="flex items-center justify-between gap-4 flex-1">
           <TeamBlock team={match.homeTeam} align="left" />
           <div className="flex flex-col items-center gap-2 shrink-0">
-            <div className="text-5xl sm:text-6xl font-black tabular-nums text-[#00FF84] leading-none">
-              {match.homeScore ?? 0}
-              <span className="text-gray-700 mx-2 text-4xl">-</span>
-              {match.awayScore ?? 0}
-            </div>
+            <div className="text-4xl sm:text-5xl font-black text-gray-500">VS</div>
             {match.status === "HALFTIME" && (
               <span className="text-[11px] text-yellow-400 font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 rounded-full">HALF TIME</span>
             )}

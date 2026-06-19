@@ -15,7 +15,7 @@ export function LiveViewerTracker({ matchId }: { matchId: string }) {
       }).catch(() => {});
 
     ping(); // immediate on mount
-    const interval = setInterval(ping, 30_000);
+    const interval = setInterval(ping, 15_000);
 
     const handleLeave = () =>
       navigator.sendBeacon(

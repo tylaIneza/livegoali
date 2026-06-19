@@ -7,6 +7,7 @@ import { ViewTracker } from "@/components/ViewTracker";
 import { LiveViewerTracker } from "@/components/LiveViewerTracker";
 import { LiveMatchSidebar } from "@/components/match/LiveMatchSidebar";
 import { LiveBadge } from "@/components/match/LiveBadge";
+import { MatchWatcher } from "@/components/match/MatchWatcher";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -64,6 +65,7 @@ export default async function LiveMatchPage({ params }: Props) {
 
   return (
     <div className="bg-[#0B0F14]">
+      <MatchWatcher matchId={match.id} />
       <ViewTracker type="match" matchId={match.id} />
       <LiveViewerTracker matchId={match.id} />
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">

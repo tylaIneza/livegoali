@@ -17,8 +17,8 @@ interface Match {
   awayScore: number | null;
   matchMinute: number | null;
   scheduledAt: Date;
-  homeTeam: { name: string };
-  awayTeam: { name: string };
+  homeTeam: { name: string; logo: string | null };
+  awayTeam: { name: string; logo: string | null };
   league: { name: string };
   streams: { id: string }[];
 }
@@ -95,16 +95,17 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
             {matches.map((match) => (
               <tr key={match.id} className="hover:bg-white/2 transition-colors">
                 <td className="px-4 py-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      {match.homeTeam.name} vs {match.awayTeam.name}
-                    </p>
-                    {(match.status === "LIVE" || match.status === "HALFTIME") && (
-                      <p className="text-xs text-[#00FF84] font-bold">
-                        {match.homeScore} - {match.awayScore}
-                        {match.matchMinute ? ` · ${match.matchMinute}'` : ""}
+                  <div className="flex items-center gap-2">
+                    <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} />
+                    <div>
+                      <p className="text-sm font-semibold text-white">
+                        {match.homeTeam.name} vs {match.awayTeam.name}
                       </p>
-                    )}
+                      {(match.status === "LIVE" || match.status === "HALFTIME") && match.matchMinute && (
+                        <p className="text-xs text-[#00FF84] font-bold">{match.matchMinute}'</p>
+                      )}
+                    </div>
+                    <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} />
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -159,5 +160,23 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
         </table>
       </div>
     </>
+  );
+}
+
+function TeamLogo({ logo, name }: { logo: string | null; name: string }) {
+  if (logo) {
+    return (
+      <img
+        src={logo}
+        alt={name}
+        className="w-7 h-7 object-contain rounded shrink-0"
+        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+      />
+    );
+  }
+  return (
+    <div className="w-7 h-7 rounded bg-white/5 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+      {name.charAt(0)}
+    </div>
   );
 }

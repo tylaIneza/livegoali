@@ -16,9 +16,11 @@ interface Props {
     matchMinute: number | null; isFeatured: boolean; enableComments: boolean; enableChat: boolean;
     enablePrediction: boolean; venue: string | null; round: string | null; homeTeamId: string; awayTeamId: string; leagueId: string;
     streams: Stream[];
+    homeTeam?: { id: string; name: string; logo: string | null } | null;
+    awayTeam?: { id: string; name: string; logo: string | null } | null;
   };
   leagues: Array<{ id: string; name: string; country: string }>;
-  teams: Array<{ id: string; name: string }>;
+  teams: Array<{ id: string; name: string; logo: string | null }>;
 }
 
 const STATUS_OPTIONS = ["SCHEDULED","LIVE","HALFTIME","FINISHED","POSTPONED","CANCELLED"];
@@ -29,6 +31,9 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
   const [status, setStatus] = useState(match.status);
   const [streams, setStreams] = useState<Stream[]>(match.streams);
   const [newStream, setNewStream] = useState({ url: "", type: "HLS", quality: "HD", label: "", isPrimary: false });
+  const [homeLogo, setHomeLogo] = useState(match.homeTeam?.logo ?? "");
+  const [awayLogo, setAwayLogo] = useState(match.awayTeam?.logo ?? "");
+  const [savingLogos, setSavingLogos] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -79,8 +84,69 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
     }
   };
 
+  const saveLogos = async () => {
+    setSavingLogos(true);
+    try {
+      await Promise.all([
+        match.homeTeam && fetch(`/api/teams/${match.homeTeam.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ logo: homeLogo || null }),
+        }),
+        match.awayTeam && fetch(`/api/teams/${match.awayTeam.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ logo: awayLogo || null }),
+        }),
+      ]);
+      toast.success("Team logos saved!");
+      router.refresh();
+    } catch {
+      toast.error("Failed to save logos");
+    } finally {
+      setSavingLogos(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
+      {/* Team Logos */}
+      <Card>
+        <CardHeader><CardTitle>Team Logos</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Home Team */}
+            <div className="space-y-2">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Home — {match.homeTeam?.name}</p>
+              <div className="flex items-center gap-3">
+                {homeLogo ? (
+                  <img src={homeLogo} alt="Home" className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-xl">⚽</div>
+                )}
+                <Input placeholder="Logo URL (https://...)" value={homeLogo} onChange={(e) => setHomeLogo(e.target.value)} />
+              </div>
+            </div>
+            {/* Away Team */}
+            <div className="space-y-2">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Away — {match.awayTeam?.name}</p>
+              <div className="flex items-center gap-3">
+                {awayLogo ? (
+                  <img src={awayLogo} alt="Away" className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-xl">⚽</div>
+                )}
+                <Input placeholder="Logo URL (https://...)" value={awayLogo} onChange={(e) => setAwayLogo(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <Button onClick={saveLogos} disabled={savingLogos} variant="outline" size="sm">
+            <Save className="w-4 h-4" />
+            {savingLogos ? "Saving logos…" : "Save Logos"}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Match status */}
       <Card>
         <CardHeader><CardTitle>Match Status</CardTitle></CardHeader>

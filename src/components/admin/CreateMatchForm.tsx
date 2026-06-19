@@ -27,7 +27,9 @@ export function CreateMatchForm({ leagues }: Props) {
 
   const [leagueId, setLeagueId] = useState("");
   const [homeTeamName, setHomeTeamName] = useState("");
+  const [homeTeamLogo, setHomeTeamLogo] = useState("");
   const [awayTeamName, setAwayTeamName] = useState("");
+  const [awayTeamLogo, setAwayTeamLogo] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [venue, setVenue] = useState("");
   const [round, setRound] = useState("");
@@ -76,7 +78,9 @@ export function CreateMatchForm({ leagues }: Props) {
         body: JSON.stringify({
           slug, leagueId,
           homeTeamName: homeTeamName.trim(),
+          homeTeamLogo: homeTeamLogo.trim() || undefined,
           awayTeamName: awayTeamName.trim(),
+          awayTeamLogo: awayTeamLogo.trim() || undefined,
           scheduledAt, venue, round,
           isFeatured, enableComments, enableChat, enablePrediction,
         }),
@@ -151,25 +155,37 @@ export function CreateMatchForm({ leagues }: Props) {
 
           {/* Teams */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Home Team *</label>
-              <Input
-                placeholder="e.g. Arsenal"
-                value={homeTeamName}
-                onChange={(e) => setHomeTeamName(e.target.value)}
-                required
-              />
-              <p className="text-[11px] text-gray-600 mt-1">Type the team name — created automatically if new</p>
+            {/* Home Team */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400 block">Home Team *</label>
+              <div className="flex items-center gap-3">
+                {homeTeamLogo ? (
+                  <img src={homeTeamLogo} alt="Home logo" className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-lg">⚽</div>
+                )}
+                <div className="flex-1 space-y-1.5">
+                  <Input placeholder="Team name (e.g. Arsenal) *" value={homeTeamName} onChange={(e) => setHomeTeamName(e.target.value)} required />
+                  <Input placeholder="Logo URL (https://...)" value={homeTeamLogo} onChange={(e) => setHomeTeamLogo(e.target.value)} />
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-600">Team created automatically if new. Logo saved to team.</p>
             </div>
-            <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Away Team *</label>
-              <Input
-                placeholder="e.g. Chelsea"
-                value={awayTeamName}
-                onChange={(e) => setAwayTeamName(e.target.value)}
-                required
-              />
-              <p className="text-[11px] text-gray-600 mt-1">Type the team name — created automatically if new</p>
+            {/* Away Team */}
+            <div className="space-y-2">
+              <label className="text-sm text-gray-400 block">Away Team *</label>
+              <div className="flex items-center gap-3">
+                {awayTeamLogo ? (
+                  <img src={awayTeamLogo} alt="Away logo" className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                ) : (
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-lg">⚽</div>
+                )}
+                <div className="flex-1 space-y-1.5">
+                  <Input placeholder="Team name (e.g. Chelsea) *" value={awayTeamName} onChange={(e) => setAwayTeamName(e.target.value)} required />
+                  <Input placeholder="Logo URL (https://...)" value={awayTeamLogo} onChange={(e) => setAwayTeamLogo(e.target.value)} />
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-600">Team created automatically if new. Logo saved to team.</p>
             </div>
           </div>
 

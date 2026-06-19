@@ -43,18 +43,14 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               </span>
             </div>
             <div className="flex items-center gap-2 font-bold text-lg">
-              {isScheduled ? (
-                <span className="text-gray-400 text-sm font-normal">vs</span>
-              ) : (
+              {isFinished ? (
                 <>
-                  <span className={isLive ? "text-[#00FF84] glow-green-text" : "text-white"}>
-                    {match.homeScore ?? 0}
-                  </span>
+                  <span className="text-white">{match.homeScore ?? 0}</span>
                   <span className="text-gray-600">-</span>
-                  <span className={isLive ? "text-[#00FF84] glow-green-text" : "text-white"}>
-                    {match.awayScore ?? 0}
-                  </span>
+                  <span className="text-white">{match.awayScore ?? 0}</span>
                 </>
+              ) : (
+                <span className="text-gray-400 text-sm font-normal">vs</span>
               )}
             </div>
             <div className="flex items-center gap-2 flex-1 justify-end">
@@ -119,26 +115,24 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
 
           {/* Score */}
           <div className="flex flex-col items-center gap-1 min-w-[80px]">
-            {isScheduled ? (
-              <div className="text-center">
-                <div className="text-2xl font-black text-gray-500">VS</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {formatMatchDate(match.scheduledAt)}
-                </div>
-              </div>
-            ) : (
+            {isFinished ? (
               <>
-                <div className={`text-3xl font-black tabular-nums ${
-                  isLive ? "text-[#00FF84]" : "text-white"
-                }`}>
+                <div className="text-3xl font-black tabular-nums text-white">
                   {match.homeScore ?? 0} - {match.awayScore ?? 0}
                 </div>
-                {isFinished && (
-                  <span className="text-[10px] text-gray-500 font-medium bg-[#1F2937] px-2 py-0.5 rounded-full">
-                    FULL TIME
-                  </span>
-                )}
+                <span className="text-[10px] text-gray-500 font-medium bg-[#1F2937] px-2 py-0.5 rounded-full">
+                  FULL TIME
+                </span>
               </>
+            ) : (
+              <div className="text-center">
+                <div className="text-2xl font-black text-gray-500">VS</div>
+                {isScheduled && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {formatMatchDate(match.scheduledAt)}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
