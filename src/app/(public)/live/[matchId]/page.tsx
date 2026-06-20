@@ -8,6 +8,7 @@ import { LiveViewerTracker } from "@/components/LiveViewerTracker";
 import { LiveMatchSidebar } from "@/components/match/LiveMatchSidebar";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { MatchWatcher } from "@/components/match/MatchWatcher";
+import { AdBanner } from "@/components/AdBanner";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -149,7 +150,9 @@ export default async function LiveMatchPage({ params }: Props) {
             )}
           </div>
 
-          <LiveMatchSidebar
+          <div className="space-y-4">
+            <AdBanner placement="SIDEBAR" className="h-24 sm:h-28" />
+            <LiveMatchSidebar
             matchId={match.id}
             enableChat={match.enableChat}
             enableComments={match.enableComments}
@@ -173,6 +176,7 @@ export default async function LiveMatchPage({ params }: Props) {
             homeTeam={match.homeTeam.name}
             awayTeam={match.awayTeam.name}
           />
+          </div>
         </div>
       </div>
     </div>
