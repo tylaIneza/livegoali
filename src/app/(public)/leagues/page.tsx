@@ -86,7 +86,7 @@ export default async function LeaguesPage() {
                           <span className="text-xs text-gray-500">{league.country}</span>
                         </div>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[11px] text-gray-600">{league._count.teams} teams</span>
+                          <span className="text-[11px] text-gray-600">{league.season}</span>
                           <span className="text-[11px] text-gray-600">{league._count.matches} matches</span>
                         </div>
                       </div>

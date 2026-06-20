@@ -18,7 +18,7 @@ const featuredLeagues = [
 ];
 
 interface Props {
-  leagues?: Array<{ id: string; name: string; slug: string; country: string; logo: string | null }>;
+  leagues?: Array<{ id: string; name: string; slug: string; country: string; season?: string; logo: string | null }>;
 }
 
 export function LeaguesSection({ leagues }: Props) {
@@ -69,7 +69,9 @@ export function LeaguesSection({ leagues }: Props) {
                       <p className="font-bold text-white text-sm leading-tight group-hover:text-[#00FF84] transition-colors">
                         {league.name}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{league.country}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {league.country}{"season" in league && league.season ? ` · ${league.season}` : ""}
+                      </p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-[#00FF84] transition-colors shrink-0" />
                   </div>

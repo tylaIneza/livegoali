@@ -39,7 +39,7 @@ export default async function MatchPage({ params }: Props) {
     include: {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
-      league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+      league: { select: { id: true, name: true, slug: true, logo: true, country: true, season: true } },
       streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
       statistics: true,
       lineups: {
@@ -179,7 +179,7 @@ export default async function MatchPage({ params }: Props) {
                 { label: "Venue", value: match.venue || "TBA" },
                 { label: "Competition", value: match.league.name },
                 { label: "Round", value: match.round || "—" },
-                { label: "Season", value: match.season || "2024/25" },
+                { label: "Season", value: match.league.season || match.season || "—" },
               ].map((item) => (
                 <div key={item.label}>
                   <div className="text-sm font-semibold text-white">{item.value}</div>
