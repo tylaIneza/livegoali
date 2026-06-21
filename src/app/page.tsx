@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Play, Radio, Clock, Calendar, ChevronRight } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { Button } from "@/components/ui/button";
+import { AdBanner } from "@/components/AdBanner";
 import { format, isToday, isTomorrow } from "date-fns";
 import type { Metadata } from "next";
 
@@ -77,6 +78,9 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <div className="max-w-[1400px] mx-auto w-full px-4 pt-2">
+        <AdBanner placement="HEADER" className="h-16 sm:h-20" />
+      </div>
       <main className="flex-1">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
 
@@ -306,6 +310,9 @@ export default async function HomePage() {
 
         </div>
       </main>
+      <div className="max-w-[1400px] mx-auto w-full px-4 pb-2">
+        <AdBanner placement="FOOTER" className="h-16 sm:h-20" />
+      </div>
       <Footer />
     </div>
   );
