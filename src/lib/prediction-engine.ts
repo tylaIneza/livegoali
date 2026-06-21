@@ -217,14 +217,124 @@ const TEAM_RATINGS: Record<string, number> = {
   "bsc young boys": 1585,
 };
 
-// Home advantage in Elo points (~65-75 is historically accurate in football)
+// ── National / International team ratings ────────────────────────────────────
+// Based on FIFA World Rankings + recent tournament performance (2025/2026 era).
+// Used for World Cup, international friendlies, qualifiers, etc.
+const NATIONAL_RATINGS: Record<string, number> = {
+  // Tier 1 — World Cup favourites
+  "argentina": 1975,
+  "france": 1945,
+  "england": 1930,
+  "spain": 1925,
+  "brazil": 1910,
+  "portugal": 1900,
+  "netherlands": 1895,
+  "germany": 1880,
+
+  // Tier 2 — Strong contenders
+  "belgium": 1860,
+  "croatia": 1845,
+  "italy": 1840,
+  "morocco": 1835,
+  "colombia": 1825,
+  "uruguay": 1820,
+  "switzerland": 1815,
+  "denmark": 1800,
+  "united states": 1790,
+  "usa": 1790,
+  "japan": 1785,
+  "senegal": 1780,
+  "mexico": 1775,
+  "austria": 1765,
+  "south korea": 1760,
+  "korea republic": 1760,
+  "serbia": 1755,
+  "ecuador": 1750,
+  "poland": 1745,
+  "canada": 1740,
+  "ukraine": 1735,
+  "turkey": 1725,
+  "sweden": 1730,
+  "hungary": 1720,
+  "wales": 1715,
+  "czech republic": 1710,
+  "czechia": 1710,
+  "scotland": 1705,
+  "norway": 1710,
+  "australia": 1705,
+  "egypt": 1700,
+
+  // Tier 3 — Competitive nations
+  "nigeria": 1695,
+  "ivory coast": 1690,
+  "côte d'ivoire": 1690,
+  "cote d'ivoire": 1690,
+  "chile": 1685,
+  "romania": 1680,
+  "iran": 1670,
+  "south africa": 1665,
+  "algeria": 1660,
+  "cameroon": 1655,
+  "ghana": 1650,
+  "mali": 1645,
+  "greece": 1640,
+  "slovakia": 1640,
+  "russia": 1635,
+  "peru": 1635,
+  "venezuela": 1625,
+  "ireland": 1620,
+  "costa rica": 1615,
+  "tunisia": 1615,
+  "saudi arabia": 1610,
+  "iraq": 1600,
+  "bolivia": 1595,
+  "finland": 1590,
+  "paraguay": 1590,
+  "indonesia": 1565,
+  "new zealand": 1550,
+  "jordan": 1545,
+  "qatar": 1545,
+  "jamaica": 1540,
+  "panama": 1540,
+  "albania": 1535,
+  "north korea": 1500,
+  "rwanda": 1440,
+  "ethiopia": 1420,
+  "zimbabwe": 1410,
+  "tanzania": 1410,
+  "uganda": 1415,
+  "kenya": 1400,
+  "zambia": 1420,
+  "guinea": 1450,
+  "burkina faso": 1445,
+};
+
+// Leagues where matches are at a neutral venue (no home advantage)
+const NEUTRAL_VENUE_KEYWORDS = ["world cup", "euro", "afcon", "copa america", "olympics", "nations league final", "continental"];
+
+// Home advantage in Elo points (~65-75 is historically accurate in club football)
 const HOME_ADVANTAGE = 72;
+
+function isNeutralVenue(leagueName: string): boolean {
+  const lower = leagueName.toLowerCase();
+  return NEUTRAL_VENUE_KEYWORDS.some((k) => lower.includes(k));
+}
 
 function lookupTeamRating(name: string): number | null {
   const key = name.toLowerCase().trim();
+
+  // Check national teams first (more specific match needed to avoid false positives)
+  if (NATIONAL_RATINGS[key] !== undefined) return NATIONAL_RATINGS[key];
+
+  // Then club teams
   if (TEAM_RATINGS[key] !== undefined) return TEAM_RATINGS[key];
 
-  // Partial match: check if DB name contains a known key or vice versa
+  // Partial match on national teams
+  for (const [k, v] of Object.entries(NATIONAL_RATINGS)) {
+    if (key === k || key.includes(k) || k.includes(key)) return v;
+  }
+
+  // Partial match on club teams
   for (const [k, v] of Object.entries(TEAM_RATINGS)) {
     if (key.includes(k) || k.includes(key)) return v;
   }
@@ -232,7 +342,20 @@ function lookupTeamRating(name: string): number | null {
   return null;
 }
 
-function teamTierLabel(rating: number): string {
+function isNationalTeam(name: string): boolean {
+  const key = name.toLowerCase().trim();
+  return Object.keys(NATIONAL_RATINGS).some((k) => key === k || key.includes(k) || k.includes(key));
+}
+
+function teamTierLabel(rating: number, international: boolean): string {
+  if (international) {
+    if (rating >= 1920) return "world-class favourite";
+    if (rating >= 1840) return "top-10 nation";
+    if (rating >= 1760) return "strong contender";
+    if (rating >= 1680) return "competitive nation";
+    if (rating >= 1580) return "developing nation";
+    return "underdog nation";
+  }
   if (rating >= 1900) return "world-class";
   if (rating >= 1820) return "Champions League elite";
   if (rating >= 1750) return "top European";
@@ -242,8 +365,8 @@ function teamTierLabel(rating: number): string {
 }
 
 // Convert Elo ratings to win/draw/loss probabilities
-function eloProbabilities(homeRating: number, awayRating: number) {
-  const diff = homeRating + HOME_ADVANTAGE - awayRating;
+function eloProbabilities(homeRating: number, awayRating: number, homeAdv: number) {
+  const diff = homeRating + homeAdv - awayRating;
 
   // Logistic Elo expected score
   const homeExpect = 1 / (1 + Math.pow(10, -diff / 400));
@@ -262,9 +385,16 @@ function eloProbabilities(homeRating: number, awayRating: number) {
   };
 }
 
-// Expected goals from rating differential
+// International matches score fewer goals on average (1.15/game vs 1.38 for clubs)
+function ratingToXGIntl(attackerRating: number, defenderRating: number): number {
+  const base = 1.15;
+  const diff = (attackerRating - defenderRating) / 400;
+  return Math.max(0.25, parseFloat((base + diff * 0.75).toFixed(2)));
+}
+
+// Expected goals from rating differential (club matches)
 function ratingToXG(attackerRating: number, defenderRating: number): number {
-  const base = 1.38; // average top-flight goals per game per team
+  const base = 1.38;
   const diff = (attackerRating - defenderRating) / 400;
   return Math.max(0.35, parseFloat((base + diff * 0.9).toFixed(2)));
 }
@@ -331,38 +461,50 @@ export async function generateAIPrediction(matchId: string) {
   if (!match) throw new Error("Match not found");
 
   const [homeForm, awayForm, h2h] = await Promise.all([
-    getTeamRecentForm(match.homeTeamId, 5),
-    getTeamRecentForm(match.awayTeamId, 5),
+    getTeamRecentForm(match.homeTeamId, 6),
+    getTeamRecentForm(match.awayTeamId, 6),
     getH2HStats(match.homeTeamId, match.awayTeamId),
   ]);
 
-  // Base ratings from the knowledge table
-  const homeBaseRating = lookupTeamRating(match.homeTeam.name) ?? 1550;
-  const awayBaseRating = lookupTeamRating(match.awayTeam.name) ?? 1550;
+  // Detect if this is an international / World Cup match
+  const neutral = isNeutralVenue(match.league.name);
+  const international = neutral ||
+    isNationalTeam(match.homeTeam.name) ||
+    isNationalTeam(match.awayTeam.name);
+  const homeAdv = neutral ? 0 : HOME_ADVANTAGE; // no home advantage at neutral venues
 
-  // Adjust ratings by recent form (+15 per win, -15 per loss)
+  // Base ratings — national team table takes priority for international matches
+  const homeBaseRating = lookupTeamRating(match.homeTeam.name) ??
+    (international ? 1580 : 1550);
+  const awayBaseRating = lookupTeamRating(match.awayTeam.name) ??
+    (international ? 1580 : 1550);
+
+  // Form adjustment: international form counts slightly more (fewer games played)
+  const formWeight = international ? 20 : 15;
   const formAdj = (stats: TeamStats) =>
-    stats.played > 0 ? (stats.wins - stats.losses) * 15 : 0;
+    stats.played > 0 ? (stats.wins - stats.losses) * formWeight : 0;
 
   let homeRating = homeBaseRating + formAdj(homeForm);
   let awayRating = awayBaseRating + formAdj(awayForm);
 
-  // H2H adjustment (only when enough games to be meaningful)
+  // H2H adjustment (only when enough head-to-heads exist)
   if (h2h.total >= 3) {
     const h2hDelta = ((h2h.homeWins - h2h.awayWins) / h2h.total) * 30;
     homeRating += h2hDelta;
     awayRating -= h2hDelta;
   }
 
-  const probs = eloProbabilities(homeRating, awayRating);
-  const expectedHomeGoals = ratingToXG(homeRating, awayRating);
-  const expectedAwayGoals = ratingToXG(awayRating, homeRating);
+  const probs = eloProbabilities(homeRating, awayRating, homeAdv);
+  const xgFn = international ? ratingToXGIntl : ratingToXG;
+  const expectedHomeGoals = xgFn(homeRating, awayRating);
+  const expectedAwayGoals = xgFn(awayRating, homeRating);
 
-  // Confidence: 65% baseline if both teams are in our knowledge base, boosted by local data
+  // Confidence: known teams = 65% base, international = +5% (more predictable patterns)
   const knownTeams = lookupTeamRating(match.homeTeam.name) !== null &&
                      lookupTeamRating(match.awayTeam.name) !== null;
   const dataQuality = Math.min((homeForm.played + awayForm.played + h2h.total) / 15, 1);
-  const confidence = parseFloat(((knownTeams ? 65 : 50) + dataQuality * 20).toFixed(2));
+  const baseConf = knownTeams ? (international ? 70 : 65) : 50;
+  const confidence = parseFloat((baseConf + dataQuality * 20).toFixed(2));
 
   let recommendation: "HOME_WIN" | "DRAW" | "AWAY_WIN";
   if (probs.homeWin >= probs.awayWin && probs.homeWin >= probs.draw) {
@@ -380,6 +522,8 @@ export async function generateAIPrediction(matchId: string) {
     recommendation,
     expectedHomeGoals, expectedAwayGoals,
     probs,
+    international,
+    neutral,
   );
 
   return prisma.prediction.upsert({
@@ -416,50 +560,68 @@ function buildExplanation(
   recommendation: string,
   xgHome: number, xgAway: number,
   probs: { homeWin: number; draw: number; awayWin: number },
+  international: boolean,
+  neutral: boolean,
 ): string {
   const parts: string[] = [];
-
-  // Team quality description
-  const homeTier = teamTierLabel(homeBase);
-  const awayTier = teamTierLabel(awayBase);
   const ratingDiff = homeBase - awayBase;
+  const homeTier = teamTierLabel(homeBase, international);
+  const awayTier = teamTierLabel(awayBase, international);
 
-  if (Math.abs(ratingDiff) >= 150) {
+  // Opening — quality comparison
+  if (Math.abs(ratingDiff) >= 200) {
     const stronger = ratingDiff > 0 ? home : away;
     const weaker = ratingDiff > 0 ? away : home;
     const strongerTier = ratingDiff > 0 ? homeTier : awayTier;
-    parts.push(`${stronger} (${strongerTier} side) are significantly stronger than ${weaker} on paper, with a rating gap of ${Math.abs(ratingDiff)} points.`);
-  } else if (Math.abs(ratingDiff) >= 60) {
+    parts.push(`${stronger} are a ${strongerTier} and hold a clear advantage over ${weaker} on the world stage.`);
+  } else if (Math.abs(ratingDiff) >= 80) {
     const edge = ratingDiff > 0 ? home : away;
-    parts.push(`${edge} hold a moderate quality edge, though both sides are evenly matched enough to make this competitive.`);
+    parts.push(`${edge} have a moderate quality edge but ${ratingDiff > 0 ? away : home} are capable of causing an upset.`);
   } else {
-    parts.push(`${home} and ${away} are closely matched — this is expected to be a tight contest.`);
+    parts.push(`${home} and ${away} are closely matched ${international ? "nations" : "sides"} — expect a tight and competitive match.`);
   }
 
-  // Form
+  // Neutral venue note
+  if (neutral) {
+    parts.push(`Playing at a neutral venue removes any home advantage from the equation.`);
+  }
+
+  // Recent form from this platform's recorded results
   if (homeForm.played > 0) {
     const pts = homeForm.wins * 3 + homeForm.draws;
     const max = homeForm.played * 3;
-    parts.push(`${home} earned ${pts}/${max} points in their last ${homeForm.played} games.`);
+    const formStr = homeForm.wins > homeForm.losses ? "good recent form" : homeForm.wins < homeForm.losses ? "poor recent form" : "inconsistent form";
+    parts.push(`${home} are in ${formStr} (${pts}/${max} pts from last ${homeForm.played} games).`);
   }
   if (awayForm.played > 0) {
     const pts = awayForm.wins * 3 + awayForm.draws;
     const max = awayForm.played * 3;
-    parts.push(`${away} earned ${pts}/${max} points in their last ${awayForm.played} games.`);
+    const formStr = awayForm.wins > awayForm.losses ? "good recent form" : awayForm.wins < awayForm.losses ? "poor recent form" : "inconsistent form";
+    parts.push(`${away} are in ${formStr} (${pts}/${max} pts from last ${awayForm.played} games).`);
   }
 
   // H2H
   if (h2h.total >= 3) {
-    parts.push(`Head-to-head (last ${h2h.total}): ${home} ${h2h.homeWins}W – ${h2h.draws}D – ${h2h.awayWins}W ${away}.`);
+    const dominant = h2h.homeWins > h2h.awayWins ? home : h2h.awayWins > h2h.homeWins ? away : null;
+    if (dominant) {
+      parts.push(`History favours ${dominant} — they lead the head-to-head ${h2h.homeWins > h2h.awayWins ? h2h.homeWins : h2h.awayWins}–${h2h.homeWins > h2h.awayWins ? h2h.awayWins : h2h.homeWins} (${h2h.draws} draws) in the last ${h2h.total} meetings.`);
+    } else {
+      parts.push(`The head-to-head is evenly balanced over the last ${h2h.total} meetings (${h2h.homeWins}W–${h2h.draws}D–${h2h.awayWins}W).`);
+    }
   }
 
   // xG and verdict
-  parts.push(`xG projection: ${home} ${xgHome.toFixed(1)} – ${xgAway.toFixed(1)} ${away}.`);
+  parts.push(`Expected goals: ${home} ${xgHome.toFixed(1)} – ${xgAway.toFixed(1)} ${away}.`);
 
-  const recLabel = recommendation === "HOME_WIN" ? `${home} to win (${probs.homeWin.toFixed(0)}%)`
-    : recommendation === "AWAY_WIN" ? `${away} to win (${probs.awayWin.toFixed(0)}%)`
+  const context = international
+    ? (neutral ? "tournament form, FIFA ranking, and H2H record" : "FIFA ranking, home support, form, and H2H record")
+    : "team quality, home advantage, recent form, and H2H record";
+  const recLabel = recommendation === "HOME_WIN"
+    ? `${home} to win (${probs.homeWin.toFixed(0)}%)`
+    : recommendation === "AWAY_WIN"
+    ? `${away} to win (${probs.awayWin.toFixed(0)}%)`
     : `a draw (${probs.draw.toFixed(0)}%)`;
-  parts.push(`Our model predicts ${recLabel}, factoring in team quality, home advantage, form, and H2H record.`);
+  parts.push(`Our model predicts ${recLabel}, based on ${context}.`);
 
   return parts.join(" ");
 }
