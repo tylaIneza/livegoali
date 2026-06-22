@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { Users, Radio, TrendingUp, MessageSquare, Eye, Globe } from "lucide-react";
+import { Users, Radio, Timer, MessageSquare, Eye, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LiveViewersWidget } from "@/components/admin/LiveViewersWidget";
 import { ActiveMatchesWidget } from "@/components/admin/ActiveMatchesWidget";
@@ -12,7 +12,7 @@ async function getAdminStats() {
 
   const [
     totalUsers, liveMatches, totalMatches, totalNews,
-    totalPredictions, totalComments,
+    watchtimeSetting, totalComments,
     siteVisitsTotal, siteVisitsToday,
     topMatches,
     recentUsers,
@@ -21,7 +21,7 @@ async function getAdminStats() {
     prisma.match.count({ where: { status: { in: ["LIVE", "HALFTIME"] } } }),
     prisma.match.count(),
     prisma.news.count(),
-    prisma.predictionEntry.count(),
+    prisma.settings.findUnique({ where: { key: "total_watch_seconds" } }).catch(() => null),
     prisma.comment.count({ where: { isDeleted: false } }),
     prisma.settings.findUnique({ where: { key: "site_visits_total" } }),
     prisma.settings.findUnique({ where: { key: `site_visits_${today}` } }),
@@ -62,8 +62,17 @@ async function getAdminStats() {
     allMatchNames[m.id] = `${m.homeTeam.shortName || m.homeTeam.name} vs ${m.awayTeam.shortName || m.awayTeam.name}`;
   }
 
+  const totalWatchSeconds = parseInt(watchtimeSetting?.value ?? "0") || 0;
+  const watchHours = Math.floor(totalWatchSeconds / 3600);
+  function fmtHours(h: number) {
+    if (h >= 1_000_000) return `${+(h / 1_000_000).toFixed(1)}M`;
+    if (h >= 1_000) return `${+(h / 1_000).toFixed(1)}k`;
+    return String(h);
+  }
+
   return {
-    totalUsers, liveMatches, totalMatches, totalNews, totalPredictions, totalComments,
+    totalUsers, liveMatches, totalMatches, totalNews, totalComments,
+    watchHoursFormatted: fmtHours(watchHours),
     siteVisitsTotal: parseInt(siteVisitsTotal?.value ?? "0"),
     siteVisitsToday: parseInt(siteVisitsToday?.value ?? "0"),
     topMatches, activeMatches, recentUsers, allMatchNames,
@@ -80,7 +89,7 @@ export default async function AdminDashboard() {
     { label: "Live Matches", value: stats.liveMatches, icon: Radio, color: "text-red-400", bg: "bg-red-400/10", highlight: true },
     { label: "Site Visits", value: stats.siteVisitsTotal, sub: `+${stats.siteVisitsToday} today`, icon: Globe, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
     { label: "Match Views", value: totalMatchViews, icon: Eye, color: "text-purple-400", bg: "bg-purple-400/10" },
-    { label: "Predictions", value: stats.totalPredictions, icon: TrendingUp, color: "text-orange-400", bg: "bg-orange-400/10" },
+    { label: "Watchtime", value: stats.watchHoursFormatted, icon: Timer, color: "text-orange-400", bg: "bg-orange-400/10", sub: "hours watched" },
     { label: "Comments", value: stats.totalComments, icon: MessageSquare, color: "text-pink-400", bg: "bg-pink-400/10" },
   ];
 

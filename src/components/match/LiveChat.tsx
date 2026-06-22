@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Send, Lock } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatTimeAgo } from "@/lib/utils";
+import { getSocket } from "@/lib/socketClient";
 
 interface ChatMessage {
   id: string;
@@ -21,64 +22,74 @@ interface ChatMessage {
   };
 }
 
+type SessionUser = {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role?: string;
+  isVIP?: boolean;
+};
+
 export function LiveChat({ matchId }: { matchId: string }) {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const lastTimestamp = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const fetchMessages = useCallback(async () => {
-    try {
-      const url = lastTimestamp.current
-        ? `/api/chat?matchId=${matchId}&after=${encodeURIComponent(lastTimestamp.current)}`
-        : `/api/chat?matchId=${matchId}`;
-      const res = await fetch(url);
-      if (!res.ok) return;
-      const data: ChatMessage[] = await res.json();
-      if (data.length > 0) {
-        setMessages((prev) =>
-          lastTimestamp.current ? [...prev, ...data] : data
-        );
-        lastTimestamp.current = data[data.length - 1].createdAt;
-      }
-    } catch {}
+  useEffect(() => {
+    const socket = getSocket();
+    const user = session?.user as SessionUser | undefined;
+
+    const join = () => socket.emit("join-match", { matchId, userId: user?.id });
+    join();
+    socket.on("connect", join);
+
+    socket.on("chat-history", (history: ChatMessage[]) => {
+      setMessages(history);
+    });
+
+    socket.on("chat-message", (msg: ChatMessage) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+    });
+
+    return () => {
+      socket.off("connect", join);
+      socket.off("chat-history");
+      socket.off("chat-message");
+      socket.emit("leave-match", matchId);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
-  // Initial load + poll every 3 seconds
-  useEffect(() => {
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 3000);
-    return () => clearInterval(interval);
-  }, [fetchMessages]);
-
-  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!input.trim() || !session || sending) return;
-    const content = input.trim();
-    setInput("");
+    const user = session.user as SessionUser;
+    if (!user?.id) return;
+
+    const socket = getSocket();
     setSending(true);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matchId, content }),
-      });
-      if (res.ok) {
-        const msg: ChatMessage = await res.json();
-        setMessages((prev) => [...prev, msg]);
-        lastTimestamp.current = msg.createdAt;
-      }
-    } catch {} finally {
-      setSending(false);
-      inputRef.current?.focus();
-    }
+    socket.emit("send-message", {
+      matchId,
+      content: input.trim(),
+      userId: user.id,
+      userName: user.name,
+      userImage: user.image,
+      userRole: user.role,
+      isVIP: user.isVIP,
+    });
+    setInput("");
+    setSending(false);
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -90,21 +101,17 @@ export function LiveChat({ matchId }: { matchId: string }) {
 
   return (
     <div className="flex flex-col h-full rounded-xl border border-white/8 bg-[#121821] overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-white/8">
         <h3 className="text-sm font-bold text-white">Live Chat</h3>
         <div className="flex items-center gap-1.5">
           <div className="w-2 h-2 rounded-full bg-[#00FF84] live-pulse" />
-          <span className="text-xs text-gray-500">Live</span>
+          <span className="text-xs text-[#00FF84]">Live</span>
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2 min-h-[400px] max-h-[400px]">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-500 text-xs py-8">
-            Be the first to chat!
-          </div>
+          <div className="text-center text-gray-500 text-xs py-8">Be the first to chat!</div>
         ) : (
           messages.map((msg) => (
             <div key={msg.id} className="flex gap-2">
@@ -141,7 +148,6 @@ export function LiveChat({ matchId }: { matchId: string }) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       {session ? (
         <div className="p-3 border-t border-white/8">
           <div className="flex gap-2">

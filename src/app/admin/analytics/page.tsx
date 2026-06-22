@@ -1,28 +1,38 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { BarChart3, Users, MessageSquare, TrendingUp, Eye, Trophy } from "lucide-react";
+import { BarChart3, Users, MessageSquare, Timer, Eye, Trophy } from "lucide-react";
 
 export default async function AdminAnalyticsPage() {
   const [
     totalUsers, newUsersToday, liveMatches, totalMatches,
-    totalComments, totalPredictions, totalNews, totalViews,
+    totalComments, watchtimeSetting, totalNews, totalViews,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } } }),
     prisma.match.count({ where: { status: { in: ["LIVE","HALFTIME"] } } }),
     prisma.match.count(),
     prisma.comment.count({ where: { isDeleted: false } }),
-    prisma.predictionEntry.count(),
+    prisma.settings.findUnique({ where: { key: "total_watch_seconds" } }).catch(() => null),
     prisma.news.count({ where: { isPublished: true } }),
     prisma.news.aggregate({ _sum: { views: true } }),
   ]);
+
+  function formatWatchHours(hours: number): string {
+    if (hours >= 1_000_000) return `${+(hours / 1_000_000).toFixed(1)}M`;
+    if (hours >= 1_000) return `${+(hours / 1_000).toFixed(1)}k`;
+    return String(hours);
+  }
+
+  const totalWatchSeconds = watchtimeSetting ? parseInt(watchtimeSetting.value, 10) || 0 : 0;
+  const watchHours = Math.floor(totalWatchSeconds / 3600);
+  const watchFormatted = formatWatchHours(watchHours);
 
   const stats = [
     { label: "Total Users", value: totalUsers, sub: `+${newUsersToday} today`, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
     { label: "Live Matches", value: liveMatches, sub: `${totalMatches} total`, icon: Trophy, color: "text-red-400", bg: "bg-red-500/10" },
     { label: "Comments", value: totalComments, sub: "All time", icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10" },
-    { label: "Predictions", value: totalPredictions, sub: "Submitted", icon: TrendingUp, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
+    { label: "Watchtime", value: `${watchFormatted}h`, sub: "Combined hours", icon: Timer, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
     { label: "Articles", value: totalNews, sub: "Published", icon: BarChart3, color: "text-yellow-400", bg: "bg-yellow-500/10" },
     { label: "Article Views", value: totalViews._sum.views ?? 0, sub: "Total reads", icon: Eye, color: "text-pink-400", bg: "bg-pink-500/10" },
   ];

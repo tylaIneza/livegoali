@@ -14,11 +14,48 @@ const io = new Server(httpServer, {
   transports: ["websocket", "polling"],
 });
 
-// Room: match-{matchId}
-io.on("connection", (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
+async function broadcastMatchViewers(matchId: string) {
+  const room = `match-${matchId}`;
+  const sockets = await io.in(room).fetchSockets();
+  const users = sockets.filter((s) => s.data.userId).length;
+  io.to(room).emit("viewer-count", {
+    total: sockets.length,
+    users,
+    guests: sockets.length - users,
+  });
+}
 
-  socket.on("join-match", async (matchId: string) => {
+async function broadcastGlobalViewers() {
+  const rooms = [...io.sockets.adapter.rooms.keys()].filter((r) => r.startsWith("match-"));
+  const data: { matchId: string; total: number; users: number; guests: number }[] = [];
+  for (const room of rooms) {
+    const sockets = await io.in(room).fetchSockets();
+    if (sockets.length === 0) continue;
+    const users = sockets.filter((s) => s.data.userId).length;
+    data.push({
+      matchId: room.replace("match-", ""),
+      total: sockets.length,
+      users,
+      guests: sockets.length - users,
+    });
+  }
+  io.to("global").emit("viewer-update", data);
+}
+
+io.on("connection", (socket) => {
+  // Admin/global widgets join this room to get live viewer data
+  socket.on("join-global", async () => {
+    socket.join("global");
+    await broadcastGlobalViewers();
+  });
+
+  socket.on("join-match", async (data: string | { matchId: string; userId?: string }) => {
+    const matchId = typeof data === "string" ? data : data.matchId;
+    const userId = typeof data === "object" ? (data.userId ?? null) : null;
+
+    socket.data.matchId = matchId;
+    socket.data.userId = userId;
+
     const room = `match-${matchId}`;
     socket.join(room);
 
@@ -43,13 +80,14 @@ io.on("connection", (socket) => {
       console.error("Failed to load chat history:", err);
     }
 
-    // Track active viewers
-    const sockets = await io.in(room).fetchSockets();
-    io.to(room).emit("viewer-count", sockets.length);
+    await broadcastMatchViewers(matchId);
+    await broadcastGlobalViewers();
   });
 
-  socket.on("leave-match", (matchId: string) => {
+  socket.on("leave-match", async (matchId: string) => {
     socket.leave(`match-${matchId}`);
+    await broadcastMatchViewers(matchId);
+    await broadcastGlobalViewers();
   });
 
   socket.on("send-message", async (data: {
@@ -61,11 +99,9 @@ io.on("connection", (socket) => {
     userRole?: string;
     isVIP?: boolean;
   }) => {
-    const { matchId, content, userId, userName, userImage, userRole, isVIP } = data;
-
+    const { matchId, content, userId } = data;
     if (!content?.trim() || !userId) return;
 
-    // Anti-spam: basic rate limiting per socket
     const now = Date.now();
     const lastMsg = (socket as unknown as { lastMessage?: number }).lastMessage || 0;
     if (now - lastMsg < 1000) {
@@ -76,18 +112,13 @@ io.on("connection", (socket) => {
 
     try {
       const message = await prisma.liveChatMessage.create({
-        data: {
-          matchId,
-          userId,
-          content: content.trim().slice(0, 200),
-        },
+        data: { matchId, userId, content: content.trim().slice(0, 200) },
         include: {
           user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
         },
       });
 
-      const room = `match-${matchId}`;
-      io.to(room).emit("chat-message", {
+      io.to(`match-${matchId}`).emit("chat-message", {
         id: message.id,
         content: message.content,
         createdAt: message.createdAt.toISOString(),
@@ -98,7 +129,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Admin: broadcast match event
   socket.on("match-event", (data: {
     matchId: string;
     type: string;
@@ -106,11 +136,10 @@ io.on("connection", (socket) => {
     playerName?: string;
     description?: string;
   }) => {
-    const room = `match-${data.matchId}`;
-    io.to(room).emit("match-event", data);
+    io.to(`match-${data.matchId}`).emit("match-event", data);
+    io.to("global").emit("match-updated", { matchId: data.matchId });
   });
 
-  // Admin: update score
   socket.on("score-update", (data: {
     matchId: string;
     homeScore: number;
@@ -118,17 +147,16 @@ io.on("connection", (socket) => {
     matchMinute: number;
     status: string;
   }) => {
-    const room = `match-${data.matchId}`;
-    io.to(room).emit("score-update", data);
+    io.to(`match-${data.matchId}`).emit("score-update", data);
+    io.to("global").emit("match-updated", { matchId: data.matchId });
   });
 
   socket.on("disconnect", async () => {
-    // Update viewer counts for all rooms this socket was in
-    const rooms = [...socket.rooms].filter((r) => r.startsWith("match-"));
-    for (const room of rooms) {
-      const sockets = await io.in(room).fetchSockets();
-      io.to(room).emit("viewer-count", sockets.length);
+    const matchId = socket.data.matchId as string | undefined;
+    if (matchId) {
+      await broadcastMatchViewers(matchId);
     }
+    await broadcastGlobalViewers();
   });
 });
 

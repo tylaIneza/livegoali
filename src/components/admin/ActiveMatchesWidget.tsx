@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Activity, Eye } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSocket } from "@/lib/socketClient";
 
 interface Match {
   id: string;
@@ -25,27 +26,44 @@ export function ActiveMatchesWidget() {
   const [viewers, setViewers] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
-  const fetchAll = async () => {
-    const [matchRes, viewerRes] = await Promise.allSettled([
-      fetch("/api/matches?status=LIVE&take=8").then((r) => r.json()),
-      fetch("/api/viewers").then((r) => r.json()),
-    ]);
-
-    if (matchRes.status === "fulfilled") {
-      setMatches(Array.isArray(matchRes.value) ? matchRes.value : []);
-    }
-    if (viewerRes.status === "fulfilled" && Array.isArray(viewerRes.value)) {
-      const map: Record<string, number> = {};
-      (viewerRes.value as ViewerData[]).forEach((v) => { map[v.matchId] = v.total; });
-      setViewers(map);
+  const fetchMatches = async () => {
+    const res = await fetch("/api/matches?status=LIVE&take=8").catch(() => null);
+    if (res?.ok) {
+      const data = await res.json();
+      setMatches(Array.isArray(data) ? data : []);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchAll();
-    const interval = setInterval(fetchAll, 10_000);
-    return () => clearInterval(interval);
+    fetchMatches();
+
+    const socket = getSocket();
+
+    const joinGlobal = () => socket.emit("join-global");
+    joinGlobal();
+    socket.on("connect", joinGlobal);
+
+    socket.on("viewer-update", (d: ViewerData[]) => {
+      const map: Record<string, number> = {};
+      d.forEach((v) => { map[v.matchId] = v.total; });
+      setViewers(map);
+    });
+
+    socket.on("match-updated", () => {
+      fetchMatches();
+    });
+
+    // Light fallback poll every 60s for match list changes
+    const interval = setInterval(fetchMatches, 60_000);
+
+    return () => {
+      socket.off("connect", joinGlobal);
+      socket.off("viewer-update");
+      socket.off("match-updated");
+      clearInterval(interval);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const totalLiveViewers = Object.values(viewers).reduce((s, n) => s + n, 0);
@@ -99,7 +117,7 @@ export function ActiveMatchesWidget() {
                     }`}>{match.status}</span>
                     <span className={`text-xs flex items-center gap-1 font-medium ${liveCount > 0 ? "text-[#00FF84]" : "text-gray-600"}`}>
                       <Eye className="w-3 h-3" />
-                      {liveCount > 0 ? liveCount : "0"}
+                      {liveCount}
                     </span>
                   </div>
                 </div>
@@ -107,7 +125,10 @@ export function ActiveMatchesWidget() {
             })}
           </div>
         )}
-        <p className="text-[10px] text-gray-700 mt-3">Refreshes every 10 seconds</p>
+        <p className="text-[10px] text-[#00FF84] mt-3 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] animate-pulse" />
+          Live updates via WebSocket
+        </p>
       </CardContent>
     </Card>
   );

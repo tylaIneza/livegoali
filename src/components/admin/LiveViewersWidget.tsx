@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Radio, UserCheck, UserX, Eye } from "lucide-react";
+import { getSocket } from "@/lib/socketClient";
 
 interface MatchViewers {
   matchId: string;
@@ -12,29 +13,29 @@ interface MatchViewers {
 
 export function LiveViewersWidget() {
   const [data, setData] = useState<MatchViewers[]>([]);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-
-  const fetchViewers = () => {
-    fetch("/api/viewers")
-      .then((r) => r.json())
-      .then((d: MatchViewers[]) => {
-        setData(Array.isArray(d) ? d : []);
-        setLastUpdated(new Date());
-      })
-      .catch(() => {});
-  };
 
   useEffect(() => {
-    fetchViewers();
-    const interval = setInterval(fetchViewers, 10_000);
-    return () => clearInterval(interval);
+    const socket = getSocket();
+
+    const joinGlobal = () => socket.emit("join-global");
+    joinGlobal();
+    socket.on("connect", joinGlobal);
+
+    socket.on("viewer-update", (d: MatchViewers[]) => {
+      setData(Array.isArray(d) ? d : []);
+    });
+
+    return () => {
+      socket.off("connect", joinGlobal);
+      socket.off("viewer-update");
+    };
   }, []);
 
   const total = data.reduce((s, m) => s + m.total, 0);
   const totalUsers = data.reduce((s, m) => s + m.users, 0);
   const totalGuests = data.reduce((s, m) => s + m.guests, 0);
 
-  const formatCount = (n: number) => {
+  const fmt = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
     return n.toString();
@@ -47,23 +48,20 @@ export function LiveViewersWidget() {
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 live-pulse shrink-0" />
           <span className="text-sm font-semibold text-white">Live Viewers</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-gray-600">
-          <span className="w-1.5 h-1.5 rounded-full bg-gray-700 animate-pulse" />
-          Refreshes every 10s
-          {lastUpdated && <span className="ml-1">· {lastUpdated.toLocaleTimeString()}</span>}
+        <div className="flex items-center gap-1.5 text-[10px] text-[#00FF84]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] animate-pulse" />
+          Real-time
         </div>
       </div>
 
-      {/* YouTube-style total count */}
       <div className="flex items-end gap-3 mb-4">
         <div className="flex items-center gap-2">
           <Eye className="w-7 h-7 text-red-400 shrink-0" />
-          <span className="text-5xl font-black text-white leading-none">{formatCount(total)}</span>
+          <span className="text-5xl font-black text-white leading-none">{fmt(total)}</span>
         </div>
         <span className="text-gray-500 text-sm mb-1">watching now</span>
       </div>
 
-      {/* Breakdown bar */}
       {total > 0 && (
         <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden mb-3">
           <div
@@ -73,17 +71,16 @@ export function LiveViewersWidget() {
         </div>
       )}
 
-      {/* User / Guest split */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
           <UserCheck className="w-3.5 h-3.5 text-[#00FF84]" />
-          <span className="text-lg font-bold text-[#00FF84]">{formatCount(totalUsers)}</span>
+          <span className="text-lg font-bold text-[#00FF84]">{fmt(totalUsers)}</span>
           <span className="text-xs text-gray-500">signed in</span>
         </div>
         <div className="w-px h-4 bg-white/10" />
         <div className="flex items-center gap-1.5">
           <UserX className="w-3.5 h-3.5 text-yellow-400" />
-          <span className="text-lg font-bold text-yellow-400">{formatCount(totalGuests)}</span>
+          <span className="text-lg font-bold text-yellow-400">{fmt(totalGuests)}</span>
           <span className="text-xs text-gray-500">guests</span>
         </div>
         {data.length > 0 && (

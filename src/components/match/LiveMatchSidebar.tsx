@@ -5,6 +5,7 @@ import { MessageSquare, TrendingUp, Clock } from "lucide-react";
 import { LiveChat } from "@/components/match/LiveChat";
 import { CommentSection } from "@/components/match/CommentSection";
 import { cn } from "@/lib/utils";
+import { getSocket } from "@/lib/socketClient";
 
 interface SidebarProps {
   matchId: string;
@@ -58,7 +59,6 @@ export function LiveMatchSidebar({
   const [prediction, setPrediction] = useState(initialPrediction);
   const [events, setEvents] = useState(initialEvents);
 
-  // Refresh prediction every 60 seconds
   const fetchPrediction = useCallback(async () => {
     try {
       const res = await fetch(`/api/predictions?matchId=${matchId}`);
@@ -69,22 +69,29 @@ export function LiveMatchSidebar({
     } catch {}
   }, [matchId]);
 
-  // Refresh events (commentary) every 30 seconds
-  const fetchEvents = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/matches/${matchId}/events`);
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) setEvents(data);
-      }
-    } catch {}
-  }, [matchId]);
-
   useEffect(() => {
+    const socket = getSocket();
+
+    // Receive new match events instantly via socket
+    socket.on("match-event", (event: {
+      id?: string; type: string; minute: number;
+      playerName?: string; teamId?: string; description?: string;
+    }) => {
+      setEvents((prev) => {
+        const newEvent = { id: event.id || `${Date.now()}`, ...event, teamId: event.teamId ?? null, playerName: event.playerName ?? null, description: event.description ?? null };
+        if (prev.some((e) => e.id === newEvent.id)) return prev;
+        return [newEvent, ...prev];
+      });
+    });
+
+    // Keep prediction refresh at 60s (predictions don't go through socket)
     const predInterval = setInterval(fetchPrediction, 60_000);
-    const eventsInterval = setInterval(fetchEvents, 30_000);
-    return () => { clearInterval(predInterval); clearInterval(eventsInterval); };
-  }, [fetchPrediction, fetchEvents]);
+
+    return () => {
+      socket.off("match-event");
+      clearInterval(predInterval);
+    };
+  }, [fetchPrediction]);
 
   const tabs: Array<{ id: Tab; label: string; icon: React.ComponentType<{className?: string}> }> = [
     ...(enableChat ? [{ id: "chat" as Tab, label: "Live Chat", icon: MessageSquare }] : []),
