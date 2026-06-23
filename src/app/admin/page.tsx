@@ -16,6 +16,7 @@ async function getAdminStats() {
     siteVisitsTotal, siteVisitsToday,
     topMatches,
     recentUsers,
+    totalViewsAgg,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.match.count({ where: { status: { in: ["LIVE", "HALFTIME"] } } }),
@@ -41,6 +42,7 @@ async function getAdminStats() {
       take: 5,
       select: { id: true, name: true, email: true, image: true, role: true, createdAt: true },
     }),
+    prisma.match.aggregate({ _sum: { views: true, userViews: true, anonViews: true } }),
   ]);
 
   // Also fetch live matches for active matches section
@@ -76,19 +78,21 @@ async function getAdminStats() {
     siteVisitsTotal: parseInt(siteVisitsTotal?.value ?? "0"),
     siteVisitsToday: parseInt(siteVisitsToday?.value ?? "0"),
     topMatches, activeMatches, recentUsers, allMatchNames,
+    totalMatchViews: totalViewsAgg._sum.views ?? 0,
+    totalUserViews: totalViewsAgg._sum.userViews ?? 0,
+    totalAnonViews: totalViewsAgg._sum.anonViews ?? 0,
   };
 }
 
 export default async function AdminDashboard() {
   const [session, stats] = await Promise.all([auth(), getAdminStats()]);
 
-  const totalMatchViews = stats.topMatches.reduce((s, m) => s + (m.views ?? 0), 0);
 
   const statCards = [
     { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-blue-400", bg: "bg-blue-400/10" },
     { label: "Live Matches", value: stats.liveMatches, icon: Radio, color: "text-red-400", bg: "bg-red-400/10", highlight: true },
     { label: "Site Visits", value: stats.siteVisitsTotal, sub: `+${stats.siteVisitsToday} today`, icon: Globe, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
-    { label: "Match Views", value: totalMatchViews, icon: Eye, color: "text-purple-400", bg: "bg-purple-400/10" },
+    { label: "Match Views", value: stats.totalMatchViews, icon: Eye, color: "text-purple-400", bg: "bg-purple-400/10" },
     { label: "Watchtime", value: stats.watchHoursFormatted, icon: Timer, color: "text-orange-400", bg: "bg-orange-400/10", sub: "hours watched" },
     { label: "Comments", value: stats.totalComments, icon: MessageSquare, color: "text-pink-400", bg: "bg-pink-400/10" },
   ];
@@ -130,36 +134,51 @@ export default async function AdminDashboard() {
       {/* Live viewers */}
       <LiveViewersWidget />
 
-      {/* Match views table — removed per user request */}
-      {false && stats.topMatches.length > 0 && (
-        <div>
-          <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
-                  <th className="px-4 py-3 text-left">Match</th>
-                  <th className="px-4 py-3 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {stats.topMatches.map((m) => (
-                  <tr key={m.id} className="hover:bg-white/2 transition-colors">
-                    <td className="px-4 py-3">
-                      <p className="text-sm font-medium text-white">
-                        {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
-                      </p>
-                      <p className="text-xs text-gray-600">{m.league.name}</p>
-                    </td>
-                    <td className="px-4 py-3 text-right font-bold text-white">{m.views.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-[#00FF84]">{m.userViews.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-yellow-400">{m.anonViews.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Match Views Table */}
+      <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-purple-400" />
+            <span className="text-sm font-semibold text-white">Match Views</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-gray-500">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#00FF84]" /> {stats.totalUserViews.toLocaleString()} signed in</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400" /> {stats.totalAnonViews.toLocaleString()} guests</span>
+            <span className="font-bold text-white">{stats.totalMatchViews.toLocaleString()} total</span>
           </div>
         </div>
-      )}
+        {stats.topMatches.length === 0 ? (
+          <div className="px-5 py-10 text-center text-gray-600 text-sm">No match views yet</div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/5 text-gray-500 text-xs uppercase tracking-wider">
+                <th className="px-5 py-3 text-left">#</th>
+                <th className="px-5 py-3 text-left">Match</th>
+                <th className="px-5 py-3 text-right">Signed In</th>
+                <th className="px-5 py-3 text-right">Guests</th>
+                <th className="px-5 py-3 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {stats.topMatches.map((m, i) => (
+                <tr key={m.id} className="hover:bg-white/2 transition-colors">
+                  <td className="px-5 py-3 text-gray-600 font-mono text-xs">{i + 1}</td>
+                  <td className="px-5 py-3">
+                    <p className="text-sm font-medium text-white">
+                      {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
+                    </p>
+                    <p className="text-xs text-gray-600">{m.league.name}</p>
+                  </td>
+                  <td className="px-5 py-3 text-right font-semibold text-[#00FF84]">{m.userViews.toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right font-semibold text-yellow-400">{m.anonViews.toLocaleString()}</td>
+                  <td className="px-5 py-3 text-right font-black text-white">{m.views.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* Active Matches + Recent Users */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

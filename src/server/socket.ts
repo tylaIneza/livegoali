@@ -59,6 +59,23 @@ io.on("connection", (socket) => {
     const room = `match-${matchId}`;
     socket.join(room);
 
+    // Persist view count once per match per socket connection
+    if (!socket.data.viewedMatches) socket.data.viewedMatches = new Set<string>();
+    if (!socket.data.viewedMatches.has(matchId)) {
+      socket.data.viewedMatches.add(matchId);
+      try {
+        await prisma.match.update({
+          where: { id: matchId },
+          data: {
+            views: { increment: 1 },
+            ...(userId ? { userViews: { increment: 1 } } : { anonViews: { increment: 1 } }),
+          },
+        });
+      } catch (err) {
+        console.error("Failed to increment match views:", err);
+      }
+    }
+
     // Send recent chat history
     try {
       const messages = await prisma.liveChatMessage.findMany({
