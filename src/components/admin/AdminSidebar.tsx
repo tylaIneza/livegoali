@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Trophy, Radio, Users, Newspaper,
   TrendingUp, Megaphone, Settings, ChevronLeft, Menu,
-  Shield, BarChart3, Star, Bell
+  Shield, BarChart3, Star, Bell, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +27,7 @@ const navItems = [
   { href: "/admin/news", label: "News", icon: Newspaper },
   { href: "/admin/users", label: "Users", icon: Users, adminOnly: true },
   { href: "/admin/ads", label: "Advertisements", icon: Megaphone, adminOnly: true },
+  { href: "/admin/sync", label: "Data Sync", icon: RefreshCw, adminOnly: true },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/settings", label: "Settings", icon: Settings, adminOnly: true },
