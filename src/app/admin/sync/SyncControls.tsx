@@ -43,7 +43,7 @@ export function SyncControls() {
             <Radio className="w-4 h-4 text-red-400" />
             <span className="text-sm font-semibold text-white">Live Scores Now</span>
           </div>
-          <p className="text-xs text-gray-500 mb-4">Fetch all inplay matches and update scores instantly</p>
+          <p className="text-xs text-white/70 mb-4">Fetch all inplay matches and update scores instantly</p>
           <button
             onClick={() => trigger("live")}
             disabled={liveLoading}
@@ -66,7 +66,7 @@ export function SyncControls() {
             <Calendar className="w-4 h-4 text-blue-400" />
             <span className="text-sm font-semibold text-white">Fixtures & Teams</span>
           </div>
-          <p className="text-xs text-gray-500 mb-4">Import fixtures for the next 7 days + auto-create teams and leagues</p>
+          <p className="text-xs text-white/70 mb-4">Import fixtures for the next 7 days + auto-create teams and leagues</p>
           <button
             onClick={() => trigger("daily")}
             disabled={dailyLoading}

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, Search, Bell, User, ChevronDown,
@@ -12,6 +13,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+
+type SearchResults = {
+  matches: Array<{
+    id: string; slug: string; status: string;
+    homeTeam: { name: string; logo: string | null; shortName: string | null };
+    awayTeam: { name: string; logo: string | null; shortName: string | null };
+    league: { name: string };
+  }>;
+  teams: Array<{ id: string; name: string; slug: string; logo: string | null; country: string | null }>;
+  leagues: Array<{ id: string; name: string; slug: string; logo: string | null; country: string }>;
+};
 
 const navLinks = [
   { href: "/", label: "Live", icon: Zap, badge: "LIVE" },
@@ -25,6 +37,51 @@ export function Navbar() {
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResults | null>(null);
+  const [searching, setSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const doSearch = useCallback(async (q: string) => {
+    if (q.length < 2) { setResults(null); return; }
+    setSearching(true);
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) { setResults(null); return; }
+      const data = await res.json();
+      setResults(data);
+    } catch {
+      setResults(null);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => doSearch(query), 300);
+    return () => clearTimeout(t);
+  }, [query, doSearch]);
+
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+        setQuery("");
+        setResults(null);
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  const hasResults = results && (results.matches.length + results.teams.length + results.leagues.length) > 0;
+  const noResults = results && !hasResults && query.length >= 2 && !searching;
 
   return (
     <nav className="sticky top-0 z-50 glass-dark border-b border-white/8">
@@ -60,9 +117,121 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            <button className="hidden md:flex p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all">
-              <Search className="w-5 h-5" />
-            </button>
+            {/* Search */}
+            <div ref={searchRef} className="relative hidden md:block">
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2 rounded-lg text-white/75 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
+              <AnimatePresence>
+                {searchOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-80 glass rounded-xl shadow-xl border border-white/10 overflow-hidden z-50"
+                  >
+                    <div className="flex items-center gap-2 px-3 py-2.5 border-b border-white/8">
+                      <Search className="w-4 h-4 text-white/60 shrink-0" />
+                      <input
+                        ref={inputRef}
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        placeholder="Search matches, teams, leagues…"
+                        className="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
+                      />
+                      {query && (
+                        <button onClick={() => { setQuery(""); setResults(null); }} className="text-white/40 hover:text-white">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {searching && (
+                      <div className="px-4 py-6 text-center text-sm text-white/50">Searching…</div>
+                    )}
+
+                    {noResults && (
+                      <div className="px-4 py-6 text-center text-sm text-white/50">No results for "{query}"</div>
+                    )}
+
+                    {hasResults && (
+                      <div className="py-1 max-h-96 overflow-y-auto">
+                        {results!.matches.length > 0 && (
+                          <>
+                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Matches</p>
+                            {results!.matches.map(m => (
+                              <Link
+                                key={m.id}
+                                href={m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.id}` : `/match/${m.slug}`}
+                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs text-white/60 w-8 shrink-0">{m.status === "LIVE" || m.status === "HALFTIME" ? <span className="text-[#00FF84] font-bold">LIVE</span> : "vs"}</span>
+                                <span className="text-sm text-white truncate">{m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}</span>
+                                <span className="ml-auto text-xs text-white/40 shrink-0 truncate max-w-[80px]">{m.league.name}</span>
+                              </Link>
+                            ))}
+                          </>
+                        )}
+
+                        {results!.teams.length > 0 && (
+                          <>
+                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Teams</p>
+                            {results!.teams.map(t => (
+                              <Link
+                                key={t.id}
+                                href={`/team/${t.slug}`}
+                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
+                              >
+                                {t.logo ? (
+                                  <Image src={t.logo} alt={t.name} width={20} height={20} className="object-contain rounded-sm shrink-0" />
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full bg-[#1F2937] flex items-center justify-center text-[10px] text-[#00FF84] font-bold shrink-0">{t.name[0]}</div>
+                                )}
+                                <span className="text-sm text-white truncate">{t.name}</span>
+                                {t.country && <span className="ml-auto text-xs text-white/40 shrink-0">{t.country}</span>}
+                              </Link>
+                            ))}
+                          </>
+                        )}
+
+                        {results!.leagues.length > 0 && (
+                          <>
+                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Leagues</p>
+                            {results!.leagues.map(l => (
+                              <Link
+                                key={l.id}
+                                href={`/league/${l.slug}`}
+                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
+                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
+                              >
+                                {l.logo ? (
+                                  <Image src={l.logo} alt={l.name} width={20} height={20} className="object-contain rounded-sm shrink-0" />
+                                ) : (
+                                  <Trophy className="w-4 h-4 text-yellow-400 shrink-0" />
+                                )}
+                                <span className="text-sm text-white truncate">{l.name}</span>
+                                <span className="ml-auto text-xs text-white/40 shrink-0">{l.country}</span>
+                              </Link>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {!query && !results && (
+                      <div className="px-4 py-5 text-center text-sm text-white/40">Type to search matches, teams or leagues</div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {session ? (
               <div className="relative">
@@ -79,7 +248,7 @@ export function Navbar() {
                   {session.user.isVIP && (
                     <Badge variant="premium" className="text-[10px] px-1.5 py-0">VIP</Badge>
                   )}
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                  <ChevronDown className="w-4 h-4 text-white/75" />
                 </button>
 
                 <AnimatePresence>
@@ -95,7 +264,7 @@ export function Navbar() {
                         <p className="text-sm font-semibold text-white truncate">
                           {session.user.name}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">{session.user.email}</p>
+                        <p className="text-xs text-white/75 truncate">{session.user.email}</p>
                       </div>
                       <div className="p-1">
                         <MenuItem href="/profile" icon={User} label="My Profile" />
@@ -131,7 +300,7 @@ export function Navbar() {
             )}
 
             <button
-              className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5"
+              className="md:hidden p-2 rounded-lg text-white/75 hover:text-white hover:bg-white/5"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

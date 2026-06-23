@@ -73,7 +73,7 @@ export function CommentSection({ matchId }: Props) {
       <div className="p-4 border-b border-white/8 flex items-center gap-2">
         <MessageCircle className="w-4 h-4 text-[#00FF84]" />
         <h3 className="font-bold text-white">Comments</h3>
-        <span className="text-xs text-gray-500 ml-1">({comments.length})</span>
+        <span className="text-xs text-white/70 ml-1">({comments.length})</span>
       </div>
 
       {/* Input */}
@@ -81,8 +81,8 @@ export function CommentSection({ matchId }: Props) {
         <div className="p-4 border-b border-white/8">
           {replyTo && (
             <div className="flex items-center justify-between mb-2 px-3 py-1.5 rounded-lg bg-[#00FF84]/5 border border-[#00FF84]/20">
-              <span className="text-xs text-gray-400">Replying to <strong className="text-[#00FF84]">@{replyTo.name}</strong></span>
-              <button onClick={() => setReplyTo(null)} className="text-gray-500 hover:text-white text-xs">✕</button>
+              <span className="text-xs text-white/75">Replying to <strong className="text-[#00FF84]">@{replyTo.name}</strong></span>
+              <button onClick={() => setReplyTo(null)} className="text-white/70 hover:text-white text-xs">✕</button>
             </div>
           )}
           <div className="flex gap-3">
@@ -97,10 +97,10 @@ export function CommentSection({ matchId }: Props) {
                 placeholder="Write a comment..."
                 rows={2}
                 maxLength={500}
-                className="w-full bg-[#0B0F14] border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00FF84]/40 resize-none transition-colors"
+                className="w-full bg-[#0B0F14] border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#00FF84]/40 resize-none transition-colors"
               />
               <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-gray-600">{comment.length}/500</span>
+                <span className="text-xs text-white/60">{comment.length}/500</span>
                 <Button
                   size="sm"
                   onClick={handleSubmit}
@@ -127,9 +127,9 @@ export function CommentSection({ matchId }: Props) {
       {/* Comments list */}
       <div className="divide-y divide-white/6">
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500 text-sm">Loading comments...</div>
+          <div className="p-6 text-center text-white/70 text-sm">Loading comments...</div>
         ) : comments.length === 0 ? (
-          <div className="p-6 text-center text-gray-500 text-sm">
+          <div className="p-6 text-center text-white/70 text-sm">
             Be the first to comment!
           </div>
         ) : (
@@ -187,18 +187,18 @@ function CommentItem({
             {comment.user.isVIP && comment.user.role === "USER" && (
               <Badge variant="premium" className="text-[10px] px-1.5 py-0">VIP</Badge>
             )}
-            <span className="text-xs text-gray-600">{formatTimeAgo(comment.createdAt)}</span>
+            <span className="text-xs text-white/60">{formatTimeAgo(comment.createdAt)}</span>
           </div>
           <p className="text-sm text-gray-300 mt-1 leading-relaxed">{comment.content}</p>
           <div className="flex items-center gap-4 mt-2">
-            <button className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#00FF84] transition-colors">
+            <button className="flex items-center gap-1 text-xs text-white/70 hover:text-[#00FF84] transition-colors">
               <ThumbsUp className="w-3.5 h-3.5" />
               {comment.likes > 0 ? comment.likes : ""}
             </button>
             {!isReply && (
               <button
                 onClick={() => onReply(comment.id, comment.user.name || "User")}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-white transition-colors"
+                className="flex items-center gap-1 text-xs text-white/70 hover:text-white transition-colors"
               >
                 <Reply className="w-3.5 h-3.5" />
                 Reply
@@ -207,7 +207,7 @@ function CommentItem({
             {currentUserId === comment.user.id && (
               <button
                 onClick={() => onDelete(comment.id)}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors ml-auto"
+                className="flex items-center gap-1 text-xs text-white/70 hover:text-red-400 transition-colors ml-auto"
               >
                 <Trash className="w-3.5 h-3.5" />
               </button>

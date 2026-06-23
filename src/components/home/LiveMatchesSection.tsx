@@ -21,7 +21,7 @@ export function LiveMatchesSection({ matches }: Props) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-white">Live Now</h2>
-            <p className="text-sm text-gray-500">{matches.length} matches in progress</p>
+            <p className="text-sm text-white/70">{matches.length} matches in progress</p>
           </div>
           <span className="flex items-center gap-1.5 text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full">
             <span className="w-2 h-2 rounded-full bg-red-500 live-pulse" />

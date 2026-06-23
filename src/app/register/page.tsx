@@ -85,7 +85,7 @@ export default function RegisterPage() {
               </span>
             </Link>
             <h1 className="text-2xl font-black text-white">Create Account</h1>
-            <p className="text-gray-500 text-sm mt-1">Join millions of football fans</p>
+            <p className="text-white/70 text-sm mt-1">Join millions of football fans</p>
           </div>
 
           <Button type="button" variant="outline" className="w-full mb-4" onClick={() => signIn("google", { callbackUrl: "/" })}>
@@ -95,30 +95,30 @@ export default function RegisterPage() {
 
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10" /></div>
-            <div className="relative flex justify-center text-xs"><span className="px-3 text-gray-500">or create with email</span></div>
+            <div className="relative flex justify-center text-xs"><span className="px-3 text-white/70">or create with email</span></div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Full Name</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input placeholder="John Doe" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pl-10" required />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Email</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input type="email" placeholder="you@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10" required />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Password</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="Min 8 characters"
@@ -127,7 +127,7 @@ export default function RegisterPage() {
                   className="pl-10 pr-10"
                   required
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -146,9 +146,9 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Confirm Password</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input
                   type="password"
                   placeholder="Repeat password"
@@ -163,7 +163,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-white/70">
               By creating an account you agree to our{" "}
               <Link href="/terms" className="text-[#00FF84] hover:underline">Terms</Link>{" "}and{" "}
               <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link>.
@@ -174,7 +174,7 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-white/70 mt-6">
             Already have an account?{" "}
             <Link href="/login" className="text-[#00FF84] hover:underline font-medium">Sign in</Link>
           </p>

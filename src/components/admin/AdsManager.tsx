@@ -28,7 +28,7 @@ const PLACEMENTS: AdPlacement[] = ["HEADER", "SIDEBAR", "FOOTER", "IN_PLAYER", "
 const placementColor: Record<AdPlacement, string> = {
   HEADER: "bg-blue-500/15 text-blue-400",
   SIDEBAR: "bg-purple-500/15 text-purple-400",
-  FOOTER: "bg-gray-500/15 text-gray-400",
+  FOOTER: "bg-gray-500/15 text-white/75",
   IN_PLAYER: "bg-red-500/15 text-red-400",
   VIDEO: "bg-orange-500/15 text-orange-400",
   POPUP: "bg-yellow-500/15 text-yellow-400",
@@ -54,7 +54,7 @@ const emptyForm = (): FormState => ({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</label>
+      <label className="text-xs text-white/75 font-medium uppercase tracking-wide">{label}</label>
       {children}
     </div>
   );
@@ -192,7 +192,7 @@ export function AdsManager() {
         <div className="flex flex-wrap gap-2">
           {PLACEMENTS.map((p) => (
             <button key={p} type="button" onClick={() => setForm((f) => ({ ...f, placement: p }))}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${form.placement === p ? "border-[#00FF84] bg-[#00FF84]/15 text-[#00FF84]" : "border-white/10 text-gray-500 hover:border-white/20 hover:text-white"}`}>
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${form.placement === p ? "border-[#00FF84] bg-[#00FF84]/15 text-[#00FF84]" : "border-white/10 text-white/70 hover:border-white/20 hover:text-white"}`}>
               {p}
             </button>
           ))}
@@ -228,7 +228,7 @@ export function AdsManager() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">Advertisement Management</h1>
-            <p className="text-gray-500 text-sm mt-1">{ads.length} ads · {ads.filter((a) => a.isActive).length} active</p>
+            <p className="text-white/70 text-sm mt-1">{ads.length} ads · {ads.filter((a) => a.isActive).length} active</p>
           </div>
           <button onClick={openAdd} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] transition-colors">
             <Plus className="w-4 h-4" /> New Ad
@@ -247,7 +247,7 @@ export function AdsManager() {
               <s.icon className={`w-5 h-5 ${s.color} shrink-0`} />
               <div>
                 <div className={`text-xl font-black ${s.color}`}>{s.value}</div>
-                <div className="text-xs text-gray-500">{s.label}</div>
+                <div className="text-xs text-white/70">{s.label}</div>
               </div>
             </div>
           ))}
@@ -262,7 +262,7 @@ export function AdsManager() {
               <div key={p} className="rounded-xl border border-white/8 bg-[#121821] p-3 text-center">
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${placementColor[p]}`}>{p}</span>
                 <div className="text-lg font-black text-white mt-1">{count}</div>
-                <div className="text-[10px] text-gray-600">{active} active</div>
+                <div className="text-[10px] text-white/60">{active} active</div>
               </div>
             );
           })}
@@ -277,13 +277,13 @@ export function AdsManager() {
           ) : ads.length === 0 ? (
             <div className="py-16 text-center">
               <Megaphone className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-              <p className="text-gray-500 text-sm">No ads yet. Create one to start monetizing.</p>
+              <p className="text-white/70 text-sm">No ads yet. Create one to start monetizing.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+                  <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 text-left">Ad</th>
                     <th className="px-4 py-3 text-left">Placement</th>
                     <th className="px-4 py-3 text-left hidden md:table-cell">Views</th>
@@ -305,20 +305,20 @@ export function AdsManager() {
                               <img src={ad.imageUrl} alt={ad.title} className="w-10 h-8 object-cover rounded border border-white/10 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                             ) : (
                               <div className="w-10 h-8 rounded border border-white/10 bg-white/5 flex items-center justify-center shrink-0">
-                                <Megaphone className="w-3 h-3 text-gray-600" />
+                                <Megaphone className="w-3 h-3 text-white/60" />
                               </div>
                             )}
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-white truncate max-w-[140px]">{ad.title}</p>
-                              <p className="text-[10px] text-gray-600 truncate max-w-[140px]">{ad.targetUrl}</p>
+                              <p className="text-[10px] text-white/60 truncate max-w-[140px]">{ad.targetUrl}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${placementColor[ad.placement]}`}>{ad.placement}</span>
                         </td>
-                        <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-400">{ad.views.toLocaleString()}</td>
-                        <td className="px-4 py-3 hidden md:table-cell text-xs text-gray-400">{ad.clicks.toLocaleString()}</td>
+                        <td className="px-4 py-3 hidden md:table-cell text-xs text-white/75">{ad.views.toLocaleString()}</td>
+                        <td className="px-4 py-3 hidden md:table-cell text-xs text-white/75">{ad.clicks.toLocaleString()}</td>
                         <td className="px-4 py-3 hidden md:table-cell text-xs text-[#00FF84]">{ctr}%</td>
                         <td className="px-4 py-3 hidden lg:table-cell text-xs text-purple-400">${ad.revenue.toFixed(2)}</td>
                         <td className="px-4 py-3">
@@ -329,10 +329,10 @@ export function AdsManager() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <button onClick={() => openEdit(ad)} className="p-1.5 rounded-lg hover:bg-white/8 text-gray-400 hover:text-white transition-colors">
+                            <button onClick={() => openEdit(ad)} className="p-1.5 rounded-lg hover:bg-white/8 text-white/75 hover:text-white transition-colors">
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
-                            <button onClick={() => setDeleteTarget(ad)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors">
+                            <button onClick={() => setDeleteTarget(ad)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/75 hover:text-red-400 transition-colors">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -353,7 +353,7 @@ export function AdsManager() {
           <DialogHeader><DialogTitle>New Advertisement</DialogTitle></DialogHeader>
           {FormBody}
           <DialogFooter className="mt-2">
-            <button onClick={() => setAddOpen(false)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={() => setAddOpen(false)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white transition-colors">Cancel</button>
             <button onClick={handleAdd} disabled={saving} className="px-4 py-2 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
               {saving ? "Creating…" : "Create Ad"}
             </button>
@@ -367,7 +367,7 @@ export function AdsManager() {
           <DialogHeader><DialogTitle>Edit Ad</DialogTitle></DialogHeader>
           {FormBody}
           <DialogFooter className="mt-2">
-            <button onClick={() => setEditTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={() => setEditTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white transition-colors">Cancel</button>
             <button onClick={handleEdit} disabled={saving} className="px-4 py-2 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
               {saving ? "Saving…" : "Save Changes"}
             </button>
@@ -381,7 +381,7 @@ export function AdsManager() {
           <DialogHeader><DialogTitle className="text-red-400 flex items-center gap-2"><Trash2 className="w-5 h-5" /> Delete Ad</DialogTitle></DialogHeader>
           <p className="text-gray-300 text-sm py-2">Delete <span className="font-bold text-white">"{deleteTarget?.title}"</span>? This cannot be undone.</p>
           <DialogFooter>
-            <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white transition-colors">Cancel</button>
             <button onClick={handleDelete} disabled={deleting} className="px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 disabled:opacity-50 transition-colors">
               {deleting ? "Deleting…" : "Delete"}
             </button>

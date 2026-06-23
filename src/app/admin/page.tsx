@@ -102,7 +102,7 @@ export default async function AdminDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-white">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome back, {session?.user.name || "Admin"}</p>
+        <p className="text-white/70 mt-1">Welcome back, {session?.user.name || "Admin"}</p>
       </div>
 
       {/* Stats Grid */}
@@ -116,7 +116,7 @@ export default async function AdminDashboard() {
               <div className={`text-2xl font-black ${stat.highlight ? "text-red-400" : "text-white"}`}>
                 {stat.value.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+              <p className="text-xs text-white/70 mt-1">{stat.label}</p>
               {"sub" in stat && <p className="text-[10px] text-[#00FF84] mt-0.5">{stat.sub}</p>}
               {stat.highlight && stat.value > 0 && (
                 <div className="absolute top-3 right-3">
@@ -141,18 +141,18 @@ export default async function AdminDashboard() {
             <Eye className="w-4 h-4 text-purple-400" />
             <span className="text-sm font-semibold text-white">Match Views</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-gray-500">
+          <div className="flex items-center gap-4 text-xs text-white/70">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#00FF84]" /> {stats.totalUserViews.toLocaleString()} signed in</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400" /> {stats.totalAnonViews.toLocaleString()} guests</span>
             <span className="font-bold text-white">{stats.totalMatchViews.toLocaleString()} total</span>
           </div>
         </div>
         {stats.topMatches.length === 0 ? (
-          <div className="px-5 py-10 text-center text-gray-600 text-sm">No match views yet</div>
+          <div className="px-5 py-10 text-center text-white/60 text-sm">No match views yet</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/5 text-gray-500 text-xs uppercase tracking-wider">
+              <tr className="border-b border-white/5 text-white/70 text-xs uppercase tracking-wider">
                 <th className="px-5 py-3 text-left">#</th>
                 <th className="px-5 py-3 text-left">Match</th>
                 <th className="px-5 py-3 text-right">Signed In</th>
@@ -163,12 +163,12 @@ export default async function AdminDashboard() {
             <tbody className="divide-y divide-white/5">
               {stats.topMatches.map((m, i) => (
                 <tr key={m.id} className="hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-3 text-gray-600 font-mono text-xs">{i + 1}</td>
+                  <td className="px-5 py-3 text-white/60 font-mono text-xs">{i + 1}</td>
                   <td className="px-5 py-3">
                     <p className="text-sm font-medium text-white">
                       {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
                     </p>
-                    <p className="text-xs text-gray-600">{m.league.name}</p>
+                    <p className="text-xs text-white/60">{m.league.name}</p>
                   </td>
                   <td className="px-5 py-3 text-right font-semibold text-[#00FF84]">{m.userViews.toLocaleString()}</td>
                   <td className="px-5 py-3 text-right font-semibold text-yellow-400">{m.anonViews.toLocaleString()}</td>
@@ -199,12 +199,12 @@ export default async function AdminDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">{user.name || "Unknown"}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <p className="text-xs text-white/70 truncate">{user.email}</p>
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                     user.role === "ADMIN" || user.role === "SUPER_ADMIN"
                       ? "bg-[#00FF84]/10 text-[#00FF84]"
-                      : "bg-white/5 text-gray-400"
+                      : "bg-white/5 text-white/75"
                   }`}>{user.role}</span>
                 </div>
               ))}

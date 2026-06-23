@@ -37,7 +37,7 @@ export function MatchWatcher({ matchId }: { matchId: string }) {
           <span className="text-3xl">📺</span>
         </div>
         <h2 className="text-xl font-black text-white mb-2">Stream Ended</h2>
-        <p className="text-gray-400 text-sm mb-6">
+        <p className="text-white/75 text-sm mb-6">
           This match has been removed. You'll be redirected to the homepage in{" "}
           <span className="text-white font-bold">{countdown}</span> second{countdown !== 1 ? "s" : ""}.
         </p>

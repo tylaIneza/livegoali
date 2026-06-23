@@ -42,7 +42,7 @@ export default async function PredictionsPage() {
           AI-POWERED PREDICTIONS
         </div>
         <h1 className="text-4xl font-black text-white mb-3">Match Predictions</h1>
-        <p className="text-gray-400 max-w-xl mx-auto">
+        <p className="text-white/75 max-w-xl mx-auto">
           Our AI analyzes team form, head-to-head records, home advantage, and 20+ statistical indicators to generate accurate predictions.
         </p>
       </div>
@@ -68,7 +68,7 @@ export default async function PredictionsPage() {
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-blue-400" />
           <h2 className="text-xl font-black text-white">All Predictions</h2>
-          <span className="text-gray-500 text-sm">{matches.length} matches</span>
+          <span className="text-white/70 text-sm">{matches.length} matches</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(regular.length > 0 ? regular : matches).map((match) => (
@@ -80,7 +80,7 @@ export default async function PredictionsPage() {
       {matches.length === 0 && (
         <div className="text-center py-20">
           <Brain className="w-16 h-16 mx-auto mb-4 text-gray-700" />
-          <p className="text-gray-500">No predictions available yet. Check back when matches are scheduled.</p>
+          <p className="text-white/70">No predictions available yet. Check back when matches are scheduled.</p>
         </div>
       )}
     </div>
@@ -128,11 +128,11 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
             {match.league.logo && (
               <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain" />
             )}
-            <span className="text-xs text-gray-500">{match.league.name}</span>
+            <span className="text-xs text-white/70">{match.league.name}</span>
           </div>
           <div className="flex items-center gap-2">
             {isLive && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold">LIVE</span>}
-            <span className="text-xs text-gray-600">{formatMatchDate(match.scheduledAt)}</span>
+            <span className="text-xs text-white/60">{formatMatchDate(match.scheduledAt)}</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
             {isLive ? (
               <span className="text-lg font-black text-[#00FF84]">{match.homeScore} - {match.awayScore}</span>
             ) : (
-              <span className="text-sm text-gray-600 font-bold">VS</span>
+              <span className="text-sm text-white/60 font-bold">VS</span>
             )}
           </div>
           <div className="flex items-center gap-2.5">
@@ -167,11 +167,11 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
             { label: match.awayTeam.shortName || match.awayTeam.name, value: pred.awayWinProb, color: "bg-blue-400", textColor: "text-blue-400" },
           ].map((bar) => (
             <div key={bar.label} className="flex items-center gap-3">
-              <span className="text-xs text-gray-500 w-16 truncate">{bar.label}</span>
+              <span className="text-xs text-white/70 w-16 truncate">{bar.label}</span>
               <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
                 <div className={`h-full rounded-full ${bar.color}`} style={{ width: `${bar.value}%` }} />
               </div>
-              <span className={`text-xs font-bold w-10 text-right ${bar.value === maxProb ? bar.textColor : "text-gray-400"}`}>
+              <span className={`text-xs font-bold w-10 text-right ${bar.value === maxProb ? bar.textColor : "text-white/75"}`}>
                 {bar.value.toFixed(0)}%
               </span>
             </div>
@@ -182,7 +182,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
         <div className="flex items-center justify-between pt-3 border-t border-white/6">
           <div className="flex items-center gap-1.5">
             <Target className="w-3.5 h-3.5 text-[#00FF84]" />
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-white/75">
               Tip: <span className="font-bold text-white">
                 {pred.recommendation === "HOME_WIN" ? match.homeTeam.name
                   : pred.recommendation === "AWAY_WIN" ? match.awayTeam.name
@@ -192,7 +192,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
           </div>
           <div className="flex items-center gap-1.5">
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              pred.confidence >= 70 ? "bg-[#00FF84]/10 text-[#00FF84]" : "bg-white/5 text-gray-400"
+              pred.confidence >= 70 ? "bg-[#00FF84]/10 text-[#00FF84]" : "bg-white/5 text-white/75"
             }`}>
               {pred.confidence.toFixed(0)}% confident
             </span>
@@ -200,7 +200,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
         </div>
 
         {pred.expectedHomeGoals !== null && (
-          <div className="mt-2 text-center text-xs text-gray-600">
+          <div className="mt-2 text-center text-xs text-white/60">
             xG: {pred.expectedHomeGoals.toFixed(1)} - {pred.expectedAwayGoals?.toFixed(1)}
           </div>
         )}

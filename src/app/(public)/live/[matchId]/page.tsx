@@ -79,7 +79,7 @@ export default async function LiveMatchPage({ params }: Props) {
               {match.league.logo && (
                 <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain shrink-0" />
               )}
-              <span className="text-xs text-gray-400 truncate">{match.league.name}</span>
+              <span className="text-xs text-white/75 truncate">{match.league.name}</span>
             </Link>
             {isLive && <LiveBadge minute={match.matchMinute} status={match.status} />}
           </div>
@@ -95,7 +95,7 @@ export default async function LiveMatchPage({ params }: Props) {
             </Link>
 
             {/* VS */}
-            <div className="text-xl sm:text-2xl font-black text-gray-500 shrink-0 px-2">VS</div>
+            <div className="text-xl sm:text-2xl font-black text-white/70 shrink-0 px-2">VS</div>
 
             {/* Away */}
             <Link href={`/team/${match.awayTeam.slug}`} className="flex flex-col sm:flex-row-reverse items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
@@ -187,9 +187,9 @@ function StatRow({ label, home, away, unit = "" }: { label: string; home: number
   const homeWidth = (home / (home + away || 1)) * 100;
   return (
     <div className="space-y-1">
-      <div className="flex justify-between text-xs text-gray-400">
+      <div className="flex justify-between text-xs text-white/75">
         <span className="font-semibold text-white">{home}{unit}</span>
-        <span className="text-gray-500">{label}</span>
+        <span className="text-white/70">{label}</span>
         <span className="font-semibold text-white">{away}{unit}</span>
       </div>
       <div className="flex h-1.5 gap-0.5 rounded-full overflow-hidden">

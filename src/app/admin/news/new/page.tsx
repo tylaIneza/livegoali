@@ -55,35 +55,35 @@ export default function NewArticlePage() {
 
       <div className="space-y-4 rounded-2xl border border-white/8 bg-[#121821] p-6">
         <div>
-          <label className="text-sm text-gray-400 mb-1.5 block">Title *</label>
+          <label className="text-sm text-white/75 mb-1.5 block">Title *</label>
           <Input placeholder="Article title..." value={form.title} onChange={(e) => handleTitleChange(e.target.value)} />
         </div>
         <div>
-          <label className="text-sm text-gray-400 mb-1.5 block">Slug</label>
+          <label className="text-sm text-white/75 mb-1.5 block">Slug</label>
           <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} />
         </div>
         <div>
-          <label className="text-sm text-gray-400 mb-1.5 block">Featured Image URL</label>
+          <label className="text-sm text-white/75 mb-1.5 block">Featured Image URL</label>
           <Input placeholder="https://..." value={form.featuredImage} onChange={(e) => setForm((f) => ({ ...f, featuredImage: e.target.value }))} />
         </div>
         <div>
-          <label className="text-sm text-gray-400 mb-1.5 block">Excerpt</label>
+          <label className="text-sm text-white/75 mb-1.5 block">Excerpt</label>
           <textarea
             rows={2}
             placeholder="Short description..."
             value={form.excerpt}
             onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
-            className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00FF84]/40 resize-none"
+            className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#00FF84]/40 resize-none"
           />
         </div>
         <div>
-          <label className="text-sm text-gray-400 mb-1.5 block">Content (HTML) *</label>
+          <label className="text-sm text-white/75 mb-1.5 block">Content (HTML) *</label>
           <textarea
             rows={12}
             placeholder="<p>Article content...</p>"
             value={form.content}
             onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-            className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#00FF84]/40 resize-none font-mono"
+            className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#00FF84]/40 resize-none font-mono"
           />
         </div>
         <div className="flex gap-6">

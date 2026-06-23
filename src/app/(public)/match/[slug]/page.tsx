@@ -70,15 +70,15 @@ export default async function MatchPage({ params }: Props) {
             {match.league.logo && (
               <Image src={match.league.logo} alt={match.league.name} width={20} height={20} className="object-contain" />
             )}
-            <Link href={`/league/${match.league.slug}`} className="text-sm text-gray-400 hover:text-[#00FF84] transition-colors">
+            <Link href={`/league/${match.league.slug}`} className="text-sm text-white/75 hover:text-[#00FF84] transition-colors">
               {match.league.name}
             </Link>
-            {match.round && <span className="text-gray-600 text-sm">· {match.round}</span>}
+            {match.round && <span className="text-white/60 text-sm">· {match.round}</span>}
           </div>
           {isLive ? (
             <LiveBadge minute={match.matchMinute} status={match.status} />
           ) : (
-            <span className="text-sm text-gray-500">{formatMatchDate(match.scheduledAt)}</span>
+            <span className="text-sm text-white/70">{formatMatchDate(match.scheduledAt)}</span>
           )}
         </div>
 
@@ -101,8 +101,8 @@ export default async function MatchPage({ params }: Props) {
 
             {/* Match time / status */}
             <div className="text-center">
-              <div className="text-5xl font-black text-gray-600 mb-2">VS</div>
-              <div className="text-sm text-gray-500">{formatMatchDate(match.scheduledAt)}</div>
+              <div className="text-5xl font-black text-white/60 mb-2">VS</div>
+              <div className="text-sm text-white/70">{formatMatchDate(match.scheduledAt)}</div>
             </div>
 
             {/* Away */}
@@ -125,14 +125,14 @@ export default async function MatchPage({ params }: Props) {
             <div className="mt-6 pt-6 border-t border-white/8 grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 {match.events.filter((e) => e.type === "GOAL" && e.teamId === match.homeTeamId).map((e) => (
-                  <div key={e.id} className="text-sm text-gray-400">
+                  <div key={e.id} className="text-sm text-white/75">
                     ⚽ {e.playerName} <span className="text-[#00FF84] font-bold">{e.minute}&apos;</span>
                   </div>
                 ))}
               </div>
               <div className="space-y-1 text-right">
                 {match.events.filter((e) => e.type === "GOAL" && e.teamId === match.awayTeamId).map((e) => (
-                  <div key={e.id} className="text-sm text-gray-400">
+                  <div key={e.id} className="text-sm text-white/75">
                     <span className="text-[#00FF84] font-bold">{e.minute}&apos;</span> {e.playerName} ⚽
                   </div>
                 ))}
@@ -183,7 +183,7 @@ export default async function MatchPage({ params }: Props) {
               ].map((item) => (
                 <div key={item.label}>
                   <div className="text-sm font-semibold text-white">{item.value}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{item.label}</div>
+                  <div className="text-xs text-white/70 mt-0.5">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -216,15 +216,15 @@ export default async function MatchPage({ params }: Props) {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="p-4 rounded-xl bg-[#0B0F14] border border-white/8">
                   <div className="text-3xl font-black text-[#00FF84]">{match.prediction.homeWinProb.toFixed(0)}%</div>
-                  <div className="text-xs text-gray-500 mt-1">Home Win</div>
+                  <div className="text-xs text-white/70 mt-1">Home Win</div>
                 </div>
                 <div className="p-4 rounded-xl bg-[#0B0F14] border border-white/8">
                   <div className="text-3xl font-black text-yellow-400">{match.prediction.drawProb.toFixed(0)}%</div>
-                  <div className="text-xs text-gray-500 mt-1">Draw</div>
+                  <div className="text-xs text-white/70 mt-1">Draw</div>
                 </div>
                 <div className="p-4 rounded-xl bg-[#0B0F14] border border-white/8">
                   <div className="text-3xl font-black text-blue-400">{match.prediction.awayWinProb.toFixed(0)}%</div>
-                  <div className="text-xs text-gray-500 mt-1">Away Win</div>
+                  <div className="text-xs text-white/70 mt-1">Away Win</div>
                 </div>
               </div>
 
@@ -236,7 +236,7 @@ export default async function MatchPage({ params }: Props) {
 
               {match.prediction.expectedHomeGoals !== null && (
                 <div className="flex items-center justify-between py-2 border-t border-white/8">
-                  <span className="text-gray-400 text-sm">Expected Goals</span>
+                  <span className="text-white/75 text-sm">Expected Goals</span>
                   <span className="font-bold text-white">
                     {match.prediction.expectedHomeGoals.toFixed(1)} - {match.prediction.expectedAwayGoals?.toFixed(1)}
                   </span>
@@ -244,13 +244,13 @@ export default async function MatchPage({ params }: Props) {
               )}
 
               <div className="flex items-center justify-between py-2 border-t border-white/8">
-                <span className="text-gray-400 text-sm">Confidence</span>
+                <span className="text-white/75 text-sm">Confidence</span>
                 <span className="font-bold text-[#00FF84]">{match.prediction.confidence.toFixed(0)}%</span>
               </div>
 
               {match.prediction.aiExplanation && (
                 <div className="p-4 rounded-xl bg-[#0B0F14]/50 border border-white/8">
-                  <p className="text-sm text-gray-400 leading-relaxed">{match.prediction.aiExplanation}</p>
+                  <p className="text-sm text-white/75 leading-relaxed">{match.prediction.aiExplanation}</p>
                 </div>
               )}
 
@@ -277,7 +277,7 @@ function StatRow({ label, home, away, unit = "", decimals = 0 }: { label: string
     <div>
       <div className="flex items-center justify-between text-sm mb-1.5">
         <span className="font-bold text-white">{fmt(home)}{unit}</span>
-        <span className="text-gray-500 text-xs">{label}</span>
+        <span className="text-white/70 text-xs">{label}</span>
         <span className="font-bold text-white">{fmt(away)}{unit}</span>
       </div>
       <div className="flex h-2 rounded-full overflow-hidden gap-0.5">

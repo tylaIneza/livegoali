@@ -111,7 +111,7 @@ export function LiveMatchSidebar({
               "flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all",
               tab === t.id
                 ? "bg-[#121821] text-[#00FF84]"
-                : "text-gray-500 hover:text-gray-300"
+                : "text-white/70 hover:text-gray-300"
             )}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ export function LiveMatchSidebar({
             </div>
             <div className="overflow-y-auto h-[450px] p-3 space-y-2">
               {events.length === 0 ? (
-                <div className="text-center text-gray-500 text-sm py-8">
+                <div className="text-center text-white/70 text-sm py-8">
                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   No events yet
                 </div>
@@ -152,10 +152,10 @@ export function LiveMatchSidebar({
                         <span className="text-xs font-semibold text-white">{event.type.replace(/_/g, " ")}</span>
                       </div>
                       {event.playerName && (
-                        <p className="text-xs text-gray-400 mt-0.5">{event.playerName}</p>
+                        <p className="text-xs text-white/75 mt-0.5">{event.playerName}</p>
                       )}
                       {event.description && (
-                        <p className="text-xs text-gray-500 mt-0.5">{event.description}</p>
+                        <p className="text-xs text-white/70 mt-0.5">{event.description}</p>
                       )}
                     </div>
                   </div>
@@ -186,13 +186,13 @@ export function LiveMatchSidebar({
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Confidence</span>
+                    <span className="text-white/70">Confidence</span>
                     <span className="font-bold text-[#00FF84]">{prediction.confidence.toFixed(0)}%</span>
                   </div>
 
                   {prediction.expectedHomeGoals !== null && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Expected Goals</span>
+                      <span className="text-white/70">Expected Goals</span>
                       <span className="font-bold text-white">
                         {prediction.expectedHomeGoals.toFixed(1)} - {prediction.expectedAwayGoals?.toFixed(1)}
                       </span>
@@ -201,12 +201,12 @@ export function LiveMatchSidebar({
 
                   {prediction.aiExplanation && (
                     <div className="p-3 rounded-lg bg-[#0B0F14] border border-white/6">
-                      <p className="text-xs text-gray-500 leading-relaxed">{prediction.aiExplanation}</p>
+                      <p className="text-xs text-white/70 leading-relaxed">{prediction.aiExplanation}</p>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center text-gray-500 text-sm py-8">
+                <div className="text-center text-white/70 text-sm py-8">
                   <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   No prediction available
                 </div>
@@ -230,7 +230,7 @@ function PredBox({ label, value, color }: { label: string; value: number; color:
   return (
     <div className="text-center p-3 rounded-xl bg-[#0B0F14] border border-white/8">
       <div className={`text-2xl font-black ${color}`}>{value.toFixed(0)}%</div>
-      <div className="text-xs text-gray-500 mt-1 truncate">{label}</div>
+      <div className="text-xs text-white/70 mt-1 truncate">{label}</div>
     </div>
   );
 }

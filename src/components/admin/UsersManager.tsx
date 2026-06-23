@@ -28,7 +28,7 @@ interface UserRow {
 const ROLES: UserRole[] = ["USER", "EDITOR", "ADMIN", "SUPER_ADMIN"];
 
 const roleBadgeClass: Record<UserRole, string> = {
-  USER: "bg-white/8 text-gray-400",
+  USER: "bg-white/8 text-white/75",
   EDITOR: "bg-blue-500/15 text-blue-400",
   ADMIN: "bg-[#00FF84]/15 text-[#00FF84]",
   SUPER_ADMIN: "bg-purple-500/15 text-purple-400",
@@ -37,7 +37,7 @@ const roleBadgeClass: Record<UserRole, string> = {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs text-gray-400 font-medium uppercase tracking-wide">{label}</label>
+      <label className="text-xs text-white/75 font-medium uppercase tracking-wide">{label}</label>
       {children}
     </div>
   );
@@ -215,7 +215,7 @@ export function UsersManager() {
           <button
             type="button"
             onClick={() => setShowPwd((p) => !p)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
           >
             {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -232,7 +232,7 @@ export function UsersManager() {
               className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                 form.role === r
                   ? "border-[#00FF84] bg-[#00FF84]/15 text-[#00FF84]"
-                  : "border-white/10 text-gray-500 hover:border-white/20 hover:text-white"
+                  : "border-white/10 text-white/70 hover:border-white/20 hover:text-white"
               }`}
             >
               {r}
@@ -277,7 +277,7 @@ export function UsersManager() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black text-white">User Management</h1>
-            <p className="text-gray-500 text-sm mt-1">{users.length} registered users</p>
+            <p className="text-white/70 text-sm mt-1">{users.length} registered users</p>
           </div>
           <button
             onClick={openAdd}
@@ -296,7 +296,7 @@ export function UsersManager() {
               </div>
               <div>
                 <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-                <div className="text-xs text-gray-500">{s.label}</div>
+                <div className="text-xs text-white/70">{s.label}</div>
               </div>
             </div>
           ))}
@@ -321,7 +321,7 @@ export function UsersManager() {
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+                  <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 text-left">User</th>
                     <th className="px-4 py-3 text-left">Role</th>
                     <th className="px-4 py-3 text-left hidden md:table-cell">Activity</th>
@@ -341,7 +341,7 @@ export function UsersManager() {
                           </Avatar>
                           <div className="min-w-0">
                             <p className="font-medium text-white text-sm truncate max-w-[140px]">{user.name ?? "—"}</p>
-                            <p className="text-gray-500 text-xs truncate max-w-[140px]">{user.email}</p>
+                            <p className="text-white/70 text-xs truncate max-w-[140px]">{user.email}</p>
                           </div>
                           {user.isVIP && <span className="text-[10px] font-bold text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded-full shrink-0">VIP</span>}
                         </div>
@@ -352,10 +352,10 @@ export function UsersManager() {
                         </span>
                       </td>
                       <td className="px-4 py-3 hidden md:table-cell">
-                        <p className="text-xs text-gray-400">{user._count.predictions} predictions · {user._count.comments} comments</p>
+                        <p className="text-xs text-white/75">{user._count.predictions} predictions · {user._count.comments} comments</p>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
-                        <span className="text-xs text-gray-500">{formatTimeAgo(new Date(user.createdAt))}</span>
+                        <span className="text-xs text-white/70">{formatTimeAgo(new Date(user.createdAt))}</span>
                       </td>
                       <td className="px-4 py-3">
                         {user.isBanned ? (
@@ -370,14 +370,14 @@ export function UsersManager() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => openEdit(user)}
-                            className="p-1.5 rounded-lg hover:bg-white/8 text-gray-400 hover:text-white transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-white/8 text-white/75 hover:text-white transition-colors"
                             title="Edit user"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => setDeleteTarget(user)}
-                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors"
+                            className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/75 hover:text-red-400 transition-colors"
                             title="Delete user"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -388,7 +388,7 @@ export function UsersManager() {
                   ))}
                   {filtered.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={6} className="text-center py-10 text-gray-600 text-sm">
+                      <td colSpan={6} className="text-center py-10 text-white/60 text-sm">
                         {search ? "No users match your search" : "No users found"}
                       </td>
                     </tr>
@@ -408,7 +408,7 @@ export function UsersManager() {
           </DialogHeader>
           {FormBody}
           <DialogFooter className="mt-2">
-            <button onClick={() => setAddOpen(false)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white hover:border-white/20 transition-colors">
+            <button onClick={() => setAddOpen(false)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white hover:border-white/20 transition-colors">
               Cancel
             </button>
             <button
@@ -430,7 +430,7 @@ export function UsersManager() {
           </DialogHeader>
           {FormBody}
           <DialogFooter className="mt-2">
-            <button onClick={() => setEditTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white hover:border-white/20 transition-colors">
+            <button onClick={() => setEditTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white hover:border-white/20 transition-colors">
               Cancel
             </button>
             <button
@@ -457,10 +457,10 @@ export function UsersManager() {
               Are you sure you want to delete{" "}
               <span className="font-bold text-white">{deleteTarget?.name ?? deleteTarget?.email}</span>?
             </p>
-            <p className="text-gray-500 text-xs mt-1">This will permanently delete the account and all associated data.</p>
+            <p className="text-white/70 text-xs mt-1">This will permanently delete the account and all associated data.</p>
           </div>
           <DialogFooter>
-            <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white hover:border-white/20 transition-colors">
+            <button onClick={() => setDeleteTarget(null)} className="px-4 py-2 rounded-xl border border-white/10 text-white/75 text-sm hover:text-white hover:border-white/20 transition-colors">
               Cancel
             </button>
             <button

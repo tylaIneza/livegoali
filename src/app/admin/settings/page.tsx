@@ -22,13 +22,13 @@ export default async function AdminSettingsPage() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h1 className="text-2xl font-black text-white">Platform Settings</h1>
-        <p className="text-gray-500 text-sm mt-1">Configure site-wide settings</p>
+        <p className="text-white/70 text-sm mt-1">Configure site-wide settings</p>
       </div>
 
       <div className="rounded-2xl border border-white/8 bg-[#121821] p-6 space-y-5">
         {defaults.map((s) => (
           <div key={s.key}>
-            <label className="text-sm text-gray-400 mb-1.5 block">{s.label}</label>
+            <label className="text-sm text-white/75 mb-1.5 block">{s.label}</label>
             <Input
               defaultValue={settingsMap[s.key] ?? s.value}
               name={s.key}
@@ -46,8 +46,8 @@ export default async function AdminSettingsPage() {
       {/* Info box */}
       <div className="rounded-xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-4">
         <p className="text-sm text-[#00FF84] font-medium mb-1">Admin Credentials</p>
-        <p className="text-xs text-gray-400">Email: <span className="text-white">admin@livegoali.com</span></p>
-        <p className="text-xs text-gray-400 mt-0.5">Password: <span className="text-white">Admin@123!</span></p>
+        <p className="text-xs text-white/75">Email: <span className="text-white">admin@livegoali.com</span></p>
+        <p className="text-xs text-white/75 mt-0.5">Password: <span className="text-white">Admin@123!</span></p>
       </div>
     </div>
   );

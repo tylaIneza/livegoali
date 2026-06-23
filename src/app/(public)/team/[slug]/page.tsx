@@ -90,18 +90,18 @@ export default async function TeamPage({ params }: Props) {
           <div className="flex-1 min-w-0">
             <h1 className="text-3xl font-black text-white mb-1">{team.name}</h1>
             {team.shortName && team.shortName !== team.name && (
-              <p className="text-gray-500 text-sm mb-2">{team.shortName}</p>
+              <p className="text-white/70 text-sm mb-2">{team.shortName}</p>
             )}
             <div className="flex flex-wrap gap-3">
               {team.country && (
-                <span className="flex items-center gap-1.5 text-sm text-gray-400">
-                  <MapPin className="w-3.5 h-3.5 text-gray-600" />
+                <span className="flex items-center gap-1.5 text-sm text-white/75">
+                  <MapPin className="w-3.5 h-3.5 text-white/60" />
                   {team.city ? `${team.city}, ` : ""}{team.country}
                 </span>
               )}
               {team.founded && (
-                <span className="flex items-center gap-1.5 text-sm text-gray-400">
-                  <Calendar className="w-3.5 h-3.5 text-gray-600" />
+                <span className="flex items-center gap-1.5 text-sm text-white/75">
+                  <Calendar className="w-3.5 h-3.5 text-white/60" />
                   Founded {team.founded}
                 </span>
               )}
@@ -112,8 +112,8 @@ export default async function TeamPage({ params }: Props) {
                 </Link>
               )}
               {team.website && (
-                <a href={team.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#00FF84] transition-colors">
-                  <Globe className="w-3.5 h-3.5 text-gray-600" />
+                <a href={team.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-white/75 hover:text-[#00FF84] transition-colors">
+                  <Globe className="w-3.5 h-3.5 text-white/60" />
                   Website
                 </a>
               )}
@@ -135,7 +135,7 @@ export default async function TeamPage({ params }: Props) {
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <p className={`text-xl font-black ${s.bold ? "text-white" : s.color || "text-gray-300"}`}>{s.value}</p>
-                <p className="text-xs text-gray-600 mt-0.5">{s.label}</p>
+                <p className="text-xs text-white/60 mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -145,13 +145,13 @@ export default async function TeamPage({ params }: Props) {
         {(team.stadium || team.coach) && (
           <div className="mt-4 flex flex-wrap gap-4">
             {team.stadium && (
-              <div className="flex items-center gap-2 text-sm text-gray-400">
-                <span className="text-gray-600">Stadium:</span> {team.stadium}
+              <div className="flex items-center gap-2 text-sm text-white/75">
+                <span className="text-white/60">Stadium:</span> {team.stadium}
               </div>
             )}
             {team.coach && (
-              <div className="flex items-center gap-2 text-sm text-gray-400">
-                <span className="text-gray-600">Coach:</span> {team.coach}
+              <div className="flex items-center gap-2 text-sm text-white/75">
+                <span className="text-white/60">Coach:</span> {team.coach}
               </div>
             )}
           </div>
@@ -176,7 +176,7 @@ export default async function TeamPage({ params }: Props) {
 
         <TabsContent value="fixtures">
           {fixtures.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-white/70">
               <p className="text-lg mb-1">No upcoming fixtures</p>
               <p className="text-sm">Check back later for new matches</p>
             </div>
@@ -189,7 +189,7 @@ export default async function TeamPage({ params }: Props) {
 
         <TabsContent value="results">
           {results.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center py-16 text-white/70">
               <p className="text-lg mb-1">No recent results</p>
               <p className="text-sm">Matches will appear here once played</p>
             </div>
@@ -217,19 +217,19 @@ export default async function TeamPage({ params }: Props) {
                     {player.image ? (
                       <Image src={player.image} alt={player.name} width={36} height={36} className="rounded-full object-cover shrink-0" />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-[#1F2937] flex items-center justify-center text-sm font-bold text-gray-400 shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-[#1F2937] flex items-center justify-center text-sm font-bold text-white/75 shrink-0">
                         {player.number ?? "?"}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white">{player.name}</p>
-                      <p className="text-xs text-gray-500">{player.position || "—"}</p>
+                      <p className="text-xs text-white/70">{player.position || "—"}</p>
                     </div>
                     {player.number && (
-                      <span className="text-xs font-mono text-gray-600">#{player.number}</span>
+                      <span className="text-xs font-mono text-white/60">#{player.number}</span>
                     )}
                     {player.nationality && (
-                      <span className="text-xs text-gray-500 hidden sm:block">{player.nationality}</span>
+                      <span className="text-xs text-white/70 hidden sm:block">{player.nationality}</span>
                     )}
                   </Link>
                 ))}

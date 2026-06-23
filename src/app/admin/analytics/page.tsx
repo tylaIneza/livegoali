@@ -53,7 +53,7 @@ export default async function AdminAnalyticsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-black text-white">Analytics</h1>
-        <p className="text-gray-500 text-sm mt-1">Platform overview and engagement metrics</p>
+        <p className="text-white/70 text-sm mt-1">Platform overview and engagement metrics</p>
       </div>
 
       {/* Stats grid */}
@@ -66,7 +66,7 @@ export default async function AdminAnalyticsPage() {
             <div className={`text-2xl font-black ${s.color}`}>
               {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
             </div>
-            <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
+            <div className="text-xs text-white/70 mt-0.5">{s.label}</div>
             <div className="text-[10px] text-gray-700 mt-0.5">{s.sub}</div>
           </div>
         ))}
@@ -79,7 +79,7 @@ export default async function AdminAnalyticsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+                <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 text-left">Match</th>
                   <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-right">Comments</th>
@@ -94,12 +94,12 @@ export default async function AdminAnalyticsPage() {
                       <p className="text-sm font-medium text-white">
                         {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
                       </p>
-                      <p className="text-xs text-gray-600">{m.league.name}</p>
+                      <p className="text-xs text-white/60">{m.league.name}</p>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-bold ${
                         m.status === "LIVE" || m.status === "HALFTIME" ? "text-red-400" :
-                        m.status === "FINISHED" ? "text-gray-400" : "text-blue-400"
+                        m.status === "FINISHED" ? "text-white/75" : "text-blue-400"
                       }`}>{m.status}</span>
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-gray-300">{m._count.comments}</td>

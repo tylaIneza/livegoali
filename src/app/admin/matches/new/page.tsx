@@ -14,7 +14,7 @@ export default async function NewMatchPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white">Create Match</h1>
-        <p className="text-gray-500 text-sm mt-1">Add a new match with stream sources</p>
+        <p className="text-white/70 text-sm mt-1">Add a new match with stream sources</p>
       </div>
       <CreateMatchForm leagues={leagues} />
     </div>

@@ -494,7 +494,7 @@ export function LiveGoaliPlayer({
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/70 backdrop-blur-sm border border-white/20 text-white text-sm font-semibold hover:bg-black/90 transition-all"
           onClick={(e) => { e.stopPropagation(); setIsMuted(false); }}
         >
-          <VolumeX className="w-4 h-4 text-gray-400" />
+          <VolumeX className="w-4 h-4 text-white/75" />
           Click to unmute
         </button>
       )}
@@ -535,7 +535,7 @@ export function LiveGoaliPlayer({
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0B0F14] gap-4">
           <img src="/livegoali.png" alt="LiveGoali" className="w-16 h-16 object-contain" />
           <p className="text-white font-bold text-lg">No Stream Available</p>
-          <p className="text-gray-500 text-sm">Stream will begin at kickoff</p>
+          <p className="text-white/70 text-sm">Stream will begin at kickoff</p>
         </div>
       )}
 
@@ -570,7 +570,7 @@ export function LiveGoaliPlayer({
                     ? <Wifi className="w-3.5 h-3.5 text-yellow-400" />
                     : <WifiOff className="w-3.5 h-3.5 text-red-400" />
                   }
-                  <span className="text-[10px] text-gray-400 hidden sm:block">
+                  <span className="text-[10px] text-white/75 hidden sm:block">
                     {streamHealth === "good" ? "HD" : streamHealth === "poor" ? "Weak" : "Offline"}
                   </span>
                 </div>

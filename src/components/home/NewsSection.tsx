@@ -26,7 +26,7 @@ export function NewsSection({ articles }: Props) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-white">Football News</h2>
-            <p className="text-sm text-gray-500">Latest from the world of football</p>
+            <p className="text-sm text-white/70">Latest from the world of football</p>
           </div>
         </div>
         <Link href="/news" className="text-sm text-[#00FF84] hover:underline flex items-center gap-1">
@@ -64,9 +64,9 @@ export function NewsSection({ articles }: Props) {
                   {featured.title}
                 </h3>
                 {featured.excerpt && (
-                  <p className="text-sm text-gray-400 line-clamp-2 mb-3">{featured.excerpt}</p>
+                  <p className="text-sm text-white/75 line-clamp-2 mb-3">{featured.excerpt}</p>
                 )}
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-white/70">
                   <Clock className="w-3 h-3" />
                   {featured.publishedAt ? formatTimeAgo(featured.publishedAt) : ""}
                 </div>
@@ -96,14 +96,14 @@ export function NewsSection({ articles }: Props) {
                     />
                   ) : (
                     <div className="w-20 h-16 rounded-lg bg-[#1F2937] shrink-0 flex items-center justify-center">
-                      <Newspaper className="w-6 h-6 text-gray-600" />
+                      <Newspaper className="w-6 h-6 text-white/60" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-[#00FF84] transition-colors leading-tight">
                       {article.title}
                     </h4>
-                    <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 mt-1 text-xs text-white/70">
                       <Clock className="w-3 h-3" />
                       {article.publishedAt ? formatTimeAgo(article.publishedAt) : ""}
                     </div>

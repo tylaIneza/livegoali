@@ -73,7 +73,7 @@ export function AdminSidebar({ role, user }: Props) {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden lg:flex ml-auto p-1.5 rounded-lg hover:bg-white/5 text-gray-500 hover:text-white transition-all"
+            className="hidden lg:flex ml-auto p-1.5 rounded-lg hover:bg-white/5 text-white/70 hover:text-white transition-all"
           >
             <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
           </button>
@@ -94,7 +94,7 @@ export function AdminSidebar({ role, user }: Props) {
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group",
                     isActive
                       ? "bg-[#00FF84]/10 text-[#00FF84] border border-[#00FF84]/20"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                      : "text-white/75 hover:text-white hover:bg-white/5"
                   )}
                 >
                   <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-[#00FF84]")} />

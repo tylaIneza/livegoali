@@ -75,7 +75,7 @@ export function HeroSection({ liveMatches, upcomingMatches }: HeroProps) {
               </span>
             )}
           </div>
-          <Link href={hasLive ? "/live" : "/fixtures"} className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#00FF84] transition-colors font-medium">
+          <Link href={hasLive ? "/live" : "/fixtures"} className="flex items-center gap-1 text-xs text-white/70 hover:text-[#00FF84] transition-colors font-medium">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -105,13 +105,13 @@ export function HeroSection({ liveMatches, upcomingMatches }: HeroProps) {
             {sideItems.length === 0 && (
               <div className="flex-1 rounded-2xl border border-white/6 bg-[#121821]/60 p-5 flex flex-col items-center justify-center gap-2 min-h-[160px]">
                 <Calendar className="w-7 h-7 text-gray-700" />
-                <p className="text-gray-600 text-sm text-center">More fixtures coming soon</p>
+                <p className="text-white/60 text-sm text-center">More fixtures coming soon</p>
               </div>
             )}
 
             <Link
               href="/fixtures"
-              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/8 bg-[#121821] text-sm text-gray-400 hover:text-[#00FF84] hover:border-[#00FF84]/30 transition-all font-medium"
+              className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/8 bg-[#121821] text-sm text-white/75 hover:text-[#00FF84] hover:border-[#00FF84]/30 transition-all font-medium"
             >
               <Calendar className="w-4 h-4" />
               All Fixtures
@@ -154,7 +154,7 @@ function PlaceholderHero() {
               <br />
               <span className="text-gradient">Live Football</span>
             </h1>
-            <p className="text-gray-400 text-base mb-8 max-w-md leading-relaxed">
+            <p className="text-white/75 text-base mb-8 max-w-md leading-relaxed">
               Stream live matches, get AI predictions, and follow real-time scores — all in one place.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -192,7 +192,7 @@ function PlaceholderHero() {
                 </div>
                 <div>
                   <div className={`text-2xl font-black ${item.color}`}>{item.value}</div>
-                  <div className="text-xs text-gray-500 mt-0.5 font-medium">{item.label}</div>
+                  <div className="text-xs text-white/70 mt-0.5 font-medium">{item.label}</div>
                 </div>
               </div>
             ))}
@@ -226,7 +226,7 @@ function FeaturedLiveCard({ match }: { match: Match }) {
         <div className="flex items-center justify-between gap-4 flex-1">
           <TeamBlock team={match.homeTeam} align="left" />
           <div className="flex flex-col items-center gap-2 shrink-0">
-            <div className="text-4xl sm:text-5xl font-black text-gray-500">VS</div>
+            <div className="text-4xl sm:text-5xl font-black text-white/70">VS</div>
             {match.status === "HALFTIME" && (
               <span className="text-[11px] text-yellow-400 font-bold bg-yellow-500/10 border border-yellow-500/20 px-2.5 py-0.5 rounded-full">HALF TIME</span>
             )}
@@ -276,10 +276,10 @@ function FeaturedUpcomingCard({ match }: { match: Match }) {
         <div className="flex items-center justify-between gap-4 flex-1">
           <TeamBlock team={match.homeTeam} align="left" />
           <div className="flex flex-col items-center gap-3 shrink-0">
-            <div className="text-3xl font-black text-gray-600 leading-none">VS</div>
+            <div className="text-3xl font-black text-white/60 leading-none">VS</div>
             <div className="text-center">
               <div className="text-sm font-bold text-white">{formatMatchDate(match.scheduledAt).split(",")[1]?.trim()}</div>
-              <div className="text-xs text-gray-500">{formatMatchDate(match.scheduledAt).split(",")[0]}</div>
+              <div className="text-xs text-white/70">{formatMatchDate(match.scheduledAt).split(",")[0]}</div>
             </div>
           </div>
           <TeamBlock team={match.awayTeam} align="right" />
@@ -318,7 +318,7 @@ function SideMatchCard({ match, isLive }: { match: Match; isLive: boolean }) {
           <LeaguePill league={match.league} tiny />
           {isLive
             ? <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
-            : <span className="text-[10px] text-gray-500 font-medium">{formatMatchDate(match.scheduledAt).split(",")[1]?.trim()}</span>
+            : <span className="text-[10px] text-white/70 font-medium">{formatMatchDate(match.scheduledAt).split(",")[1]?.trim()}</span>
           }
         </div>
         <div className="flex items-center gap-3">
@@ -326,7 +326,7 @@ function SideMatchCard({ match, isLive }: { match: Match; isLive: boolean }) {
             <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={24} />
             <span className="text-sm font-bold text-white truncate">{match.homeTeam.shortName || match.homeTeam.name}</span>
           </div>
-          <div className={`text-sm font-black tabular-nums shrink-0 ${isLive ? "text-[#00FF84]" : "text-gray-600"}`}>
+          <div className={`text-sm font-black tabular-nums shrink-0 ${isLive ? "text-[#00FF84]" : "text-white/60"}`}>
             {isLive ? `${match.homeScore ?? 0} - ${match.awayScore ?? 0}` : "vs"}
           </div>
           <div className="flex-1 flex items-center gap-2 justify-end min-w-0">
@@ -352,7 +352,7 @@ function LeaguePill({ league, tiny = false }: { league: { name: string; logo: st
       {league.logo && (
         <Image src={league.logo} alt={league.name} width={tiny ? 13 : 16} height={tiny ? 13 : 16} className="object-contain" />
       )}
-      <span className={`font-medium text-gray-400 truncate max-w-[160px] ${tiny ? "text-[10px]" : "text-xs"}`}>
+      <span className={`font-medium text-white/75 truncate max-w-[160px] ${tiny ? "text-[10px]" : "text-xs"}`}>
         {league.name}
       </span>
     </div>
@@ -386,7 +386,7 @@ function PredBar({ pred, homeLabel, awayLabel }: { pred: { homeWinProb: number; 
     <div className="p-3 rounded-xl bg-white/4 border border-white/6">
       <div className="flex justify-between text-[11px] font-bold mb-1.5">
         <span className="text-[#00FF84]">{pred.homeWinProb.toFixed(0)}% {homeLabel}</span>
-        <span className="text-gray-600 text-[10px]">AI Prediction</span>
+        <span className="text-white/60 text-[10px]">AI Prediction</span>
         <span className="text-blue-400">{pred.awayWinProb.toFixed(0)}% {awayLabel}</span>
       </div>
       <div className="flex h-1.5 rounded-full overflow-hidden gap-px">

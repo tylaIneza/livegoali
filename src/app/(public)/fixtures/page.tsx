@@ -69,7 +69,7 @@ export default async function FixturesPage({
         </div>
         <div>
           <h1 className="text-2xl font-black text-white">Fixtures</h1>
-          <p className="text-gray-500 text-sm">{dayLabel(activeDate)}</p>
+          <p className="text-white/70 text-sm">{dayLabel(activeDate)}</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export default async function FixturesPage({
       <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
         <Link
           href={`/fixtures?date=${format(prevDate, "yyyy-MM-dd")}`}
-          className="p-2 rounded-lg border border-white/8 bg-[#121821] text-gray-400 hover:text-white hover:border-white/20 transition-all shrink-0"
+          className="p-2 rounded-lg border border-white/8 bg-[#121821] text-white/75 hover:text-white hover:border-white/20 transition-all shrink-0"
         >
           <ChevronLeft className="w-4 h-4" />
         </Link>
@@ -94,19 +94,19 @@ export default async function FixturesPage({
               className={`flex flex-col items-center px-3 py-2 rounded-xl border text-center shrink-0 transition-all min-w-[60px] ${
                 isActive
                   ? "border-[#00FF84]/40 bg-[#00FF84]/10 text-[#00FF84]"
-                  : "border-white/8 bg-[#121821] text-gray-400 hover:border-white/20 hover:text-white"
+                  : "border-white/8 bg-[#121821] text-white/75 hover:border-white/20 hover:text-white"
               }`}
             >
               <span className="text-[10px] font-bold uppercase">{format(ds, "EEE")}</span>
               <span className={`text-lg font-black leading-tight ${isActive ? "text-[#00FF84]" : ""}`}>{format(ds, "d")}</span>
-              <span className="text-[10px] text-gray-500">{format(ds, "MMM")}</span>
+              <span className="text-[10px] text-white/70">{format(ds, "MMM")}</span>
             </Link>
           );
         })}
 
         <Link
           href={`/fixtures?date=${format(nextDate, "yyyy-MM-dd")}`}
-          className="p-2 rounded-lg border border-white/8 bg-[#121821] text-gray-400 hover:text-white hover:border-white/20 transition-all shrink-0"
+          className="p-2 rounded-lg border border-white/8 bg-[#121821] text-white/75 hover:text-white hover:border-white/20 transition-all shrink-0"
         >
           <ChevronRight className="w-4 h-4" />
         </Link>
@@ -117,7 +117,7 @@ export default async function FixturesPage({
         <div className="rounded-2xl border border-white/8 bg-[#121821] p-16 text-center">
           <Calendar className="w-12 h-12 text-gray-700 mx-auto mb-3" />
           <p className="text-white font-bold mb-1">No matches on {dayLabel(activeDate)}</p>
-          <p className="text-gray-500 text-sm">Try a different date</p>
+          <p className="text-white/70 text-sm">Try a different date</p>
         </div>
       ) : (
         <div className="space-y-5">
@@ -133,7 +133,7 @@ export default async function FixturesPage({
                   <Link href={`/league/${league.slug}`} className="text-sm font-bold text-white hover:text-[#00FF84] transition-colors">
                     {league.name}
                   </Link>
-                  <span className="text-xs text-gray-500 ml-1">· {league.country}</span>
+                  <span className="text-xs text-white/70 ml-1">· {league.country}</span>
                 </div>
 
                 {/* Match rows */}
@@ -151,9 +151,9 @@ export default async function FixturesPage({
                             {isLive ? (
                               <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
                             ) : isFinished ? (
-                              <span className="text-xs text-gray-500 font-bold">FT</span>
+                              <span className="text-xs text-white/70 font-bold">FT</span>
                             ) : (
-                              <span className="text-xs text-gray-400 font-bold">
+                              <span className="text-xs text-white/75 font-bold">
                                 {format(new Date(match.scheduledAt), "HH:mm")}
                               </span>
                             )}
@@ -171,7 +171,7 @@ export default async function FixturesPage({
 
                           {/* Score */}
                           <div className={`text-sm font-black tabular-nums w-14 text-center shrink-0 ${
-                            isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-gray-600"
+                            isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-white/60"
                           }`}>
                             {isFinished
                               ? `${match.homeScore ?? 0} - ${match.awayScore ?? 0}`

@@ -70,7 +70,7 @@ export default async function LeaguePage({ params }: Props) {
         )}
         <div>
           <h1 className="text-3xl font-black text-white">{league.name}</h1>
-          <p className="text-gray-400">{league.country} · {league.season}</p>
+          <p className="text-white/75">{league.country} · {league.season}</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ export default async function LeaguePage({ params }: Props) {
 
         <TabsContent value="fixtures">
           {fixtures.length === 0 ? (
-            <p className="text-center text-gray-500 py-12">No upcoming fixtures</p>
+            <p className="text-center text-white/70 py-12">No upcoming fixtures</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {fixtures.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
@@ -93,7 +93,7 @@ export default async function LeaguePage({ params }: Props) {
 
         <TabsContent value="results">
           {results.length === 0 ? (
-            <p className="text-center text-gray-500 py-12">No recent results</p>
+            <p className="text-center text-white/70 py-12">No recent results</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {results.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
@@ -107,7 +107,7 @@ export default async function LeaguePage({ params }: Props) {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+                    <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                       <th className="px-4 py-3 text-left w-8">#</th>
                       <th className="px-4 py-3 text-left">Team</th>
                       <th className="px-4 py-3 text-center">P</th>
@@ -124,7 +124,7 @@ export default async function LeaguePage({ params }: Props) {
                   <tbody className="divide-y divide-white/5">
                     {league.standings.map((s) => (
                       <tr key={s.id} className="hover:bg-white/2 transition-colors">
-                        <td className="px-4 py-3 text-gray-500 font-medium">{s.position}</td>
+                        <td className="px-4 py-3 text-white/70 font-medium">{s.position}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             {s.team.logo && (
@@ -133,13 +133,13 @@ export default async function LeaguePage({ params }: Props) {
                             <span className="font-medium text-white">{s.team.name}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.played}</td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.won}</td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.drawn}</td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.lost}</td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.goalsFor}</td>
-                        <td className="px-4 py-3 text-center text-gray-400">{s.goalsAgainst}</td>
-                        <td className={`px-4 py-3 text-center font-medium ${s.goalDifference > 0 ? "text-[#00FF84]" : s.goalDifference < 0 ? "text-red-400" : "text-gray-400"}`}>
+                        <td className="px-4 py-3 text-center text-white/75">{s.played}</td>
+                        <td className="px-4 py-3 text-center text-white/75">{s.won}</td>
+                        <td className="px-4 py-3 text-center text-white/75">{s.drawn}</td>
+                        <td className="px-4 py-3 text-center text-white/75">{s.lost}</td>
+                        <td className="px-4 py-3 text-center text-white/75">{s.goalsFor}</td>
+                        <td className="px-4 py-3 text-center text-white/75">{s.goalsAgainst}</td>
+                        <td className={`px-4 py-3 text-center font-medium ${s.goalDifference > 0 ? "text-[#00FF84]" : s.goalDifference < 0 ? "text-red-400" : "text-white/75"}`}>
                           {s.goalDifference > 0 ? "+" : ""}{s.goalDifference}
                         </td>
                         <td className="px-4 py-3 text-center font-black text-white text-base">{s.points}</td>

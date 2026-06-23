@@ -54,7 +54,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <Link href="/news" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
+      <Link href="/news" className="inline-flex items-center gap-2 text-white/75 hover:text-white text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         Back to News
       </Link>
@@ -69,11 +69,11 @@ export default async function NewsArticlePage({ params }: Props) {
         {article.isSponsored && (
           <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-3 py-1 rounded-full">SPONSORED</span>
         )}
-        <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-white/70">
           <Clock className="w-3 h-3" />
           {article.publishedAt ? formatTimeAgo(article.publishedAt) : ""}
         </div>
-        <div className="flex items-center gap-1 text-xs text-gray-500">
+        <div className="flex items-center gap-1 text-xs text-white/70">
           <Eye className="w-3 h-3" />
           {article.views} views
         </div>
@@ -108,9 +108,9 @@ export default async function NewsArticlePage({ params }: Props) {
       {article.tags.length > 0 && (
         <div className="mt-8 pt-8 border-t border-white/8">
           <div className="flex items-center gap-2 flex-wrap">
-            <Tag className="w-4 h-4 text-gray-500" />
+            <Tag className="w-4 h-4 text-white/70" />
             {article.tags.map((t) => (
-              <span key={t.tagId} className="text-xs font-medium text-gray-400 bg-[#1F2937] px-3 py-1 rounded-full hover:text-white transition-colors cursor-pointer">
+              <span key={t.tagId} className="text-xs font-medium text-white/75 bg-[#1F2937] px-3 py-1 rounded-full hover:text-white transition-colors cursor-pointer">
                 #{t.tag.name}
               </span>
             ))}
@@ -135,7 +135,7 @@ export default async function NewsArticlePage({ params }: Props) {
                   )}
                   <div className="p-3">
                     <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-[#00FF84] transition-colors">{r.title}</h4>
-                    <p className="text-xs text-gray-500 mt-1">{r.publishedAt ? formatTimeAgo(r.publishedAt) : ""}</p>
+                    <p className="text-xs text-white/70 mt-1">{r.publishedAt ? formatTimeAgo(r.publishedAt) : ""}</p>
                   </div>
                 </div>
               </Link>

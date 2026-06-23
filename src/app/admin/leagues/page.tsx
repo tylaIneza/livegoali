@@ -13,7 +13,7 @@ export default async function AdminLeaguesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white">Leagues</h1>
-        <p className="text-gray-500 text-sm mt-1">Create and manage football leagues</p>
+        <p className="text-white/70 text-sm mt-1">Create and manage football leagues</p>
       </div>
       <LeaguesManager leagues={leagues} />
     </div>

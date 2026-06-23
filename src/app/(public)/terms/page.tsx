@@ -11,8 +11,8 @@ export default function TermsPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-10">
         <h1 className="text-4xl font-black text-white mb-3">Terms of Service</h1>
-        <p className="text-gray-500 text-sm">Last Updated: June 23, 2026</p>
-        <p className="text-gray-400 mt-4 leading-relaxed">
+        <p className="text-white/70 text-sm">Last Updated: June 23, 2026</p>
+        <p className="text-white/75 mt-4 leading-relaxed">
           Welcome to LiveGoali (&ldquo;LiveGoali&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;). By accessing or using{" "}
           <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link>{" "}
           (the &ldquo;Website&rdquo;), you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, please do not use our Website.
@@ -39,7 +39,7 @@ export default function TermsPage() {
               <>
                 <p className="mb-3">Some features such as commenting, predictions, and community participation may require registration.</p>
                 <p className="mb-2">You agree to:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm">
+                <ul className="list-disc list-inside space-y-1 text-white/75 text-sm">
                   <li>Provide accurate information.</li>
                   <li>Maintain the security of your account.</li>
                   <li>Keep your password confidential.</li>
@@ -54,7 +54,7 @@ export default function TermsPage() {
             content: (
               <>
                 <p className="mb-2">You agree not to:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm mb-3">
+                <ul className="list-disc list-inside space-y-1 text-white/75 text-sm mb-3">
                   <li>Violate any applicable laws or regulations.</li>
                   <li>Upload malicious software or harmful code.</li>
                   <li>Attempt unauthorized access to our systems.</li>
@@ -90,7 +90,7 @@ export default function TermsPage() {
               <>
                 <p className="mb-3">LiveGoali respects intellectual property rights.</p>
                 <p className="mb-2">If you believe that any content available through our Website infringes your copyright, please contact us with:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm mb-3">
+                <ul className="list-disc list-inside space-y-1 text-white/75 text-sm mb-3">
                   <li>Your contact information.</li>
                   <li>Identification of the copyrighted work.</li>
                   <li>Identification of the allegedly infringing material.</li>
@@ -134,7 +134,7 @@ export default function TermsPage() {
               <>
                 <p className="mb-3">The Website is provided on an &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo; basis.</p>
                 <p className="mb-2">We make no warranties regarding:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm mb-3">
+                <ul className="list-disc list-inside space-y-1 text-white/75 text-sm mb-3">
                   <li>Availability of the Website.</li>
                   <li>Accuracy of information.</li>
                   <li>Uninterrupted operation.</li>
@@ -155,7 +155,7 @@ export default function TermsPage() {
             content: (
               <>
                 <p className="mb-2">You agree to indemnify and hold harmless LiveGoali, its owners, affiliates, employees, and partners from any claims, damages, liabilities, or expenses arising from:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-400 text-sm">
+                <ul className="list-disc list-inside space-y-1 text-white/75 text-sm">
                   <li>Your use of the Website.</li>
                   <li>Your violation of these Terms.</li>
                   <li>Your violation of any third-party rights.</li>
@@ -204,13 +204,13 @@ export default function TermsPage() {
         ].map((s) => (
           <div key={s.title} className="rounded-2xl border border-white/8 bg-[#121821] p-6">
             <h2 className="text-white font-bold mb-3">{s.title}</h2>
-            <div className="text-gray-400 text-sm leading-relaxed">{s.content}</div>
+            <div className="text-white/75 text-sm leading-relaxed">{s.content}</div>
           </div>
         ))}
       </div>
 
       <div className="mt-10 text-center">
-        <p className="text-gray-500 text-sm">
+        <p className="text-white/70 text-sm">
           Questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Contact us</Link>
         </p>
       </div>

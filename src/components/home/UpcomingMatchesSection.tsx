@@ -23,7 +23,7 @@ export function UpcomingMatchesSection({ matches }: Props) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-white">Upcoming Matches</h2>
-            <p className="text-sm text-gray-500">Next 48 hours</p>
+            <p className="text-sm text-white/70">Next 48 hours</p>
           </div>
         </div>
         <Button variant="ghost" size="sm" asChild>

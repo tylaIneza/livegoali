@@ -131,7 +131,7 @@ export function CreateMatchForm({ leagues }: Props) {
           {/* League */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-sm text-gray-400">League *</label>
+              <label className="text-sm text-white/75">League *</label>
               <Link
                 href="/admin/leagues"
                 className="flex items-center gap-1 text-xs text-[#00FF84] hover:underline"
@@ -157,42 +157,42 @@ export function CreateMatchForm({ leagues }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Home Team */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400 block">Home Team *</label>
+              <label className="text-sm text-white/75 block">Home Team *</label>
               <div className="flex items-center gap-3">
                 {homeTeamLogo ? (
                   <img src={homeTeamLogo} alt="Home logo" className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-lg">⚽</div>
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-lg">⚽</div>
                 )}
                 <div className="flex-1 space-y-1.5">
                   <Input placeholder="Team name (e.g. Arsenal) *" value={homeTeamName} onChange={(e) => setHomeTeamName(e.target.value)} required />
                   <Input placeholder="Logo URL (https://...)" value={homeTeamLogo} onChange={(e) => setHomeTeamLogo(e.target.value)} />
                 </div>
               </div>
-              <p className="text-[11px] text-gray-600">Team created automatically if new. Logo saved to team.</p>
+              <p className="text-[11px] text-white/60">Team created automatically if new. Logo saved to team.</p>
             </div>
             {/* Away Team */}
             <div className="space-y-2">
-              <label className="text-sm text-gray-400 block">Away Team *</label>
+              <label className="text-sm text-white/75 block">Away Team *</label>
               <div className="flex items-center gap-3">
                 {awayTeamLogo ? (
                   <img src={awayTeamLogo} alt="Away logo" className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-lg">⚽</div>
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-lg">⚽</div>
                 )}
                 <div className="flex-1 space-y-1.5">
                   <Input placeholder="Team name (e.g. Chelsea) *" value={awayTeamName} onChange={(e) => setAwayTeamName(e.target.value)} required />
                   <Input placeholder="Logo URL (https://...)" value={awayTeamLogo} onChange={(e) => setAwayTeamLogo(e.target.value)} />
                 </div>
               </div>
-              <p className="text-[11px] text-gray-600">Team created automatically if new. Logo saved to team.</p>
+              <p className="text-[11px] text-white/60">Team created automatically if new. Logo saved to team.</p>
             </div>
           </div>
 
           {/* Date, Venue, Round */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Kickoff Date & Time *</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Kickoff Date & Time *</label>
               <Input
                 type="datetime-local"
                 value={scheduledAt}
@@ -201,11 +201,11 @@ export function CreateMatchForm({ leagues }: Props) {
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Venue</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Venue</label>
               <Input placeholder="Stadium name..." value={venue} onChange={(e) => setVenue(e.target.value)} />
             </div>
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Round</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Round</label>
               <Input placeholder="Matchday 1, Group A..." value={round} onChange={(e) => setRound(e.target.value)} />
             </div>
           </div>
@@ -256,7 +256,7 @@ export function CreateMatchForm({ leagues }: Props) {
                   <button
                     type="button"
                     onClick={() => removeStream(i)}
-                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-gray-500 hover:text-red-400 transition-all"
+                    className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/70 hover:text-red-400 transition-all"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -293,7 +293,7 @@ export function CreateMatchForm({ leagues }: Props) {
             </div>
           ))}
           {streams.length === 0 && (
-            <p className="text-gray-500 text-sm text-center py-4">No streams added yet.</p>
+            <p className="text-white/70 text-sm text-center py-4">No streams added yet.</p>
           )}
         </CardContent>
       </Card>

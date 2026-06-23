@@ -67,7 +67,7 @@ export function LoginForm() {
               </span>
             </Link>
             <h1 className="text-2xl font-black text-white">Welcome Back</h1>
-            <p className="text-gray-500 text-sm mt-1">Sign in to join the action</p>
+            <p className="text-white/70 text-sm mt-1">Sign in to join the action</p>
           </div>
 
           <Button type="button" variant="outline" className="w-full mb-4" onClick={handleGoogleLogin}>
@@ -80,15 +80,15 @@ export function LoginForm() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-transparent text-gray-500">or sign in with email</span>
+              <span className="px-3 bg-transparent text-white/70">or sign in with email</span>
             </div>
           </div>
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Email</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -101,9 +101,9 @@ export function LoginForm() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-400 mb-1.5 block">Password</label>
+              <label className="text-sm text-white/75 mb-1.5 block">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
@@ -115,7 +115,7 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-gray-300"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -133,7 +133,7 @@ export function LoginForm() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-white/70 mt-6">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="text-[#00FF84] hover:underline font-medium">
               Create one free

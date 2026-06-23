@@ -59,7 +59,7 @@ export function LiveViewersWidget() {
           <Eye className="w-7 h-7 text-red-400 shrink-0" />
           <span className="text-5xl font-black text-white leading-none">{fmt(total)}</span>
         </div>
-        <span className="text-gray-500 text-sm mb-1">watching now</span>
+        <span className="text-white/70 text-sm mb-1">watching now</span>
       </div>
 
       {total > 0 && (
@@ -75,20 +75,20 @@ export function LiveViewersWidget() {
         <div className="flex items-center gap-1.5">
           <UserCheck className="w-3.5 h-3.5 text-[#00FF84]" />
           <span className="text-lg font-bold text-[#00FF84]">{fmt(totalUsers)}</span>
-          <span className="text-xs text-gray-500">signed in</span>
+          <span className="text-xs text-white/70">signed in</span>
         </div>
         <div className="w-px h-4 bg-white/10" />
         <div className="flex items-center gap-1.5">
           <UserX className="w-3.5 h-3.5 text-yellow-400" />
           <span className="text-lg font-bold text-yellow-400">{fmt(totalGuests)}</span>
-          <span className="text-xs text-gray-500">guests</span>
+          <span className="text-xs text-white/70">guests</span>
         </div>
         {data.length > 0 && (
           <>
             <div className="w-px h-4 bg-white/10" />
             <div className="flex items-center gap-1.5">
-              <Radio className="w-3.5 h-3.5 text-gray-500" />
-              <span className="text-xs text-gray-500">{data.length} match{data.length !== 1 ? "es" : ""}</span>
+              <Radio className="w-3.5 h-3.5 text-white/70" />
+              <span className="text-xs text-white/70">{data.length} match{data.length !== 1 ? "es" : ""}</span>
             </div>
           </>
         )}

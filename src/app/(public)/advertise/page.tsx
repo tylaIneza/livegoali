@@ -28,7 +28,7 @@ export default function AdvertisePage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="mb-10">
         <h1 className="text-4xl font-black text-white mb-3">Advertise with LiveGoali</h1>
-        <p className="text-gray-400 mt-4 leading-relaxed">
+        <p className="text-white/75 mt-4 leading-relaxed">
           Reach a passionate, engaged global audience of football fans. LiveGoali offers premium advertising placements across live match pages, news, fixtures, predictions, and more.
         </p>
       </div>
@@ -41,7 +41,7 @@ export default function AdvertisePage() {
               <s.icon className="w-4 h-4 text-[#00FF84]" />
             </div>
             <p className="text-white text-sm font-bold">{s.value}</p>
-            <p className="text-gray-500 text-xs mt-0.5">{s.label}</p>
+            <p className="text-white/70 text-xs mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
@@ -56,9 +56,9 @@ export default function AdvertisePage() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-white text-sm font-semibold">{p.name}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{p.desc}</p>
+                  <p className="text-white/70 text-xs mt-0.5">{p.desc}</p>
                 </div>
-                <span className="text-xs text-gray-600 bg-white/5 px-2 py-1 rounded-lg shrink-0 font-mono">{p.size}</span>
+                <span className="text-xs text-white/60 bg-white/5 px-2 py-1 rounded-lg shrink-0 font-mono">{p.size}</span>
               </div>
             </div>
           ))}
@@ -68,18 +68,18 @@ export default function AdvertisePage() {
       {/* CTA */}
       <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-8 text-center">
         <h2 className="text-xl font-black text-white mb-2">Ready to advertise?</h2>
-        <p className="text-gray-400 text-sm mb-5">Contact our partnerships team to discuss rates, formats, and campaign options.</p>
+        <p className="text-white/75 text-sm mb-5">Contact our partnerships team to discuss rates, formats, and campaign options.</p>
         <a
           href="mailto:business@livegoali.com"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00FF84]/90 transition-colors"
         >
           Get in Touch
         </a>
-        <p className="text-gray-600 text-xs mt-3">business@livegoali.com</p>
+        <p className="text-white/60 text-xs mt-3">business@livegoali.com</p>
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-gray-500 text-sm">
+        <p className="text-white/70 text-sm">
           General questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Visit our Contact page</Link>
         </p>
       </div>

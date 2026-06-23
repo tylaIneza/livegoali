@@ -24,14 +24,14 @@ export default async function AdminPredictionsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-black text-white">Predictions Management</h1>
-        <p className="text-gray-500 text-sm mt-1">{predictions.length} predictions generated</p>
+        <p className="text-white/70 text-sm mt-1">{predictions.length} predictions generated</p>
       </div>
 
       <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+              <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">Match</th>
                 <th className="px-4 py-3 text-left">Home %</th>
                 <th className="px-4 py-3 text-left">Draw %</th>
@@ -48,7 +48,7 @@ export default async function AdminPredictionsPage() {
                     <p className="font-medium text-white text-xs">
                       {pred.match.homeTeam.shortName || pred.match.homeTeam.name} vs {pred.match.awayTeam.shortName || pred.match.awayTeam.name}
                     </p>
-                    <p className="text-gray-600 text-[10px]">{pred.match.league.name} · {formatMatchDate(pred.match.scheduledAt)}</p>
+                    <p className="text-white/60 text-[10px]">{pred.match.league.name} · {formatMatchDate(pred.match.scheduledAt)}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-sm font-bold text-[#00FF84]">{pred.homeWinProb.toFixed(0)}%</span>
@@ -60,7 +60,7 @@ export default async function AdminPredictionsPage() {
                     <span className="text-sm font-bold text-blue-400">{pred.awayWinProb.toFixed(0)}%</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-white/75">
                       {pred.expectedHomeGoals?.toFixed(1) ?? "—"} - {pred.expectedAwayGoals?.toFixed(1) ?? "—"}
                     </span>
                   </td>
@@ -69,14 +69,14 @@ export default async function AdminPredictionsPage() {
                       <div className="w-12 h-1.5 rounded-full bg-white/10 overflow-hidden">
                         <div className="h-full bg-[#00FF84] rounded-full" style={{ width: `${pred.confidence}%` }} />
                       </div>
-                      <span className="text-xs text-gray-400">{pred.confidence.toFixed(0)}%</span>
+                      <span className="text-xs text-white/75">{pred.confidence.toFixed(0)}%</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     {pred.isOverridden ? (
                       <Badge variant="hot" className="text-[10px]">Manual</Badge>
                     ) : (
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-white/70">
                         <Brain className="w-3 h-3" /> AI
                       </div>
                     )}
@@ -89,7 +89,7 @@ export default async function AdminPredictionsPage() {
         {predictions.length === 0 && (
           <div className="text-center py-16">
             <TrendingUp className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">No predictions yet. They are auto-generated when creating matches.</p>
+            <p className="text-white/70 text-sm">No predictions yet. They are auto-generated when creating matches.</p>
           </div>
         )}
       </div>

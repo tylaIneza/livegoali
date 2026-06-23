@@ -139,10 +139,10 @@ export function LeaguesManager({ leagues: initial }: { leagues: League[] }) {
       {/* Leagues list */}
       <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
         <div className="px-5 py-3 border-b border-white/8">
-          <p className="text-sm text-gray-400">{leagues.length} leagues total</p>
+          <p className="text-sm text-white/75">{leagues.length} leagues total</p>
         </div>
         {leagues.length === 0 ? (
-          <div className="py-16 text-center text-gray-500 text-sm">No leagues yet</div>
+          <div className="py-16 text-center text-white/70 text-sm">No leagues yet</div>
         ) : (
           <div className="divide-y divide-white/6">
             {leagues.map((l) => (
@@ -164,17 +164,17 @@ export function LeaguesManager({ leagues: initial }: { leagues: League[] }) {
                       <img src={l.logo} alt={l.name} className="w-8 h-8 object-contain shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                        <Globe className="w-4 h-4 text-gray-600" />
+                        <Globe className="w-4 h-4 text-white/60" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-white truncate">{l.name}</p>
-                      <p className="text-xs text-gray-500">{l.country} · {l.season} · {l._count.matches} matches · {l._count.teams} teams</p>
+                      <p className="text-xs text-white/70">{l.country} · {l.season} · {l._count.matches} matches · {l._count.teams} teams</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => toggleActive(l)}
-                        className={`text-xs px-2.5 py-1 rounded-full font-bold transition-colors ${l.isActive ? "bg-[#00FF84]/10 text-[#00FF84]" : "bg-white/5 text-gray-500"}`}
+                        className={`text-xs px-2.5 py-1 rounded-full font-bold transition-colors ${l.isActive ? "bg-[#00FF84]/10 text-[#00FF84]" : "bg-white/5 text-white/70"}`}
                       >
                         {l.isActive ? "Active" : "Inactive"}
                       </button>

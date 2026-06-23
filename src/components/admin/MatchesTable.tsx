@@ -47,7 +47,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
 
   if (matches.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-500">
+      <div className="text-center py-16 text-white/70">
         <p>No matches yet.</p>
       </div>
     );
@@ -60,7 +60,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bg-[#121821] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
             <h3 className="text-lg font-bold text-white mb-2">Delete Match?</h3>
-            <p className="text-gray-400 text-sm mb-6">
+            <p className="text-white/75 text-sm mb-6">
               This will permanently delete the match, all streams, events, comments and predictions. This cannot be undone.
             </p>
             <div className="flex gap-3">
@@ -85,7 +85,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
           <thead>
             <tr className="border-b border-white/8">
               {["Match", "League", "Date", "Status", "Streams", "Actions"].map((h) => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <th key={h} className="px-4 py-3 text-left text-xs font-bold text-white/70 uppercase tracking-wider">
                   {h}
                 </th>
               ))}
@@ -109,10 +109,10 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-sm text-gray-400">{match.league.name}</span>
+                  <span className="text-sm text-white/75">{match.league.name}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-sm text-gray-400">{formatMatchDate(match.scheduledAt)}</span>
+                  <span className="text-sm text-white/75">{formatMatchDate(match.scheduledAt)}</span>
                 </td>
                 <td className="px-4 py-3">
                   <Badge
@@ -127,8 +127,8 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1.5">
-                    <Radio className={`w-3.5 h-3.5 ${match.streams.length > 0 ? "text-[#00FF84]" : "text-gray-600"}`} />
-                    <span className="text-sm text-gray-400">{match.streams.length} active</span>
+                    <Radio className={`w-3.5 h-3.5 ${match.streams.length > 0 ? "text-[#00FF84]" : "text-white/60"}`} />
+                    <span className="text-sm text-white/75">{match.streams.length} active</span>
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -175,7 +175,7 @@ function TeamLogo({ logo, name }: { logo: string | null; name: string }) {
     );
   }
   return (
-    <div className="w-7 h-7 rounded bg-white/5 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+    <div className="w-7 h-7 rounded bg-white/5 flex items-center justify-center text-xs font-bold text-white/70 shrink-0">
       {name.charAt(0)}
     </div>
   );

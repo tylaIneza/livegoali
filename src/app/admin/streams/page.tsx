@@ -50,7 +50,7 @@ export default async function AdminStreamsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Stream Management</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-white/70 text-sm mt-1">
             {streams.length} total streams ·{" "}
             <span className="text-[#00FF84]">{activeCount} active</span> ·{" "}
             <span className="text-red-400">{streams.length - activeCount} offline</span>
@@ -68,7 +68,7 @@ export default async function AdminStreamsPage() {
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-white/8 bg-[#121821] p-4">
             <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{s.label}</div>
+            <div className="text-xs text-white/70 mt-1">{s.label}</div>
           </div>
         ))}
       </div>
@@ -91,7 +91,7 @@ export default async function AdminStreamsPage() {
         <div className="rounded-2xl border border-white/8 bg-[#121821] py-16 text-center">
           <Radio className="w-12 h-12 text-gray-700 mx-auto mb-4" />
           <p className="text-white font-bold text-lg mb-1">No streams yet</p>
-          <p className="text-gray-500 text-sm mb-4">
+          <p className="text-white/70 text-sm mb-4">
             Use the form above to add a stream URL to any match
           </p>
           <Button asChild variant="outline" size="sm">
@@ -118,8 +118,8 @@ export default async function AdminStreamsPage() {
                     <span className="text-sm font-bold text-white">
                       {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
                     </span>
-                    <span className="text-xs text-gray-500">{m.league.name}</span>
-                    <span className="text-xs text-gray-600">{formatMatchDate(m.scheduledAt)}</span>
+                    <span className="text-xs text-white/70">{m.league.name}</span>
+                    <span className="text-xs text-white/60">{formatMatchDate(m.scheduledAt)}</span>
                   </div>
                   <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
                     <Link href={`/admin/matches/${m.id}`}>Edit</Link>
@@ -133,7 +133,7 @@ export default async function AdminStreamsPage() {
                       {/* Priority + status dot */}
                       <div className="flex items-center gap-2 w-12 shrink-0">
                         <div className={`w-2 h-2 rounded-full ${stream.isActive ? "bg-[#00FF84]" : "bg-red-500"}`} />
-                        <span className="text-xs text-gray-600">#{stream.priority}</span>
+                        <span className="text-xs text-white/60">#{stream.priority}</span>
                       </div>
 
                       {/* Type + quality */}
@@ -148,12 +148,12 @@ export default async function AdminStreamsPage() {
                       </div>
 
                       {/* Label */}
-                      <span className="text-xs text-gray-500 w-24 shrink-0 truncate">
+                      <span className="text-xs text-white/70 w-24 shrink-0 truncate">
                         {stream.label || `Stream ${i + 1}`}
                       </span>
 
                       {/* URL */}
-                      <span className="text-xs text-gray-600 flex-1 truncate font-mono min-w-0">
+                      <span className="text-xs text-white/60 flex-1 truncate font-mono min-w-0">
                         {stream.url}
                       </span>
 
@@ -175,7 +175,7 @@ export default async function AdminStreamsPage() {
                         href={stream.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg hover:bg-white/8 text-gray-600 hover:text-white transition-colors shrink-0"
+                        className="p-1.5 rounded-lg hover:bg-white/8 text-white/60 hover:text-white transition-colors shrink-0"
                         title="Test stream URL"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />

@@ -23,7 +23,7 @@ export default async function AdminMatchesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Match Management</h1>
-          <p className="text-gray-500 text-sm mt-1">{matches.length} matches total</p>
+          <p className="text-white/70 text-sm mt-1">{matches.length} matches total</p>
         </div>
         <Button asChild>
           <Link href="/admin/matches/new">

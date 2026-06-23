@@ -117,24 +117,24 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Home Team */}
             <div className="space-y-2">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Home — {match.homeTeam?.name}</p>
+              <p className="text-xs text-white/75 font-medium uppercase tracking-wide">Home — {match.homeTeam?.name}</p>
               <div className="flex items-center gap-3">
                 {homeLogo ? (
                   <img src={homeLogo} alt="Home" className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-xl">⚽</div>
+                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">⚽</div>
                 )}
                 <Input placeholder="Logo URL (https://...)" value={homeLogo} onChange={(e) => setHomeLogo(e.target.value)} />
               </div>
             </div>
             {/* Away Team */}
             <div className="space-y-2">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Away — {match.awayTeam?.name}</p>
+              <p className="text-xs text-white/75 font-medium uppercase tracking-wide">Away — {match.awayTeam?.name}</p>
               <div className="flex items-center gap-3">
                 {awayLogo ? (
                   <img src={awayLogo} alt="Away" className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 ) : (
-                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-600 shrink-0 text-xl">⚽</div>
+                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">⚽</div>
                 )}
                 <Input placeholder="Logo URL (https://...)" value={awayLogo} onChange={(e) => setAwayLogo(e.target.value)} />
               </div>
@@ -152,7 +152,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
         <CardHeader><CardTitle>Match Status</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="w-48">
-            <label className="text-xs text-gray-400 mb-1.5 block">Status</label>
+            <label className="text-xs text-white/75 mb-1.5 block">Status</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)}
               className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00FF84]/50">
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -179,7 +179,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
               <div className={`w-2 h-2 rounded-full shrink-0 ${s.isActive ? "bg-[#00FF84]" : "bg-red-500"}`} />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-white font-medium truncate">{s.label || `Stream ${i + 1}`} — {s.type} {s.quality}</p>
-                <p className="text-[10px] text-gray-600 truncate">{s.url}</p>
+                <p className="text-[10px] text-white/60 truncate">{s.url}</p>
               </div>
               <button onClick={() => toggleStream(s.id, s.isActive)}
                 className={`text-xs font-medium px-2.5 py-1 rounded-lg transition-colors ${s.isActive ? "bg-red-500/10 text-red-400 hover:bg-red-500/20" : "bg-[#00FF84]/10 text-[#00FF84] hover:bg-[#00FF84]/20"}`}>
@@ -190,7 +190,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
 
           {/* Add new stream */}
           <div className="pt-2 border-t border-white/8">
-            <p className="text-xs text-gray-500 mb-2 font-medium">Add New Stream</p>
+            <p className="text-xs text-white/70 mb-2 font-medium">Add New Stream</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
               <div className="sm:col-span-3">
                 <Input placeholder="Stream URL (https://...m3u8)" value={newStream.url} onChange={(e) => setNewStream((p) => ({ ...p, url: e.target.value }))} />

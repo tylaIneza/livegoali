@@ -23,7 +23,7 @@ export default async function AdminNewsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">News Management</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-white/70 text-sm mt-1">
             {total} total · <span className="text-[#00FF84]">{published} published</span>
           </p>
         </div>
@@ -38,7 +38,7 @@ export default async function AdminNewsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/8 text-gray-500 text-xs uppercase tracking-wider">
+              <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                 <th className="px-4 py-3 text-left">Title</th>
                 <th className="px-4 py-3 text-left">Category</th>
                 <th className="px-4 py-3 text-left">Views</th>
@@ -57,13 +57,13 @@ export default async function AdminNewsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-gray-400">{article.category?.name || "—"}</span>
+                    <span className="text-xs text-white/75">{article.category?.name || "—"}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-gray-400">{article.views.toLocaleString()}</span>
+                    <span className="text-xs text-white/75">{article.views.toLocaleString()}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-xs text-gray-500">{formatTimeAgo(article.createdAt)}</span>
+                    <span className="text-xs text-white/70">{formatTimeAgo(article.createdAt)}</span>
                   </td>
                   <td className="px-4 py-3">
                     {article.isPublished ? (
@@ -95,7 +95,7 @@ export default async function AdminNewsPage() {
         {articles.length === 0 && (
           <div className="text-center py-16">
             <Newspaper className="w-10 h-10 text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm mb-4">No articles yet.</p>
+            <p className="text-white/70 text-sm mb-4">No articles yet.</p>
             <Button asChild size="sm">
               <Link href="/admin/news/new"><Plus className="w-4 h-4" /> Create First Article</Link>
             </Button>

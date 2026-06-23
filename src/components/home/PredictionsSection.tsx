@@ -26,7 +26,7 @@ export function PredictionsSection({ matches }: Props) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-white">Today&apos;s Top Predictions</h2>
-            <p className="text-sm text-gray-500">AI-powered match analysis</p>
+            <p className="text-sm text-white/70">AI-powered match analysis</p>
           </div>
         </div>
         <Button variant="ghost" size="sm" asChild>
@@ -71,9 +71,9 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
             {match.league.logo && (
               <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain" />
             )}
-            <span className="text-xs text-gray-500 font-medium">{match.league.name}</span>
+            <span className="text-xs text-white/70 font-medium">{match.league.name}</span>
           </div>
-          <span className="text-xs text-gray-500">{formatMatchDate(match.scheduledAt)}</span>
+          <span className="text-xs text-white/70">{formatMatchDate(match.scheduledAt)}</span>
         </div>
 
         {/* Teams */}
@@ -84,7 +84,7 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
             )}
             <span className="font-bold text-white text-sm">{match.homeTeam.name}</span>
           </div>
-          <span className="text-gray-600 text-sm font-bold">VS</span>
+          <span className="text-white/60 text-sm font-bold">VS</span>
           <div className="flex items-center gap-2">
             <span className="font-bold text-white text-sm">{match.awayTeam.name}</span>
             {match.awayTeam.logo && (
@@ -104,19 +104,19 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
         <div className="flex items-center justify-between pt-3 border-t border-white/6">
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-[#00FF84]" />
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-white/75">
               Prediction: <span className="text-[#00FF84] font-bold">{recommendation}</span>
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <TrendingUp className="w-3 h-3 text-gray-500" />
-            <span className="text-xs text-gray-500">{pred.confidence.toFixed(0)}% confident</span>
+            <TrendingUp className="w-3 h-3 text-white/70" />
+            <span className="text-xs text-white/70">{pred.confidence.toFixed(0)}% confident</span>
           </div>
         </div>
 
         {pred.expectedHomeGoals !== null && pred.expectedAwayGoals !== null && (
           <div className="mt-2 text-center">
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-white/60">
               xG: {pred.expectedHomeGoals.toFixed(1)} - {pred.expectedAwayGoals.toFixed(1)}
             </span>
           </div>
@@ -129,7 +129,7 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
 function PredBar({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-500 w-20 truncate">{label}</span>
+      <span className="text-xs text-white/70 w-20 truncate">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all duration-700`}

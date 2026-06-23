@@ -1,111 +1,129 @@
 import type { Metadata } from "next";
-import { Mail, MessageSquare, Clock } from "lucide-react";
+import { Mail, Briefcase, Shield, Clock, AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with the LiveGoali team for support, partnerships, or general enquiries.",
+  description: "Get in touch with the LiveGoali team for support, partnerships, copyright concerns, or general enquiries.",
 };
 
 export default function ContactPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl sm:text-5xl font-black text-white mb-4">Contact Us</h1>
-        <p className="text-gray-400 text-lg max-w-xl mx-auto">
-          Have a question, found an issue, or want to partner with us? We&apos;re here to help.
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="mb-10">
+        <h1 className="text-4xl font-black text-white mb-3">Contact Us</h1>
+        <p className="text-white/75 mt-4 leading-relaxed">
+          We&apos;d love to hear from you. Whether you have questions, feedback, business inquiries, technical issues, copyright concerns, or suggestions for improving LiveGoali, our team is here to help.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        {[
-          {
-            icon: Mail,
-            title: "Email Us",
-            desc: "For general enquiries and support",
-            value: "support@livegoali.com",
-            href: "mailto:support@livegoali.com",
-          },
-          {
-            icon: MessageSquare,
-            title: "Partnerships",
-            desc: "Advertising and business partnerships",
-            value: "ads@livegoali.com",
-            href: "mailto:ads@livegoali.com",
-          },
-          {
-            icon: Clock,
-            title: "Response Time",
-            desc: "We typically reply within",
-            value: "24–48 hours",
-            href: null,
-          },
-        ].map((item) => (
-          <div key={item.title} className="rounded-2xl border border-white/8 bg-[#121821] p-6 text-center">
-            <div className="w-12 h-12 rounded-xl bg-[#00FF84]/10 flex items-center justify-center mx-auto mb-4">
-              <item.icon className="w-6 h-6 text-[#00FF84]" />
+      <div className="space-y-6">
+
+        {/* Get in Touch */}
+        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+          <h2 className="text-white font-bold mb-5">Get in Touch</h2>
+          <div className="space-y-5">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#00FF84]/10 flex items-center justify-center shrink-0">
+                <Mail className="w-5 h-5 text-[#00FF84]" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold mb-0.5">General Support</p>
+                <p className="text-white/70 text-xs mb-1">For general questions, account assistance, or website support</p>
+                <a href="mailto:support@livegoali.com" className="text-[#00FF84] text-sm hover:underline">support@livegoali.com</a>
+              </div>
             </div>
-            <h3 className="text-white font-bold mb-1">{item.title}</h3>
-            <p className="text-gray-500 text-xs mb-3">{item.desc}</p>
-            {item.href ? (
-              <a href={item.href} className="text-[#00FF84] text-sm font-semibold hover:underline">
-                {item.value}
-              </a>
-            ) : (
-              <span className="text-white text-sm font-semibold">{item.value}</span>
-            )}
+
+            <div className="w-full h-px bg-white/5" />
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-400/10 flex items-center justify-center shrink-0">
+                <Briefcase className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold mb-0.5">Business &amp; Partnerships</p>
+                <p className="text-white/70 text-xs mb-1">For advertising opportunities, sponsorships, partnerships, or business-related inquiries</p>
+                <a href="mailto:business@livegoali.com" className="text-[#00FF84] text-sm hover:underline">business@livegoali.com</a>
+              </div>
+            </div>
+
+            <div className="w-full h-px bg-white/5" />
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-purple-400/10 flex items-center justify-center shrink-0">
+                <Shield className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold mb-0.5">Copyright &amp; Legal Requests</p>
+                <p className="text-white/70 text-xs mb-1">For copyright concerns, intellectual property issues, or legal inquiries</p>
+                <a href="mailto:legal@livegoali.com" className="text-[#00FF84] text-sm hover:underline">legal@livegoali.com</a>
+              </div>
+            </div>
           </div>
-        ))}
+        </div>
+
+        {/* Response Time */}
+        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-yellow-400" />
+            </div>
+            <div>
+              <h2 className="text-white font-bold mb-1">Response Time</h2>
+              <p className="text-white/75 text-sm leading-relaxed">
+                We aim to respond to most inquiries within <span className="text-white font-semibold">24–72 business hours</span>. Response times may vary depending on the nature and volume of requests.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Report Technical Issues */}
+        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-red-400/10 flex items-center justify-center shrink-0">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <div>
+              <h2 className="text-white font-bold mb-1">Report Technical Issues</h2>
+              <p className="text-white/75 text-sm">If you experience any technical problems while using LiveGoali, please include:</p>
+            </div>
+          </div>
+          <ul className="list-disc list-inside space-y-1.5 text-white/75 text-sm ml-14">
+            <li>Device type</li>
+            <li>Browser name and version</li>
+            <li>Description of the issue</li>
+            <li>Screenshots (if available)</li>
+          </ul>
+          <p className="text-white/70 text-xs mt-3 ml-14">This helps us resolve issues more quickly.</p>
+        </div>
+
+        {/* Community Guidelines */}
+        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+          <h2 className="text-white font-bold mb-3">Community Guidelines</h2>
+          <p className="text-white/75 text-sm leading-relaxed">
+            When contacting us, please communicate respectfully and provide accurate information. Messages containing spam, abusive language, harassment, or fraudulent content may be ignored or blocked.
+          </p>
+        </div>
+
+        {/* About */}
+        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+          <h2 className="text-white font-bold mb-3">About LiveGoali</h2>
+          <p className="text-white/75 text-sm leading-relaxed mb-4">
+            LiveGoali is dedicated to providing football fans with live scores, match information, statistics, predictions, news, and football-related content from around the world. We appreciate your support and feedback as we continue to improve our platform.
+          </p>
+          <p className="text-white/70 text-sm">Thank you for being part of the LiveGoali community.</p>
+          <p className="text-white font-bold mt-2">LiveGoali — Football Lives Here.</p>
+        </div>
+
       </div>
 
-      {/* Contact Form */}
-      <div className="rounded-2xl border border-white/8 bg-[#121821] p-8">
-        <h2 className="text-xl font-black text-white mb-6">Send us a message</h2>
-        <form className="space-y-5" action="mailto:support@livegoali.com" method="get">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-semibold text-gray-400 mb-2">Your Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="John Doe"
-                className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00FF84]/50 transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-400 mb-2">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00FF84]/50 transition-colors"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 mb-2">Subject</label>
-            <input
-              type="text"
-              name="subject"
-              placeholder="How can we help?"
-              className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00FF84]/50 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-400 mb-2">Message</label>
-            <textarea
-              name="body"
-              rows={5}
-              placeholder="Tell us more..."
-              className="w-full bg-[#0B0F14] border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#00FF84]/50 transition-colors resize-none"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00FF84]/90 transition-colors"
-          >
-            Send Message
-          </button>
-        </form>
+      <div className="mt-10 text-center">
+        <p className="text-white/70 text-sm">
+          Looking for legal information?{" "}
+          <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link>
+          {" · "}
+          <Link href="/terms" className="text-[#00FF84] hover:underline">Terms of Service</Link>
+        </p>
       </div>
     </div>
   );

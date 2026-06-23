@@ -38,7 +38,7 @@ export default async function NewsPage() {
           </div>
           <div>
             <h1 className="text-3xl font-black text-white">Football News</h1>
-            <p className="text-gray-500 text-sm">Latest from the world of football</p>
+            <p className="text-white/70 text-sm">Latest from the world of football</p>
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default async function NewsPage() {
                   <h3 className={`font-black text-white group-hover:text-[#00FF84] transition-colors leading-tight ${i === 0 ? "text-xl" : "text-sm"}`}>
                     {article.title}
                   </h3>
-                  <div className="flex items-center gap-1 mt-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-1 mt-2 text-xs text-white/75">
                     <Clock className="w-3 h-3" />
                     {article.publishedAt ? formatTimeAgo(article.publishedAt) : ""}
                   </div>
@@ -103,7 +103,7 @@ export default async function NewsPage() {
                 </div>
               ) : (
                 <div className="h-44 bg-gradient-to-br from-[#1F2937] to-[#0B0F14] flex items-center justify-center">
-                  <Newspaper className="w-10 h-10 text-gray-600" />
+                  <Newspaper className="w-10 h-10 text-white/60" />
                 </div>
               )}
               <div className="p-4">
@@ -114,9 +114,9 @@ export default async function NewsPage() {
                   {article.title}
                 </h3>
                 {article.excerpt && (
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">{article.excerpt}</p>
+                  <p className="text-xs text-white/70 mt-1 line-clamp-2">{article.excerpt}</p>
                 )}
-                <div className="flex items-center justify-between mt-3 text-xs text-gray-600">
+                <div className="flex items-center justify-between mt-3 text-xs text-white/60">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {article.publishedAt ? formatTimeAgo(article.publishedAt) : ""}
@@ -135,7 +135,7 @@ export default async function NewsPage() {
       {articles.length === 0 && (
         <div className="text-center py-20">
           <Newspaper className="w-16 h-16 mx-auto mb-4 text-gray-700" />
-          <p className="text-gray-500">No articles yet. Check back soon!</p>
+          <p className="text-white/70">No articles yet. Check back soon!</p>
         </div>
       )}
     </div>

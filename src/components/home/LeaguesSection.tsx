@@ -33,7 +33,7 @@ export function LeaguesSection({ leagues }: Props) {
           </div>
           <div>
             <h2 className="text-2xl font-black text-white">Leagues & Competitions</h2>
-            <p className="text-sm text-gray-500">Top football competitions worldwide</p>
+            <p className="text-sm text-white/70">Top football competitions worldwide</p>
           </div>
         </div>
         <Link href="/leagues" className="text-sm text-[#00FF84] hover:underline flex items-center gap-1">
@@ -69,11 +69,11 @@ export function LeaguesSection({ leagues }: Props) {
                       <p className="font-bold text-white text-sm leading-tight group-hover:text-[#00FF84] transition-colors">
                         {league.name}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-white/70 mt-0.5">
                         {league.country}{"season" in league && league.season ? ` · ${league.season}` : ""}
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-[#00FF84] transition-colors shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-[#00FF84] transition-colors shrink-0" />
                   </div>
                 </div>
               </Link>

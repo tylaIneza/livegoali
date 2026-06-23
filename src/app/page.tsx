@@ -95,7 +95,7 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-black text-white">Live Now</h2>
-                  <p className="text-gray-500 text-sm">
+                  <p className="text-white/70 text-sm">
                     {liveMatches.length > 0
                       ? `${liveMatches.length} match${liveMatches.length !== 1 ? "es" : ""} in progress`
                       : "No matches live right now"}
@@ -114,7 +114,7 @@ export default async function HomePage() {
               <div className="rounded-2xl border border-white/8 bg-[#121821] p-12 text-center">
                 <Radio className="w-12 h-12 text-gray-700 mx-auto mb-4" />
                 <p className="text-white font-bold text-lg mb-1">No live matches right now</p>
-                <p className="text-gray-500 text-sm">See upcoming matches below</p>
+                <p className="text-white/70 text-sm">See upcoming matches below</p>
               </div>
             ) : (
               <div className="grid gap-4">
@@ -126,10 +126,10 @@ export default async function HomePage() {
                           {match.league.logo && (
                             <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain shrink-0" />
                           )}
-                          <span className="text-xs text-gray-400 font-medium truncate">{match.league.name}</span>
+                          <span className="text-xs text-white/75 font-medium truncate">{match.league.name}</span>
                           <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
                         </div>
-                        <span className="text-xs text-gray-500 shrink-0">
+                        <span className="text-xs text-white/70 shrink-0">
                           {match.streams.length > 0 ? `${match.streams.length} stream available` : "Stream pending"}
                         </span>
                       </div>
@@ -177,10 +177,10 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <h2 className="text-xl font-black text-white">Upcoming Matches</h2>
-                  <p className="text-gray-500 text-sm">Next 48 hours</p>
+                  <p className="text-white/70 text-sm">Next 48 hours</p>
                 </div>
               </div>
-              <Link href="/fixtures" className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#00FF84] transition-colors font-medium">
+              <Link href="/fixtures" className="flex items-center gap-1 text-xs text-white/70 hover:text-[#00FF84] transition-colors font-medium">
                 All fixtures <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -201,7 +201,7 @@ export default async function HomePage() {
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-sm font-bold text-white">{day}</span>
                       <div className="flex-1 h-px bg-white/6" />
-                      <span className="text-xs text-gray-600">{dayMatches.length} match{dayMatches.length !== 1 ? "es" : ""}</span>
+                      <span className="text-xs text-white/60">{dayMatches.length} match{dayMatches.length !== 1 ? "es" : ""}</span>
                     </div>
 
                     {/* League groups */}
@@ -217,7 +217,7 @@ export default async function HomePage() {
                                   <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
                                 )}
                                 <span className="text-sm font-bold text-white">{league.name}</span>
-                                <span className="text-xs text-gray-600">· {league.country}</span>
+                                <span className="text-xs text-white/60">· {league.country}</span>
                                 <ChevronRight className="w-3.5 h-3.5 text-gray-700 ml-auto" />
                               </div>
                             </Link>
@@ -229,7 +229,7 @@ export default async function HomePage() {
                                   <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/3 transition-colors cursor-pointer">
                                     {/* Time */}
                                     <div className="w-12 shrink-0 text-center">
-                                      <span className="text-sm font-bold text-gray-400 group-hover:text-white transition-colors">
+                                      <span className="text-sm font-bold text-white/75 group-hover:text-white transition-colors">
                                         {format(new Date(match.scheduledAt), "HH:mm")}
                                       </span>
                                     </div>
@@ -245,7 +245,7 @@ export default async function HomePage() {
                                     </div>
 
                                     {/* VS */}
-                                    <span className="text-xs font-black text-gray-600 shrink-0 w-8 text-center">VS</span>
+                                    <span className="text-xs font-black text-white/60 shrink-0 w-8 text-center">VS</span>
 
                                     {/* Away team */}
                                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -257,7 +257,7 @@ export default async function HomePage() {
                                       </span>
                                     </div>
 
-                                    <ChevronRight className="w-4 h-4 text-gray-700 group-hover:text-gray-400 transition-colors shrink-0" />
+                                    <ChevronRight className="w-4 h-4 text-gray-700 group-hover:text-white/75 transition-colors shrink-0" />
                                   </div>
                                 </Link>
                               ))}
@@ -277,7 +277,7 @@ export default async function HomePage() {
             <section>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-gray-500/10 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-gray-400" />
+                  <Clock className="w-5 h-5 text-white/75" />
                 </div>
                 <h2 className="text-xl font-black text-white">Recent Results</h2>
               </div>
@@ -285,7 +285,7 @@ export default async function HomePage() {
                 {recentFinished.map((match) => (
                   <Link key={match.id} href={`/match/${match.slug}`} className="block group">
                     <div className="flex items-center gap-4 p-3.5 rounded-xl border border-white/6 bg-[#121821] hover:border-white/12 transition-colors">
-                      <div className="flex items-center gap-2 text-xs text-gray-500 w-28 shrink-0">
+                      <div className="flex items-center gap-2 text-xs text-white/70 w-28 shrink-0">
                         {match.league.logo && (
                           <Image src={match.league.logo} alt={match.league.name} width={14} height={14} className="object-contain" />
                         )}
@@ -302,7 +302,7 @@ export default async function HomePage() {
                           {match.awayTeam.name}
                         </span>
                       </div>
-                      <span className="text-xs text-gray-600 bg-white/5 px-2 py-0.5 rounded-full shrink-0">FT</span>
+                      <span className="text-xs text-white/60 bg-white/5 px-2 py-0.5 rounded-full shrink-0">FT</span>
                     </div>
                   </Link>
                 ))}

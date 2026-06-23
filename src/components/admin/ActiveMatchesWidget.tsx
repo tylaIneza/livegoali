@@ -77,7 +77,7 @@ export function ActiveMatchesWidget() {
           </span>
           <div className="flex items-center gap-2">
             {totalLiveViewers > 0 && (
-              <span className="flex items-center gap-1 text-[10px] bg-white/5 text-gray-400 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-1 text-[10px] bg-white/5 text-white/75 px-2 py-0.5 rounded-full">
                 <Eye className="w-3 h-3" /> {totalLiveViewers} watching
               </span>
             )}
@@ -96,7 +96,7 @@ export function ActiveMatchesWidget() {
             <div className="w-6 h-6 rounded-full border-2 border-[#00FF84]/30 border-t-[#00FF84] animate-spin" />
           </div>
         ) : matches.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center py-4">No active matches</p>
+          <p className="text-white/70 text-sm text-center py-4">No active matches</p>
         ) : (
           <div className="space-y-2">
             {matches.map((match) => {
@@ -107,7 +107,7 @@ export function ActiveMatchesWidget() {
                     <p className="text-sm font-medium text-white truncate">
                       {match.homeTeam.name} vs {match.awayTeam.name}
                     </p>
-                    <p className="text-xs text-gray-500">{match.league.name}</p>
+                    <p className="text-xs text-white/70">{match.league.name}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-3">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -115,7 +115,7 @@ export function ActiveMatchesWidget() {
                         ? "bg-red-500/10 text-red-400"
                         : "bg-blue-500/10 text-blue-400"
                     }`}>{match.status}</span>
-                    <span className={`text-xs flex items-center gap-1 font-medium ${liveCount > 0 ? "text-[#00FF84]" : "text-gray-600"}`}>
+                    <span className={`text-xs flex items-center gap-1 font-medium ${liveCount > 0 ? "text-[#00FF84]" : "text-white/60"}`}>
                       <Eye className="w-3 h-3" />
                       {liveCount}
                     </span>

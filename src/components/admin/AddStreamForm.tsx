@@ -77,7 +77,7 @@ export function AddStreamForm({ matches }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Match selector */}
         <div className="sm:col-span-2">
-          <label className="text-xs text-gray-400 mb-1.5 block">Match *</label>
+          <label className="text-xs text-white/75 mb-1.5 block">Match *</label>
           <select
             value={form.matchId}
             onChange={(e) => setForm((p) => ({ ...p, matchId: e.target.value }))}
@@ -104,7 +104,7 @@ export function AddStreamForm({ matches }: Props) {
 
         {/* Stream type */}
         <div>
-          <label className="text-xs text-gray-400 mb-1.5 block">Type</label>
+          <label className="text-xs text-white/75 mb-1.5 block">Type</label>
           <select
             value={form.type}
             onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}
@@ -118,7 +118,7 @@ export function AddStreamForm({ matches }: Props) {
 
         {/* Quality */}
         <div>
-          <label className="text-xs text-gray-400 mb-1.5 block">Quality</label>
+          <label className="text-xs text-white/75 mb-1.5 block">Quality</label>
           <select
             value={form.quality}
             onChange={(e) => setForm((p) => ({ ...p, quality: e.target.value }))}
@@ -134,7 +134,7 @@ export function AddStreamForm({ matches }: Props) {
 
       {/* Stream URL */}
       <div>
-        <label className="text-xs text-gray-400 mb-1.5 block">Stream URL *</label>
+        <label className="text-xs text-white/75 mb-1.5 block">Stream URL *</label>
         <Input
           type="url"
           placeholder="https://cdn.example.com/live/stream.m3u8"
@@ -150,7 +150,7 @@ export function AddStreamForm({ matches }: Props) {
         ) : form.url ? (
           <p className="text-[11px] text-[#00FF84] mt-1">✓ Direct stream URL detected</p>
         ) : (
-          <p className="text-[11px] text-gray-600 mt-1">
+          <p className="text-[11px] text-white/60 mt-1">
             Accepts direct .m3u8 / .mpd / .mp4 URLs or embed/iframe page URLs
           </p>
         )}
@@ -159,7 +159,7 @@ export function AddStreamForm({ matches }: Props) {
       <div className="flex items-center gap-6">
         {/* Label */}
         <div className="flex-1">
-          <label className="text-xs text-gray-400 mb-1.5 block">Label (optional)</label>
+          <label className="text-xs text-white/75 mb-1.5 block">Label (optional)</label>
           <Input
             placeholder="e.g. Primary HD, Backup 1..."
             value={form.label}
@@ -184,7 +184,7 @@ export function AddStreamForm({ matches }: Props) {
           <Radio className="w-4 h-4" />
           {saving ? "Adding..." : "Add Stream"}
         </Button>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-white/60">
           The stream will be active immediately after saving
         </p>
       </div>

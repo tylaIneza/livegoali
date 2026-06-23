@@ -24,13 +24,13 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
       <Link href={isLive ? `/live/${match.id}` : `/match/${match.slug}`}>
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="flex items-center gap-4 p-3 rounded-xl border border-white/8 bg-[#121821] hover:border-[#00FF84]/30 hover:bg-[#1a2235] transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-4 p-3 rounded-xl border border-white/8 bg-[#121821]/60 backdrop-blur-md hover:border-[#00FF84]/30 hover:bg-[#1a2235]/70 transition-all duration-200 cursor-pointer"
         >
           <div className="w-20 text-center">
             {isLive ? (
               <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
             ) : (
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-white/75">
                 {isFinished ? "FT" : formatMatchDate(match.scheduledAt).split(",")[1]?.trim() || ""}
               </span>
             )}
@@ -46,11 +46,11 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               {isFinished ? (
                 <>
                   <span className="text-white">{match.homeScore ?? 0}</span>
-                  <span className="text-gray-600">-</span>
+                  <span className="text-white/60">-</span>
                   <span className="text-white">{match.awayScore ?? 0}</span>
                 </>
               ) : (
-                <span className="text-gray-400 text-sm font-normal">vs</span>
+                <span className="text-white/75 text-sm font-normal">vs</span>
               )}
             </div>
             <div className="flex items-center gap-2 flex-1 justify-end">
@@ -71,8 +71,8 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
       whileHover={{ y: -2, scale: 1.005 }}
       className={`relative rounded-2xl border overflow-hidden transition-all duration-200 ${
         isLive
-          ? "border-[#00FF84]/20 bg-gradient-to-b from-[#00FF84]/5 to-[#121821] shadow-[0_0_30px_rgba(0,255,132,0.08)]"
-          : "border-white/8 bg-[#121821]"
+          ? "border-[#00FF84]/20 bg-gradient-to-b from-[#00FF84]/10 to-[#121821]/60 backdrop-blur-md shadow-[0_0_30px_rgba(0,255,132,0.08)]"
+          : "border-white/8 bg-[#121821]/60 backdrop-blur-md"
       }`}
     >
       {/* League Header */}
@@ -87,15 +87,15 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               className="rounded-sm object-contain"
             />
           )}
-          <span className="text-xs text-gray-400 font-medium">{match.league.name}</span>
+          <span className="text-xs text-white/75 font-medium">{match.league.name}</span>
           {match.round && (
-            <span className="text-xs text-gray-600">• {match.round}</span>
+            <span className="text-xs text-white/60">• {match.round}</span>
           )}
         </div>
         {isLive ? (
           <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
         ) : (
-          <div className="flex items-center gap-1 text-xs text-gray-500">
+          <div className="flex items-center gap-1 text-xs text-white/70">
             <Clock className="w-3 h-3" />
             {isFinished ? "Full Time" : formatMatchDate(match.scheduledAt)}
           </div>
@@ -120,15 +120,15 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
                 <div className="text-3xl font-black tabular-nums text-white">
                   {match.homeScore ?? 0} - {match.awayScore ?? 0}
                 </div>
-                <span className="text-[10px] text-gray-500 font-medium bg-[#1F2937] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] text-white/70 font-medium bg-[#1F2937] px-2 py-0.5 rounded-full">
                   FULL TIME
                 </span>
               </>
             ) : (
               <div className="text-center">
-                <div className="text-2xl font-black text-gray-500">VS</div>
+                <div className="text-2xl font-black text-white/70">VS</div>
                 {isScheduled && (
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs text-white/70 mt-1">
                     {formatMatchDate(match.scheduledAt)}
                   </div>
                 )}
@@ -148,7 +148,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
         {/* Prediction Bar */}
         {match.prediction && (
           <div className="mt-4 space-y-1">
-            <div className="flex justify-between text-[10px] text-gray-500">
+            <div className="flex justify-between text-[10px] text-white/70">
               <span>{match.prediction.homeWinProb.toFixed(0)}% H</span>
               <span>{match.prediction.drawProb.toFixed(0)}% D</span>
               <span>{match.prediction.awayWinProb.toFixed(0)}% A</span>
