@@ -1,13 +1,36 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface LiveBadgeProps {
-  minute?: number | null;
+  startedAt?: Date | string | null;
+  minute?: number | null; // half base: null = 1st half, 45 = 2nd half
   status?: string;
   size?: "sm" | "md" | "lg";
   className?: string;
 }
 
-export function LiveBadge({ minute, status, size = "md", className }: LiveBadgeProps) {
+function computeMinute(startedAt: Date | string | null | undefined, base: number | null | undefined): number | null {
+  if (!startedAt) return base ?? null;
+  const now = Date.now();
+  const kickoff = new Date(startedAt).getTime();
+  // Before scheduled kickoff — stream is live but match hasn't started yet
+  if (now < kickoff) return null;
+  const elapsed = Math.floor((now - kickoff) / 60_000);
+  return (base ?? 0) + elapsed + 1;
+}
+
+export function LiveBadge({ startedAt, minute, status, size = "md", className }: LiveBadgeProps) {
+  const [liveMinute, setLiveMinute] = useState<number | null>(() => computeMinute(startedAt, minute));
+
+  useEffect(() => {
+    if (!startedAt || status !== "LIVE") return;
+    setLiveMinute(computeMinute(startedAt, minute));
+    const id = setInterval(() => setLiveMinute(computeMinute(startedAt, minute)), 30_000);
+    return () => clearInterval(id);
+  }, [startedAt, minute, status]);
+
   if (status === "HALFTIME") {
     return (
       <span className={cn(
@@ -33,7 +56,7 @@ export function LiveBadge({ minute, status, size = "md", className }: LiveBadgeP
       className
     )}>
       <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
-      LIVE {minute ? `${minute}'` : ""}
+      LIVE {liveMinute !== null && liveMinute > 0 ? `${liveMinute}'` : ""}
     </span>
   );
 }

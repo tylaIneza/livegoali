@@ -177,6 +177,42 @@ io.on("connection", (socket) => {
   });
 });
 
+// ── Auto-live: set SCHEDULED matches to LIVE 30 min before kickoff ──────────
+async function autoLiveMatches() {
+  const now = new Date();
+  const in30min = new Date(now.getTime() + 30 * 60_000);
+
+  // Find SCHEDULED matches whose kickoff is within the next 30 minutes (or already past)
+  const matches = await prisma.match.findMany({
+    where: {
+      status: "SCHEDULED",
+      scheduledAt: { lte: in30min },
+    },
+    select: { id: true, scheduledAt: true },
+  });
+
+  if (matches.length === 0) return;
+
+  for (const match of matches) {
+    await prisma.match.update({
+      where: { id: match.id },
+      data: {
+        status: "LIVE",
+        startedAt: match.scheduledAt, // timer counts from actual kickoff time
+        matchMinute: null,            // first half
+      },
+    });
+
+    // Notify all connected clients so the homepage refreshes
+    io.to("global").emit("match-updated", { matchId: match.id });
+    console.log(`[auto-live] Match ${match.id} set to LIVE (kickoff: ${match.scheduledAt.toISOString()})`);
+  }
+}
+
+// Run once at startup, then every 60 seconds
+autoLiveMatches();
+setInterval(autoLiveMatches, 60_000);
+
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;
 httpServer.listen(PORT, () => {
   console.log(`Socket.IO server running on port ${PORT}`);

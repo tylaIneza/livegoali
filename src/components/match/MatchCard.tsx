@@ -28,7 +28,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
         >
           <div className="w-20 text-center">
             {isLive ? (
-              <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
+              <LiveBadge startedAt={match.startedAt} minute={match.matchMinute} status={match.status} size="sm" />
             ) : (
               <span className="text-xs text-white/75">
                 {isFinished ? "FT" : formatMatchDate(match.scheduledAt).split(",")[1]?.trim() || ""}
@@ -93,7 +93,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
           )}
         </div>
         {isLive ? (
-          <LiveBadge minute={match.matchMinute} status={match.status} size="sm" />
+          <LiveBadge startedAt={match.startedAt} minute={match.matchMinute} status={match.status} size="sm" />
         ) : (
           <div className="flex items-center gap-1 text-xs text-white/70">
             <Clock className="w-3 h-3" />
@@ -195,8 +195,13 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
   );
 }
 
+function isValidImageUrl(url: string | null): url is string {
+  if (!url) return false;
+  return url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/");
+}
+
 function TeamLogo({ logo, name, size }: { logo: string | null; name: string; size: number }) {
-  if (logo) {
+  if (isValidImageUrl(logo)) {
     return (
       <Image
         src={logo}

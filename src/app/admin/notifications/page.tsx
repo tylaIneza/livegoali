@@ -1,16 +1,22 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { Bell, Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Bell } from "lucide-react";
 import { formatTimeAgo } from "@/lib/utils";
+import { SendNotificationModal } from "@/components/admin/SendNotificationModal";
 
 export default async function AdminNotificationsPage() {
-  const notifications = await prisma.notification.findMany({
-    include: { user: { select: { name: true, email: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+  const [notifications, users] = await Promise.all([
+    prisma.notification.findMany({
+      include: { user: { select: { name: true, email: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    }),
+    prisma.user.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, email: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -19,9 +25,7 @@ export default async function AdminNotificationsPage() {
           <h1 className="text-2xl font-black text-white">Notifications</h1>
           <p className="text-white/70 text-sm mt-1">{notifications.length} sent</p>
         </div>
-        <Button>
-          <Send className="w-4 h-4" /> Send Notification
-        </Button>
+        <SendNotificationModal users={users} />
       </div>
 
       {notifications.length === 0 ? (

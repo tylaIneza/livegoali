@@ -9,6 +9,7 @@ export interface MatchWithTeams {
   homeScore: number | null;
   awayScore: number | null;
   matchMinute: number | null;
+  startedAt?: Date | null;
   scheduledAt: Date;
   isFeatured: boolean;
   round?: string | null;

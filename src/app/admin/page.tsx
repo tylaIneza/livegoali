@@ -6,6 +6,7 @@ import { Users, Radio, Timer, MessageSquare, Eye, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LiveViewersWidget } from "@/components/admin/LiveViewersWidget";
 import { ActiveMatchesWidget } from "@/components/admin/ActiveMatchesWidget";
+import { TopCountriesWidget } from "@/components/admin/TopCountriesWidget";
 
 async function getAdminStats() {
   const today = new Date().toISOString().slice(0, 10);
@@ -14,7 +15,6 @@ async function getAdminStats() {
     totalUsers, liveMatches, totalMatches, totalNews,
     watchtimeSetting, totalComments,
     siteVisitsTotal, siteVisitsToday,
-    topMatches,
     recentUsers,
     totalViewsAgg,
   ] = await Promise.all([
@@ -26,24 +26,23 @@ async function getAdminStats() {
     prisma.comment.count({ where: { isDeleted: false } }),
     prisma.settings.findUnique({ where: { key: "site_visits_total" } }),
     prisma.settings.findUnique({ where: { key: `site_visits_${today}` } }),
-    prisma.match.findMany({
-      where: { views: { gt: 0 } },
-      include: {
-        homeTeam: { select: { name: true, shortName: true } },
-        awayTeam: { select: { name: true, shortName: true } },
-        league: { select: { name: true } },
-        streams: { where: { isActive: true }, select: { id: true } },
-      },
-      orderBy: { views: "desc" },
-      take: 10,
-    }),
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       take: 5,
       select: { id: true, name: true, email: true, image: true, role: true, createdAt: true },
     }),
-    prisma.match.aggregate({ _sum: { views: true, userViews: true, anonViews: true } }),
+    prisma.match.aggregate({ _sum: { views: true } }),
   ]);
+
+  // Top countries
+  const countryRows = await prisma.settings.findMany({
+    where: { key: { startsWith: "country_visits_" } },
+  });
+  const topCountries = countryRows
+    .map((r) => ({ code: r.key.replace("country_visits_", ""), count: parseInt(r.value) || 0 }))
+    .filter((c) => c.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
 
   // Also fetch live matches for active matches section
   const activeMatches = await prisma.match.findMany({
@@ -58,12 +57,6 @@ async function getAdminStats() {
     take: 8,
   });
 
-  // Build a map of matchId -> "Home vs Away" for the viewer widget
-  const allMatchNames: Record<string, string> = {};
-  for (const m of [...topMatches, ...activeMatches]) {
-    allMatchNames[m.id] = `${m.homeTeam.shortName || m.homeTeam.name} vs ${m.awayTeam.shortName || m.awayTeam.name}`;
-  }
-
   const totalWatchSeconds = parseInt(watchtimeSetting?.value ?? "0") || 0;
   const watchHours = Math.floor(totalWatchSeconds / 3600);
   function fmtHours(h: number) {
@@ -77,10 +70,9 @@ async function getAdminStats() {
     watchHoursFormatted: fmtHours(watchHours),
     siteVisitsTotal: parseInt(siteVisitsTotal?.value ?? "0"),
     siteVisitsToday: parseInt(siteVisitsToday?.value ?? "0"),
-    topMatches, activeMatches, recentUsers, allMatchNames,
+    activeMatches, recentUsers,
     totalMatchViews: totalViewsAgg._sum.views ?? 0,
-    totalUserViews: totalViewsAgg._sum.userViews ?? 0,
-    totalAnonViews: totalViewsAgg._sum.anonViews ?? 0,
+    topCountries,
   };
 }
 
@@ -134,54 +126,8 @@ export default async function AdminDashboard() {
       {/* Live viewers */}
       <LiveViewersWidget />
 
-      {/* Match Views Table */}
-      <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-semibold text-white">Match Views</span>
-          </div>
-          <div className="flex items-center gap-4 text-xs text-white/70">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#00FF84]" /> {stats.totalUserViews.toLocaleString()} signed in</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400" /> {stats.totalAnonViews.toLocaleString()} guests</span>
-            <span className="font-bold text-white">{stats.totalMatchViews.toLocaleString()} total</span>
-          </div>
-        </div>
-        {stats.topMatches.length === 0 ? (
-          <div className="px-5 py-10 text-center text-white/60 text-sm">No match views yet</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/5 text-white/70 text-xs uppercase tracking-wider">
-                <th className="px-5 py-3 text-left">#</th>
-                <th className="px-5 py-3 text-left">Match</th>
-                <th className="px-5 py-3 text-right">Signed In</th>
-                <th className="px-5 py-3 text-right">Guests</th>
-                <th className="px-5 py-3 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {stats.topMatches.map((m, i) => (
-                <tr key={m.id} className="hover:bg-white/2 transition-colors">
-                  <td className="px-5 py-3 text-white/60 font-mono text-xs">{i + 1}</td>
-                  <td className="px-5 py-3">
-                    <p className="text-sm font-medium text-white">
-                      {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
-                    </p>
-                    <p className="text-xs text-white/60">{m.league.name}</p>
-                  </td>
-                  <td className="px-5 py-3 text-right font-semibold text-[#00FF84]">{m.userViews.toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right font-semibold text-yellow-400">{m.anonViews.toLocaleString()}</td>
-                  <td className="px-5 py-3 text-right font-black text-white">{m.views.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Active Matches + Recent Users */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Active Matches + Recent Users + Top Countries */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <ActiveMatchesWidget />
 
         <Card>
@@ -211,6 +157,8 @@ export default async function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <TopCountriesWidget countries={stats.topCountries} />
       </div>
     </div>
   );

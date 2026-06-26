@@ -13,7 +13,7 @@ interface Stream { id: string; url: string; type: string; quality: string; label
 interface Props {
   match: {
     id: string; slug: string; status: string; homeScore: number | null; awayScore: number | null;
-    matchMinute: number | null; isFeatured: boolean; enableComments: boolean; enableChat: boolean;
+    matchMinute: number | null; startedAt: Date | null; isFeatured: boolean; enableComments: boolean; enableChat: boolean;
     enablePrediction: boolean; venue: string | null; round: string | null; homeTeamId: string; awayTeamId: string; leagueId: string;
     streams: Stream[];
     homeTeam?: { id: string; name: string; logo: string | null } | null;
@@ -29,6 +29,11 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(match.status);
+  const [homeScore, setHomeScore] = useState(match.homeScore ?? 0);
+  const [awayScore, setAwayScore] = useState(match.awayScore ?? 0);
+  const [matchMinute, setMatchMinute] = useState(match.matchMinute ?? 0);
+  const [recalibrateValue, setRecalibrateValue] = useState("");
+  const [recalibrating, setRecalibrating] = useState(false);
   const [streams, setStreams] = useState<Stream[]>(match.streams);
   const [newStream, setNewStream] = useState({ url: "", type: "HLS", quality: "HD", label: "", isPrimary: false });
   const [homeLogo, setHomeLogo] = useState(match.homeTeam?.logo ?? "");
@@ -41,7 +46,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
       const res = await fetch(`/api/matches/${match.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, homeScore, awayScore }),
       });
       if (!res.ok) throw new Error("Failed");
       toast.success("Match updated!");
@@ -50,6 +55,27 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
       toast.error("Failed to save");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleRecalibrate = async () => {
+    const m = parseInt(recalibrateValue);
+    if (isNaN(m) || m < 0 || m > 120) { toast.error("Enter a valid minute (0–120)"); return; }
+    setRecalibrating(true);
+    try {
+      const res = await fetch(`/api/matches/${match.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matchMinute: m }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`Timer recalibrated to ${m}'`);
+      setRecalibrateValue("");
+      router.refresh();
+    } catch {
+      toast.error("Failed to recalibrate");
+    } finally {
+      setRecalibrating(false);
     }
   };
 
@@ -147,17 +173,109 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
         </CardContent>
       </Card>
 
-      {/* Match status */}
+      {/* Match status + score */}
       <Card>
-        <CardHeader><CardTitle>Match Status</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+        <CardHeader><CardTitle>Match Status & Score</CardTitle></CardHeader>
+        <CardContent className="space-y-5">
+          {/* Live timer info */}
+          {match.startedAt && match.status === "LIVE" && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/8 border border-red-500/20">
+              <span className="w-2 h-2 rounded-full bg-red-500 live-pulse shrink-0" />
+              <div className="text-xs text-white/80">
+                <span className="font-bold text-red-400">Auto-timer running</span>
+                {" · "}kicked off at {new Date(match.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {match.matchMinute === 45 && " · 2nd half"}
+              </div>
+            </div>
+          )}
+
+          {/* Status */}
           <div className="w-48">
             <label className="text-xs text-white/75 mb-1.5 block">Status</label>
             <select value={status} onChange={(e) => setStatus(e.target.value)}
               className="w-full bg-[#0B0F14] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00FF84]/50">
               {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
+            <p className="text-[11px] text-white/50 mt-1">
+              Setting to <strong>LIVE</strong> auto-starts the timer.{" "}
+              LIVE after HALFTIME auto-starts 2nd half from 46'.
+            </p>
           </div>
+
+          {/* Score */}
+          <div>
+            <label className="text-xs text-white/75 mb-3 block">Score</label>
+            <div className="flex items-center gap-4">
+              {/* Home score */}
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-[11px] text-white/50 font-medium truncate max-w-[80px] text-center">
+                  {match.homeTeam?.name ?? "Home"}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setHomeScore((v) => Math.max(0, v - 1))}
+                    className="w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-white font-bold flex items-center justify-center transition-colors">
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    type="number" min={0} max={99}
+                    value={homeScore}
+                    onChange={(e) => setHomeScore(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-14 text-center bg-[#0B0F14] border border-white/10 rounded-lg py-2 text-xl font-black text-white focus:outline-none focus:border-[#00FF84]/50 tabular-nums"
+                  />
+                  <button type="button" onClick={() => setHomeScore((v) => v + 1)}
+                    className="w-8 h-8 rounded-lg bg-white/8 hover:bg-[#00FF84]/20 text-[#00FF84] font-bold flex items-center justify-center transition-colors">
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              <span className="text-2xl font-black text-white/30 mt-4">–</span>
+
+              {/* Away score */}
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-[11px] text-white/50 font-medium truncate max-w-[80px] text-center">
+                  {match.awayTeam?.name ?? "Away"}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => setAwayScore((v) => Math.max(0, v - 1))}
+                    className="w-8 h-8 rounded-lg bg-white/8 hover:bg-white/15 text-white font-bold flex items-center justify-center transition-colors">
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <input
+                    type="number" min={0} max={99}
+                    value={awayScore}
+                    onChange={(e) => setAwayScore(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-14 text-center bg-[#0B0F14] border border-white/10 rounded-lg py-2 text-xl font-black text-white focus:outline-none focus:border-[#00FF84]/50 tabular-nums"
+                  />
+                  <button type="button" onClick={() => setAwayScore((v) => v + 1)}
+                    className="w-8 h-8 rounded-lg bg-white/8 hover:bg-[#00FF84]/20 text-[#00FF84] font-bold flex items-center justify-center transition-colors">
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Recalibrate timer */}
+          {match.status === "LIVE" && (
+            <div>
+              <label className="text-xs text-white/75 mb-1.5 block">Recalibrate Timer</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number" min={1} max={120} placeholder="e.g. 67"
+                  value={recalibrateValue}
+                  onChange={(e) => setRecalibrateValue(e.target.value)}
+                  className="w-24 text-center bg-[#0B0F14] border border-white/10 rounded-lg py-2 text-sm font-bold text-white focus:outline-none focus:border-[#00FF84]/50 tabular-nums placeholder:text-white/20"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={handleRecalibrate} disabled={recalibrating || !recalibrateValue}>
+                  {recalibrating ? "Setting…" : "Set Minute"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-white/50 mt-1">Adjusts the live clock to show this minute and keep auto-counting from there.</p>
+            </div>
+          )}
+
           <Button onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4" />
             {saving ? "Saving..." : "Update Match"}
