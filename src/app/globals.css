@@ -31,15 +31,23 @@
 }
 
 body {
-  background-image: url('/livegoali1.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   background-color: #0B0F14;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   position: relative;
+}
+
+/* Background image via pseudo-element so it works on iOS/Android */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/livegoali1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -2;
+  pointer-events: none;
 }
 
 body::before {
@@ -47,13 +55,13 @@ body::before {
   position: fixed;
   inset: 0;
   background: rgba(11, 15, 20, 0.82);
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
 }
 
 body > * {
   position: relative;
-  z-index: 1;
+  z-index: 0;
 }
 
 ::-webkit-scrollbar {
