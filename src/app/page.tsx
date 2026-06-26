@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Play, Radio, Clock, Calendar, ChevronRight, Wifi } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
+import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { AdBanner } from "@/components/AdBanner";
 import { HomeRefresher } from "@/components/HomeRefresher";
 import { format, isToday, isTomorrow } from "date-fns";
@@ -339,9 +340,10 @@ export default async function HomePage() {
 
                                     {/* Countdown */}
                                     <div className="shrink-0">
-                                      <span className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap">
-                                        {countdown(new Date(match.scheduledAt))}
-                                      </span>
+                                      <CountdownTimer
+                                        scheduledAt={match.scheduledAt}
+                                        className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
+                                      />
                                     </div>
                                   </div>
                                 </Link>

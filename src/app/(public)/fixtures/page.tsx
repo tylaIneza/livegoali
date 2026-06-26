@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar, ChevronLeft, ChevronRight, Wifi } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
+import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns";
 import type { Metadata } from "next";
 
@@ -268,9 +269,10 @@ export default async function FixturesPage({
                             {isLive && match.streams.length > 0 ? (
                               <Wifi className="w-3.5 h-3.5 text-[#00FF84]" />
                             ) : !isFinished && !isLive ? (
-                              <span className="text-[9px] font-bold text-blue-400/70 whitespace-nowrap">
-                                {countdown(new Date(match.scheduledAt))}
-                              </span>
+                              <CountdownTimer
+                                scheduledAt={match.scheduledAt}
+                                className="text-[9px] font-bold text-blue-400/70 whitespace-nowrap tabular-nums"
+                              />
                             ) : (
                               <ChevronRight className="w-3.5 h-3.5 text-white/15 group-hover/match:text-white/50 transition-colors" />
                             )}
