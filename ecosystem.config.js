@@ -17,8 +17,8 @@ module.exports = {
     },
     {
       name: "livegoali-socket",
-      script: "npx",
-      args: "tsx src/server/socket.ts",
+      script: "node_modules/.bin/tsx",
+      args: "--env-file=.env src/server/socket.ts",
       instances: 1,
       env: {
         NODE_ENV: "production",
