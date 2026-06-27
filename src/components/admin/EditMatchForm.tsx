@@ -10,10 +10,16 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 interface Stream { id: string; url: string; type: string; quality: string; label: string | null; isPrimary: boolean; isActive: boolean; priority: number }
+// Convert a UTC Date from the server to a local datetime-local string for the input
+function toLocalInputValue(date: Date | string): string {
+  const d = new Date(date);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
 interface Props {
   match: {
     id: string; slug: string; status: string; homeScore: number | null; awayScore: number | null;
-    matchMinute: number | null; startedAt: Date | null; isFeatured: boolean; enableComments: boolean; enableChat: boolean;
+    matchMinute: number | null; startedAt: Date | null; scheduledAt: Date; isFeatured: boolean; enableComments: boolean; enableChat: boolean;
     enablePrediction: boolean; venue: string | null; round: string | null; homeTeamId: string; awayTeamId: string; leagueId: string;
     streams: Stream[];
     homeTeam?: { id: string; name: string; logo: string | null } | null;
@@ -29,6 +35,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(match.status);
+  const [scheduledAt, setScheduledAt] = useState(() => toLocalInputValue(match.scheduledAt));
   const [homeScore, setHomeScore] = useState(match.homeScore ?? 0);
   const [awayScore, setAwayScore] = useState(match.awayScore ?? 0);
   const [matchMinute, setMatchMinute] = useState(match.matchMinute ?? 0);
@@ -46,7 +53,7 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
       const res = await fetch(`/api/matches/${match.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, homeScore, awayScore }),
+        body: JSON.stringify({ status, homeScore, awayScore, scheduledAt: new Date(scheduledAt).toISOString() }),
       });
       if (!res.ok) throw new Error("Failed");
       toast.success("Match updated!");
@@ -170,6 +177,22 @@ export function EditMatchForm({ match, leagues, teams }: Props) {
             <Save className="w-4 h-4" />
             {savingLogos ? "Saving logos…" : "Save Logos"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Kickoff time */}
+      <Card>
+        <CardHeader><CardTitle>Kickoff Time</CardTitle></CardHeader>
+        <CardContent>
+          <div className="w-64">
+            <label className="text-xs text-white/75 mb-1.5 block">Date & Time (your local time)</label>
+            <Input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+            />
+            <p className="text-[10px] text-white/40 mt-1">Saved and displayed in your local timezone</p>
+          </div>
         </CardContent>
       </Card>
 

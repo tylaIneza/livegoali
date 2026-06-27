@@ -81,7 +81,7 @@ export function CreateMatchForm({ leagues }: Props) {
           homeTeamLogo: homeTeamLogo.trim() || undefined,
           awayTeamName: awayTeamName.trim(),
           awayTeamLogo: awayTeamLogo.trim() || undefined,
-          scheduledAt, venue, round,
+          scheduledAt: new Date(scheduledAt).toISOString(), venue, round,
           isFeatured, enableComments, enableChat, enablePrediction,
         }),
       });

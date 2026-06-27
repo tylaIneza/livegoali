@@ -67,6 +67,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
   }
 
+  // ── Kickoff time ─────────────────────────────────────────────
+  if (body.scheduledAt !== undefined) data.scheduledAt = new Date(body.scheduledAt);
+
   // ── Other fields ─────────────────────────────────────────────
   if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;
   if (body.enableComments !== undefined) data.enableComments = body.enableComments;
