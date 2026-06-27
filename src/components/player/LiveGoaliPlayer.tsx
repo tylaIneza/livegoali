@@ -398,21 +398,23 @@ export function LiveGoaliPlayer({
           title={homeTeam && awayTeam ? `${homeTeam} vs ${awayTeam}` : "Live Stream"}
         />
 
-        {/* Branding — non-interactive overlay */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-none z-10">
-          <img src="/livegoali.png" alt="LiveGoali" className="w-6 h-6 object-contain" />
-          <span className="text-white text-xs font-bold drop-shadow-lg">LiveGoali</span>
-        </div>
-
-        {/* Live badge */}
+        {/* Live badge — top left */}
         {isLive && (
-          <div className="absolute top-3 right-3 pointer-events-none z-10">
+          <div className="absolute top-3 left-3 pointer-events-none z-10">
             <div className="flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm shadow-lg">
               <span className="w-1.5 h-1.5 rounded-full bg-white live-pulse" />
               LIVE {matchMinute ? `${matchMinute}'` : ""}
             </div>
           </div>
         )}
+
+        {/* Branding — top right */}
+        <div className="absolute top-3 right-3 pointer-events-none z-10">
+          <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full shadow-lg">
+            <img src="/livegoali.png" alt="LiveGoali" className="w-4 h-4 object-contain" />
+            <span className="text-white text-[11px] font-bold tracking-wide drop-shadow">LiveGoali</span>
+          </div>
+        </div>
 
         {/* Bottom bar: source switcher + fullscreen */}
         <div className="absolute bottom-0 left-0 right-0 z-10 flex items-center justify-between px-3 py-2 bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
@@ -461,21 +463,23 @@ export function LiveGoaliPlayer({
         preload="auto"
       />
 
-      {/* Watermark */}
-      <div className="absolute top-3 left-3 flex items-center gap-1.5 opacity-75 pointer-events-none z-10">
-        <img src="/livegoali.png" alt="LiveGoali" className="w-6 h-6 object-contain" />
-        <span className="text-white text-xs font-bold drop-shadow-lg">LiveGoali</span>
-      </div>
-
-      {/* Live badge */}
+      {/* Live badge — top left */}
       {isLive && (
-        <div className="absolute top-3 right-3 pointer-events-none z-10">
+        <div className="absolute top-3 left-3 pointer-events-none z-10">
           <div className="flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm shadow-lg">
             <span className="w-1.5 h-1.5 rounded-full bg-white live-pulse" />
             LIVE {matchMinute ? `${matchMinute}'` : ""}
           </div>
         </div>
       )}
+
+      {/* Branding — top right */}
+      <div className="absolute top-3 right-3 pointer-events-none z-10">
+        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full shadow-lg">
+          <img src="/livegoali.png" alt="LiveGoali" className="w-4 h-4 object-contain" />
+          <span className="text-white text-[11px] font-bold tracking-wide drop-shadow">LiveGoali</span>
+        </div>
+      </div>
 
       {/* Team names overlay */}
       {(homeTeam || awayTeam) && (
