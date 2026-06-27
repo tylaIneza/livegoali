@@ -399,11 +399,11 @@ export function LiveGoaliPlayer({
         />
 
         {/* Branding — top right */}
-        <div className="absolute top-3 right-3 pointer-events-none z-10">
-          <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full shadow-lg">
-            <img src="/livegoali.png" alt="LiveGoali" className="w-4 h-4 object-contain" />
-            <span className="text-white text-[11px] font-bold tracking-wide drop-shadow">LiveGoali</span>
-          </div>
+        <div className="absolute top-3 right-4 pointer-events-none z-10 flex items-center gap-2 opacity-90">
+          <img src="/livegoali.png" alt="LiveGoali" className="w-7 h-7 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
+          <span className="text-white font-black text-sm tracking-widest uppercase drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>
+            LiveGoali
+          </span>
         </div>
 
         {/* Bottom bar: source switcher + fullscreen */}
@@ -454,11 +454,11 @@ export function LiveGoaliPlayer({
       />
 
       {/* Branding — top right */}
-      <div className="absolute top-3 right-3 pointer-events-none z-10">
-        <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full shadow-lg">
-          <img src="/livegoali.png" alt="LiveGoali" className="w-4 h-4 object-contain" />
-          <span className="text-white text-[11px] font-bold tracking-wide drop-shadow">LiveGoali</span>
-        </div>
+      <div className="absolute top-3 right-4 pointer-events-none z-10 flex items-center gap-2 opacity-90">
+        <img src="/livegoali.png" alt="LiveGoali" className="w-7 h-7 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]" />
+        <span className="text-white font-black text-sm tracking-widest uppercase drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}>
+          LiveGoali
+        </span>
       </div>
 
       {/* Team names overlay */}
