@@ -398,16 +398,6 @@ export function LiveGoaliPlayer({
           title={homeTeam && awayTeam ? `${homeTeam} vs ${awayTeam}` : "Live Stream"}
         />
 
-        {/* Live badge — top left */}
-        {isLive && (
-          <div className="absolute top-3 left-3 pointer-events-none z-10">
-            <div className="flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm shadow-lg">
-              <span className="w-1.5 h-1.5 rounded-full bg-white live-pulse" />
-              LIVE {matchMinute ? `${matchMinute}'` : ""}
-            </div>
-          </div>
-        )}
-
         {/* Branding — top right */}
         <div className="absolute top-3 right-3 pointer-events-none z-10">
           <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full shadow-lg">
@@ -462,16 +452,6 @@ export function LiveGoaliPlayer({
         muted          /* always muted in HTML attr — JS controls unmuting */
         preload="auto"
       />
-
-      {/* Live badge — top left */}
-      {isLive && (
-        <div className="absolute top-3 left-3 pointer-events-none z-10">
-          <div className="flex items-center gap-1.5 bg-red-600/90 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm shadow-lg">
-            <span className="w-1.5 h-1.5 rounded-full bg-white live-pulse" />
-            LIVE {matchMinute ? `${matchMinute}'` : ""}
-          </div>
-        </div>
-      )}
 
       {/* Branding — top right */}
       <div className="absolute top-3 right-3 pointer-events-none z-10">
