@@ -345,14 +345,6 @@ export function LiveGoaliPlayer({
     </div>
   );
 
-  // ── Shared: LIVE indicator dot ─────────────────────────────────────
-  const LiveDot = () => (
-    <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full">
-      <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse shrink-0" />
-      LIVE
-    </span>
-  );
-
   // ── IFRAME EMBED ────────────────────────────────────────────────────
   if (isWebpage && !resolvedUrl) {
     return (
@@ -374,7 +366,6 @@ export function LiveGoaliPlayer({
           <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 flex items-center justify-between gap-3">
             {/* Match info */}
             <div className="flex items-center gap-2 min-w-0">
-              {isLive && <LiveDot />}
               {hasMatchInfo && (
                 <span className="text-white/70 text-xs font-medium truncate hidden sm:block">
                   {displayTitle}
@@ -461,13 +452,6 @@ export function LiveGoaliPlayer({
                 </>
               ) : (
                 <span className="text-white/90 font-semibold text-sm leading-none truncate">{displayTitle}</span>
-              )}
-              {isLive && (
-                <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full shrink-0 ml-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
-                  LIVE
-                  {matchMinute != null && <span className="ml-0.5 text-red-300">{matchMinute}&apos;</span>}
-                </span>
               )}
             </div>
           </motion.div>
@@ -587,7 +571,6 @@ export function LiveGoaliPlayer({
             </div>
             {hasMatchInfo && (
               <div className="flex items-center gap-2 bg-white/5 border border-white/8 rounded-xl px-4 py-2">
-                {isLive && <LiveDot />}
                 <span className="text-white/60 text-xs font-medium">{displayTitle}</span>
               </div>
             )}
@@ -636,13 +619,6 @@ export function LiveGoaliPlayer({
                   />
                 </div>
 
-                {/* LIVE badge */}
-                {isLive && (
-                  <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/15 border border-red-500/25 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
-                    LIVE
-                  </span>
-                )}
 
                 {/* Stream health */}
                 <div className="hidden sm:flex items-center gap-1.5 shrink-0">
