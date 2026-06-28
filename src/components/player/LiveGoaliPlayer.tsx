@@ -360,14 +360,13 @@ export function LiveGoaliPlayer({
         {/* Top gradient */}
         <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10" />
 
-        {/* Bottom gradient + controls */}
-        <div className="absolute inset-x-0 bottom-0 z-20" style={{ pointerEvents: "auto" }}>
-          <div className="h-20 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-          <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 flex items-center justify-between gap-3">
+        {/* Bottom controls — gradient only, no solid bar so no visible line */}
+        <div className="absolute inset-x-0 bottom-0 z-20 h-20 bg-gradient-to-t from-black/80 to-transparent" style={{ pointerEvents: "none" }}>
+          <div className="absolute bottom-0 inset-x-0 px-3 pb-2 flex items-center justify-between gap-3" style={{ pointerEvents: "auto" }}>
             {/* Match info */}
             <div className="flex items-center gap-2 min-w-0">
               {hasMatchInfo && (
-                <span className="text-white/70 text-xs font-medium truncate hidden sm:block">
+                <span className="text-white/70 text-xs font-medium truncate hidden sm:block drop-shadow">
                   {displayTitle}
                 </span>
               )}
@@ -390,7 +389,7 @@ export function LiveGoaliPlayer({
               ))}
               <button
                 onClick={toggleFullscreen}
-                className="p-1.5 rounded-lg bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all"
+                className="flex items-center justify-center w-9 h-9 rounded-lg bg-black/40 text-white/80 hover:bg-black/60 hover:text-white transition-all"
               >
                 {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
               </button>
