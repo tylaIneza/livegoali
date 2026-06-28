@@ -189,8 +189,8 @@ export function EditMatchForm({ match }: Props) {
   return (
     <div className="space-y-6 max-w-3xl">
 
-      {/* ── FOOTBALL ONLY: Team Logos ── */}
-      {isFootball && (
+      {/* ── Team Logos (football, basketball, volleyball — any match with homeTeam) ── */}
+      {!!match.homeTeam && (
         <Card>
           <CardHeader><CardTitle>Team Logos</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -205,7 +205,7 @@ export function EditMatchForm({ match }: Props) {
                       className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">⚽</div>
+                    <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">🏅</div>
                   )}
                   <Input placeholder="Logo URL (https://...)" value={homeLogo} onChange={(e) => setHomeLogo(e.target.value)} />
                 </div>
@@ -220,7 +220,7 @@ export function EditMatchForm({ match }: Props) {
                       className="w-12 h-12 object-contain rounded-lg bg-white/5 border border-white/10 p-1 shrink-0"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">⚽</div>
+                    <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 shrink-0 text-xl">🏅</div>
                   )}
                   <Input placeholder="Logo URL (https://...)" value={awayLogo} onChange={(e) => setAwayLogo(e.target.value)} />
                 </div>

@@ -55,20 +55,19 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(matches);
 }
 
-async function findOrCreateTeam(name: string, leagueId: string, logo?: string): Promise<string> {
+async function findOrCreateTeam(name: string, leagueId: string | null, logo?: string): Promise<string> {
   const trimmed = name.trim();
   const existing = await prisma.team.findFirst({
     where: { name: { equals: trimmed } },
   });
   if (existing) {
-    // Update logo if a new one is provided
     if (logo) await prisma.team.update({ where: { id: existing.id }, data: { logo } });
     return existing.id;
   }
 
   const slug = `${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}-${Date.now()}`;
   const team = await prisma.team.create({
-    data: { name: trimmed, slug, leagueId, logo: logo || null },
+    data: { name: trimmed, slug, leagueId: leagueId ?? null, logo: logo || null },
   });
   return team.id;
 }
@@ -81,12 +80,12 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
 
-  // Football uses team relations; other sports use participant fields
+  // Create team records for any sport that sends homeTeamName (football, basketball, volleyball, etc.)
   let homeTeamId: string | undefined;
   let awayTeamId: string | undefined;
-  if (body.leagueId && (body.homeTeamName || body.homeTeamId)) {
-    homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId, body.homeTeamLogo);
-    awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId, body.awayTeamLogo);
+  if (body.homeTeamName || body.homeTeamId) {
+    homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId ?? null, body.homeTeamLogo);
+    awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId ?? null, body.awayTeamLogo);
   }
 
   const match = await prisma.match.create({

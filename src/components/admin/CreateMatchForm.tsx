@@ -52,7 +52,9 @@ export function CreateMatchForm({ leagues, sports }: Props) {
   // Basketball
   const [bkLeague, setBkLeague] = useState("");
   const [bkHome, setBkHome] = useState("");
+  const [bkHomeLogo, setBkHomeLogo] = useState("");
   const [bkAway, setBkAway] = useState("");
+  const [bkAwayLogo, setBkAwayLogo] = useState("");
   const [bkArena, setBkArena] = useState("");
   const [bkDate, setBkDate] = useState("");
   const [bkRound, setBkRound] = useState("");
@@ -60,7 +62,9 @@ export function CreateMatchForm({ leagues, sports }: Props) {
   // Volleyball
   const [vbTournament, setVbTournament] = useState("");
   const [vbTeamA, setVbTeamA] = useState("");
+  const [vbLogoA, setVbLogoA] = useState("");
   const [vbTeamB, setVbTeamB] = useState("");
+  const [vbLogoB, setVbLogoB] = useState("");
   const [vbVenue, setVbVenue] = useState("");
   const [vbDate, setVbDate] = useState("");
   const [vbRound, setVbRound] = useState("");
@@ -145,7 +149,8 @@ export function CreateMatchForm({ leagues, sports }: Props) {
       const slug = generateSlug(`${bkHome}-vs-${bkAway}-${bkDate.slice(0, 10)}`);
       return {
         slug, sportId,
-        participant1: bkHome.trim(), participant2: bkAway.trim(),
+        homeTeamName: bkHome.trim(), homeTeamLogo: bkHomeLogo.trim() || undefined,
+        awayTeamName: bkAway.trim(), awayTeamLogo: bkAwayLogo.trim() || undefined,
         title: bkLeague.trim() || undefined,
         venue: bkArena.trim() || undefined, round: bkRound.trim() || undefined,
         scheduledAt: new Date(bkDate).toISOString(),
@@ -159,7 +164,8 @@ export function CreateMatchForm({ leagues, sports }: Props) {
       const slug = generateSlug(`${vbTeamA}-vs-${vbTeamB}-${vbDate.slice(0, 10)}`);
       return {
         slug, sportId,
-        participant1: vbTeamA.trim(), participant2: vbTeamB.trim(),
+        homeTeamName: vbTeamA.trim(), homeTeamLogo: vbLogoA.trim() || undefined,
+        awayTeamName: vbTeamB.trim(), awayTeamLogo: vbLogoB.trim() || undefined,
         title: vbTournament.trim() || undefined,
         venue: vbVenue.trim() || undefined, round: vbRound.trim() || undefined,
         scheduledAt: new Date(vbDate).toISOString(),
@@ -449,13 +455,21 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <label className={labelClass}>Home Team *</label>
                   <Input placeholder="e.g. LA Lakers" value={bkHome} onChange={(e) => setBkHome(e.target.value)} required />
+                  <div className="flex items-center gap-2">
+                    {bkHomeLogo && <img src={bkHomeLogo} alt="" className="w-8 h-8 object-contain rounded bg-white/5 border border-white/10 p-0.5 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                    <Input placeholder="Home logo URL (optional)" value={bkHomeLogo} onChange={(e) => setBkHomeLogo(e.target.value)} />
+                  </div>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label className={labelClass}>Away Team *</label>
                   <Input placeholder="e.g. Boston Celtics" value={bkAway} onChange={(e) => setBkAway(e.target.value)} required />
+                  <div className="flex items-center gap-2">
+                    {bkAwayLogo && <img src={bkAwayLogo} alt="" className="w-8 h-8 object-contain rounded bg-white/5 border border-white/10 p-0.5 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                    <Input placeholder="Away logo URL (optional)" value={bkAwayLogo} onChange={(e) => setBkAwayLogo(e.target.value)} />
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -486,13 +500,21 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-2">
                   <label className={labelClass}>Team A *</label>
                   <Input placeholder="e.g. Brazil" value={vbTeamA} onChange={(e) => setVbTeamA(e.target.value)} required />
+                  <div className="flex items-center gap-2">
+                    {vbLogoA && <img src={vbLogoA} alt="" className="w-8 h-8 object-contain rounded bg-white/5 border border-white/10 p-0.5 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                    <Input placeholder="Team A logo URL (optional)" value={vbLogoA} onChange={(e) => setVbLogoA(e.target.value)} />
+                  </div>
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label className={labelClass}>Team B *</label>
                   <Input placeholder="e.g. Poland" value={vbTeamB} onChange={(e) => setVbTeamB(e.target.value)} required />
+                  <div className="flex items-center gap-2">
+                    {vbLogoB && <img src={vbLogoB} alt="" className="w-8 h-8 object-contain rounded bg-white/5 border border-white/10 p-0.5 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                    <Input placeholder="Team B logo URL (optional)" value={vbLogoB} onChange={(e) => setVbLogoB(e.target.value)} />
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
