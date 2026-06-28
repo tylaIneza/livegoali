@@ -225,9 +225,17 @@ export function LiveGoaliPlayer({
     };
     document.addEventListener("fullscreenchange", onChange);
     document.addEventListener("webkitfullscreenchange", onChange);
+    // iOS Safari uses video-level events for webkitEnterFullscreen
+    const video = videoRef.current;
+    const onBegin = () => { if (mountedRef.current) { setIsFullscreen(true); setShowControls(true); } };
+    const onEnd   = () => { if (mountedRef.current) { setIsFullscreen(false); setShowControls(true); } };
+    video?.addEventListener("webkitbeginfullscreen", onBegin);
+    video?.addEventListener("webkitendfullscreen",   onEnd);
     return () => {
       document.removeEventListener("fullscreenchange", onChange);
       document.removeEventListener("webkitfullscreenchange", onChange);
+      video?.removeEventListener("webkitbeginfullscreen", onBegin);
+      video?.removeEventListener("webkitendfullscreen",   onEnd);
     };
   }, []);
 
@@ -258,10 +266,10 @@ export function LiveGoaliPlayer({
     setShowControls(true);
     if (controlsTimer.current) clearTimeout(controlsTimer.current);
     controlsTimer.current = setTimeout(() => {
-      if (mountedRef.current && isPlaying) setShowControls(false);
+      if (mountedRef.current && isPlaying && !isFullscreen) setShowControls(false);
     }, 3000);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying]);
+  }, [isPlaying, isFullscreen]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -750,9 +758,9 @@ export function LiveGoaliPlayer({
                 {/* Fullscreen */}
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                  className="text-white/75 hover:text-white transition-colors"
+                  className="flex items-center justify-center w-10 h-10 -mr-2 text-white/75 hover:text-white transition-colors"
                 >
-                  {isFullscreen ? <Minimize className="w-4.5 h-4.5" /> : <Maximize className="w-4.5 h-4.5" />}
+                  {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
                 </button>
               </div>
             </div>
