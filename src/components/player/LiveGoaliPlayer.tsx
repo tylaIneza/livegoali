@@ -127,6 +127,7 @@ export function LiveGoaliPlayer({
     if (!video) { if (isMounted()) setIsLoading(false); return; }
     if (hlsRef.current) { hlsRef.current.destroy(); hlsRef.current = null; }
     video.pause(); video.removeAttribute("src"); video.load();
+    video.muted = true; video.volume = 1; // mute via JS property (not HTML attr) so iOS can unmute later
     if (!isMounted()) return;
     setIsLoading(true); setError(null); setIsPlaying(false);
     const hlsUrl = stream.type === "HLS" || urlToLoad.includes(".m3u8");
@@ -434,7 +435,7 @@ export function LiveGoaliPlayer({
       <video
         ref={videoRef}
         className="w-full h-full object-contain"
-        playsInline autoPlay muted preload="auto"
+        playsInline autoPlay preload="auto"
       />
 
       {/* Transparent overlay — captures clicks/touches above the video element.
@@ -509,7 +510,12 @@ export function LiveGoaliPlayer({
           <motion.button
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
             className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-white text-xs font-semibold hover:bg-black/95 hover:border-[#00FF84]/40 transition-all shadow-xl"
-            onClick={(e) => { e.stopPropagation(); setIsMuted(false); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const video = videoRef.current;
+              if (video) { video.muted = false; video.volume = volume; }
+              setIsMuted(false);
+            }}
           >
             <VolumeX className="w-3.5 h-3.5 text-white/70" />
             Tap to unmute
