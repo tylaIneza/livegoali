@@ -358,7 +358,7 @@ export function LiveGoaliPlayer({
 
   // ── Shared: LIVE indicator dot ─────────────────────────────────────
   const LiveDot = () => (
-    <span className="inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full">
+    <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full">
       <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse shrink-0" />
       LIVE
     </span>
