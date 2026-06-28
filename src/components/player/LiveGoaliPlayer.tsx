@@ -411,9 +411,6 @@ export function LiveGoaliPlayer({
       className="relative bg-[#080C10] rounded-2xl overflow-hidden aspect-video select-none"
       onMouseMove={showControlsFor3s}
       onMouseLeave={() => isPlaying && setShowControls(false)}
-      onTouchStart={handleContainerTouchStart}
-      onClick={handleContainerClick}
-      style={{ cursor: isPlaying && !showControls ? "none" : "default" }}
     >
       <video
         ref={videoRef}
@@ -421,10 +418,19 @@ export function LiveGoaliPlayer({
         playsInline autoPlay muted preload="auto"
       />
 
+      {/* Transparent overlay — captures clicks/touches above the video element.
+          On iOS the <video> element eats touch events; this layer sits above it. */}
+      <div
+        className="absolute inset-0 z-[11]"
+        style={{ cursor: isPlaying && !showControls ? "none" : "default" }}
+        onTouchStart={handleContainerTouchStart}
+        onClick={handleContainerClick}
+      />
+
       {/* Persistent bottom vignette */}
-      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/70 to-transparent pointer-events-none z-[12]" />
       {/* Persistent top vignette */}
-      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-[12]" />
 
       {/* Watermark */}
       <Watermark />
