@@ -79,6 +79,7 @@ export function LiveGoaliPlayer({
   const [qualityLevels,      setQualityLevels]      = useState<Array<{ height: number; bitrate: number }>>([]);
   const [currentQuality,     setCurrentQuality]     = useState(-1);
   const retryCountRef = useRef(0);
+  const justShowedControlsRef = useRef(false);
 
   const activeStreams  = streams.filter((s) => s.isActive).sort((a, b) => a.priority - b.priority);
   const currentStream  = activeStreams[currentStreamIndex];
@@ -245,19 +246,39 @@ export function LiveGoaliPlayer({
     video.muted  = isMuted || volume === 0;
   }, [volume, isMuted]);
 
-  const showControlsFor3s = () => {
+  const showControlsFor3s = useCallback(() => {
     setShowControls(true);
     if (controlsTimer.current) clearTimeout(controlsTimer.current);
     controlsTimer.current = setTimeout(() => {
       if (mountedRef.current && isPlaying) setShowControls(false);
     }, 3000);
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
 
   const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) safePlay(video); else video.pause();
   };
+
+  const handleContainerTouchStart = useCallback(() => {
+    if (!showControls) {
+      showControlsFor3s();
+      justShowedControlsRef.current = true;
+    } else {
+      showControlsFor3s();
+      justShowedControlsRef.current = false;
+    }
+  }, [showControls, showControlsFor3s]);
+
+  const handleContainerClick = useCallback(() => {
+    if (justShowedControlsRef.current) {
+      justShowedControlsRef.current = false;
+      return;
+    }
+    togglePlay();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const toggleMute = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -340,7 +361,7 @@ export function LiveGoaliPlayer({
         <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10" />
 
         {/* Bottom gradient + controls */}
-        <div className="absolute inset-x-0 bottom-0 z-10">
+        <div className="absolute inset-x-0 bottom-0 z-20" style={{ pointerEvents: "auto" }}>
           <div className="h-20 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
           <div className="bg-black/70 backdrop-blur-md px-4 py-2.5 flex items-center justify-between gap-3">
             {/* Match info */}
@@ -390,7 +411,8 @@ export function LiveGoaliPlayer({
       className="relative bg-[#080C10] rounded-2xl overflow-hidden aspect-video select-none"
       onMouseMove={showControlsFor3s}
       onMouseLeave={() => isPlaying && setShowControls(false)}
-      onClick={togglePlay}
+      onTouchStart={handleContainerTouchStart}
+      onClick={handleContainerClick}
       style={{ cursor: isPlaying && !showControls ? "none" : "default" }}
     >
       <video
@@ -595,7 +617,7 @@ export function LiveGoaliPlayer({
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-14 sm:w-20 h-1 rounded-full cursor-pointer accent-[#00FF84] opacity-80 hover:opacity-100 transition-opacity"
+                    className="hidden sm:block w-20 h-1 rounded-full cursor-pointer accent-[#00FF84] opacity-80 hover:opacity-100 transition-opacity"
                   />
                 </div>
 

@@ -88,9 +88,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <img src="/livegoali.png" alt="LiveGoali" className="w-9 h-9 object-contain group-hover:scale-105 transition-transform duration-200" />
-            <span className="text-xl font-black tracking-tight">
+          <Link href="/" className="flex items-center gap-2 group shrink-0">
+            <img src="/livegoali.png" alt="LiveGoali" className="w-7 h-7 sm:w-9 sm:h-9 object-contain group-hover:scale-105 transition-transform duration-200" />
+            <span className="text-base sm:text-xl font-black tracking-tight">
               <span className="text-gradient">Live</span>
               <span className="text-white">Goali</span>
             </span>
@@ -246,9 +246,9 @@ export function Navbar() {
                     </AvatarFallback>
                   </Avatar>
                   {session.user.isVIP && (
-                    <Badge variant="premium" className="text-[10px] px-1.5 py-0">VIP</Badge>
+                    <Badge variant="premium" className="hidden sm:inline-flex text-[10px] px-1.5 py-0">VIP</Badge>
                   )}
-                  <ChevronDown className="w-4 h-4 text-white/75" />
+                  <ChevronDown className="hidden sm:block w-4 h-4 text-white/75" />
                 </button>
 
                 <AnimatePresence>
