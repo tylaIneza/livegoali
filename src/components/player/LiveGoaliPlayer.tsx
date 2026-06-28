@@ -218,9 +218,16 @@ export function LiveGoaliPlayer({
   }, [effectiveUrl]);
 
   useEffect(() => {
-    const onChange = () => { if (mountedRef.current) setIsFullscreen(!!document.fullscreenElement); };
+    const onChange = () => {
+      if (mountedRef.current)
+        setIsFullscreen(!!(document.fullscreenElement || (document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement));
+    };
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -291,9 +298,21 @@ export function LiveGoaliPlayer({
     setIsMuted(v === 0);
   };
   const toggleFullscreen = () => {
-    if (!containerRef.current) return;
-    if (!document.fullscreenElement) containerRef.current.requestFullscreen().catch(() => {});
-    else document.exitFullscreen().catch(() => {});
+    const container = containerRef.current;
+    const video = videoRef.current;
+    type WebkitDoc = Document & { webkitFullscreenElement?: Element; webkitExitFullscreen?: () => void };
+    type WebkitEl = Element & { webkitRequestFullscreen?: () => void };
+    type WebkitVid = HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+    const doc = document as WebkitDoc;
+    const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+    if (!isFs) {
+      if (container?.requestFullscreen) container.requestFullscreen().catch(() => {});
+      else if ((container as WebkitEl)?.webkitRequestFullscreen) (container as WebkitEl).webkitRequestFullscreen!();
+      else if ((video as WebkitVid)?.webkitEnterFullscreen) (video as WebkitVid).webkitEnterFullscreen!();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+    }
   };
   const setQuality = (level: number) => {
     if (hlsRef.current) hlsRef.current.currentLevel = level;
@@ -456,7 +475,7 @@ export function LiveGoaliPlayer({
                 <span className="text-white/90 font-semibold text-sm leading-none truncate">{displayTitle}</span>
               )}
               {isLive && (
-                <span className="inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full shrink-0 ml-0.5">
+                <span className="hidden sm:inline-flex items-center gap-1 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-black tracking-wider px-2 py-0.5 rounded-full shrink-0 ml-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
                   LIVE
                   {matchMinute != null && <span className="ml-0.5 text-red-300">{matchMinute}&apos;</span>}
