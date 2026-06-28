@@ -24,6 +24,7 @@ export default async function PredictionsPage() {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+      sport: { select: { slug: true } },
       prediction: true,
     },
     orderBy: { scheduledAt: "asc" },
@@ -98,6 +99,7 @@ interface PredMatch {
   homeTeam: { name: string; logo: string | null; shortName: string | null };
   awayTeam: { name: string; logo: string | null; shortName: string | null };
   league: { name: string; logo: string | null };
+  sport?: { slug: string | null } | null;
   prediction: {
     homeWinProb: number;
     drawProb: number;
@@ -145,7 +147,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
             <span className="font-bold text-white text-sm">{match.homeTeam.name}</span>
           </div>
           <div className="text-center">
-            {isLive ? (
+            {isLive && (match.sport?.slug === "football" || !match.sport?.slug) ? (
               <span className="text-lg font-black text-[#00FF84]">{match.homeScore} - {match.awayScore}</span>
             ) : (
               <span className="text-sm text-white/60 font-bold">VS</span>

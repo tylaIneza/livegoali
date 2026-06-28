@@ -234,10 +234,9 @@ export default async function FixturesPage({
                     const isFinished = match.status === "FINISHED";
                     const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
                     const fSportSlug = match.sport?.slug ?? null;
-                    const NO_SCORE = ["formula1", "ufc", "boxing"];
                     const SOLO_F = ["formula1"];
-                    const fHasScore = !fSportSlug || !NO_SCORE.includes(fSportSlug);
                     const fIsFootball = fSportSlug === "football" || !!match.homeTeamId;
+                    const fHasScore = fSportSlug === "football" || (!fSportSlug && !!match.homeTeamId);
                     const fIsSolo = SOLO_F.includes(fSportSlug ?? "");
                     const fHasTwoSides = fIsFootball || (!fIsSolo && !!match.participant1 && !!match.participant2);
 

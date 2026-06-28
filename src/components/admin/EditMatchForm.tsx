@@ -38,8 +38,6 @@ interface Props {
   teams: Array<{ id: string; name: string; logo: string | null }>;
 }
 
-// Sports that have no running score (position/round/decision, not points)
-const NO_SCORE_SPORTS = ["formula1", "ufc", "boxing"];
 // Only football has HALFTIME as a meaningful status
 const HALFTIME_SPORTS = ["football"];
 
@@ -48,7 +46,7 @@ export function EditMatchForm({ match }: Props) {
 
   const sportSlug = match.sport?.slug ?? null;
   const isFootball = sportSlug === "football" || !!match.homeTeamId;
-  const hasScore = !sportSlug || !NO_SCORE_SPORTS.includes(sportSlug);
+  const hasScore = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
   const hasHalftime = !sportSlug || HALFTIME_SPORTS.includes(sportSlug);
 
   const statusOptions = hasHalftime

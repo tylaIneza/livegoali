@@ -35,6 +35,7 @@ export interface MatchWithTeams {
     logo: string | null;
     country: string;
   };
+  sport?: { slug: string | null } | null;
   streams?: StreamSourceData[];
   prediction?: PredictionData | null;
 }

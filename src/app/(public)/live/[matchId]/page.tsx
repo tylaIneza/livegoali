@@ -72,9 +72,8 @@ export default async function LiveMatchPage({ params }: Props) {
   const isLive = match.status === "LIVE" || match.status === "HALFTIME";
   const sportSlug = match.sport?.slug ?? null;
   const isFootball = sportSlug === "football" || !!match.homeTeamId;
-  const NO_SCORE_SPORTS = ["formula1", "ufc", "boxing"];
   const SOLO_SPORTS = ["formula1"]; // races — no direct opponent
-  const hasScore = !sportSlug || !NO_SCORE_SPORTS.includes(sportSlug);
+  const hasScore = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
   const isSoloEvent = SOLO_SPORTS.includes(sportSlug ?? "");
   const hasTwoSides = isFootball || (!isSoloEvent && !!match.participant1 && !!match.participant2);
 

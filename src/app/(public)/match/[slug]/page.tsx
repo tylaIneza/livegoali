@@ -64,9 +64,8 @@ export default async function MatchPage({ params }: Props) {
   const isScheduled = match.status === "SCHEDULED";
   const sportSlug = match.sport?.slug ?? null;
   const isFootball = sportSlug === "football" || !!match.homeTeamId;
-  const NO_SCORE_SPORTS = ["formula1", "ufc", "boxing"];
   const SOLO_SPORTS = ["formula1"];
-  const hasScore = !sportSlug || !NO_SCORE_SPORTS.includes(sportSlug);
+  const hasScore = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
   const isSoloEvent = SOLO_SPORTS.includes(sportSlug ?? "");
   const hasTwoSides = isFootball || (!isSoloEvent && !!match.participant1 && !!match.participant2);
 

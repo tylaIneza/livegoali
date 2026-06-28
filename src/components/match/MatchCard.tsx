@@ -18,6 +18,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
   const isLive = match.status === "LIVE" || match.status === "HALFTIME";
   const isFinished = match.status === "FINISHED";
   const isScheduled = match.status === "SCHEDULED";
+  const isFootball = !match.sport || match.sport.slug === "football";
 
   if (variant === "compact") {
     return (
@@ -43,7 +44,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               </span>
             </div>
             <div className="flex items-center gap-2 font-bold text-lg">
-              {isFinished ? (
+              {isFinished && isFootball ? (
                 <>
                   <span className="text-white">{match.homeScore ?? 0}</span>
                   <span className="text-white/60">-</span>
@@ -115,7 +116,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
 
           {/* Score */}
           <div className="flex flex-col items-center gap-1 min-w-[80px]">
-            {isFinished ? (
+            {isFinished && isFootball ? (
               <>
                 <div className="text-3xl font-black tabular-nums text-white">
                   {match.homeScore ?? 0} - {match.awayScore ?? 0}

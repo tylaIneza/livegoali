@@ -172,12 +172,11 @@ export default async function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {liveMatches.map((match) => {
                   const sportSlug = match.sport?.slug ?? null;
-                  const NO_SCORE = ["formula1", "ufc", "boxing"];
                   const SOLO = ["formula1"];
-                  const hasScore = !sportSlug || !NO_SCORE.includes(sportSlug);
+                  const isFootball = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
                   const isSolo = SOLO.includes(sportSlug ?? "");
-                  const hasTwoSidesCard = (sportSlug === "football" || !!match.homeTeamId) ||
-                    (!isSolo && !!match.participant1 && !!match.participant2);
+                  const hasTeams = !!match.homeTeam;
+                  const hasTwoSidesCard = hasTeams || (!isSolo && !!match.participant1 && !!match.participant2);
                   const watchLabel = sportSlug === "formula1" ? "Watch Race"
                     : (sportSlug === "ufc" || sportSlug === "boxing") ? "Watch Fight"
                     : "Watch Live";
@@ -204,8 +203,8 @@ export default async function HomePage() {
                           <LiveBadge startedAt={match.startedAt} minute={match.matchMinute} status={match.status} size="sm" />
                         </div>
 
-                        {hasScore ? (
-                          /* ── Football / scored: team logos + score ── */
+                        {hasTeams ? (
+                          /* ── Team-based: logos + score (football only) ── */
                           <div className="flex items-center gap-3">
                             <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
                               <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={56} />
@@ -214,11 +213,15 @@ export default async function HomePage() {
                               </span>
                             </div>
                             <div className="flex flex-col items-center shrink-0 gap-1.5">
-                              <div className="text-3xl font-black text-white tabular-nums leading-none">
-                                {match.homeScore ?? 0}
-                                <span className="text-white/30 mx-1.5">–</span>
-                                {match.awayScore ?? 0}
-                              </div>
+                              {isFootball ? (
+                                <div className="text-3xl font-black text-white tabular-nums leading-none">
+                                  {match.homeScore ?? 0}
+                                  <span className="text-white/30 mx-1.5">–</span>
+                                  {match.awayScore ?? 0}
+                                </div>
+                              ) : (
+                                <div className="text-2xl font-black text-white/50">VS</div>
+                              )}
                               {(match.streams.length > 0 || !!match.streamUrl) && (
                                 <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/80">
                                   <Wifi className="w-2.5 h-2.5" /> Stream available
@@ -371,9 +374,7 @@ export default async function HomePage() {
                             <div className="divide-y divide-white/4">
                               {leagueMatches.map((match) => {
                                 const mSportSlug = match.sport?.slug ?? null;
-                                const NO_SCORE = ["formula1", "ufc", "boxing"];
                                 const SOLO_U = ["formula1"];
-                                const mHasScore = !mSportSlug || !NO_SCORE.includes(mSportSlug);
                                 const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
                                 const mIsSolo = SOLO_U.includes(mSportSlug ?? "");
                                 const mHasTwoSides = mIsFootball ||
@@ -454,9 +455,7 @@ export default async function HomePage() {
               <div className="rounded-2xl border border-white/7 bg-[#0D1117]/80 overflow-hidden divide-y divide-white/4">
                 {recentFinished.map((match) => {
                   const rSportSlug = match.sport?.slug ?? null;
-                  const NO_SCORE = ["formula1", "ufc", "boxing"];
-                  const rHasScore = !rSportSlug || !NO_SCORE.includes(rSportSlug);
-                  const rIsFootball = rSportSlug === "football" || !!match.homeTeamId;
+                  const rIsFootball = rSportSlug === "football" || (!rSportSlug && !!match.homeTeamId);
                   return (
                     <Link key={match.id} href={`/match/${match.slug}`} className="block group">
                       <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
@@ -472,8 +471,8 @@ export default async function HomePage() {
                           </span>
                         </div>
 
-                        {(rIsFootball || rHasScore) ? (
-                          /* Football / scored: two-team + score */
+                        {!!match.homeTeam ? (
+                          /* Team-based: show teams, score only for football */
                           <>
                             <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                               <span className="text-sm font-semibold text-gray-300 truncate text-right group-hover:text-white transition-colors">
@@ -482,10 +481,16 @@ export default async function HomePage() {
                               <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={22} />
                             </div>
                             <div className="shrink-0 px-3 text-center">
-                              <span className="text-base font-black text-white tabular-nums">
-                                {match.homeScore ?? 0} – {match.awayScore ?? 0}
-                              </span>
-                              <div className="text-[9px] text-white/40 font-bold text-center mt-0.5">FT</div>
+                              {rIsFootball ? (
+                                <>
+                                  <span className="text-base font-black text-white tabular-nums">
+                                    {match.homeScore ?? 0} – {match.awayScore ?? 0}
+                                  </span>
+                                  <div className="text-[9px] text-white/40 font-bold text-center mt-0.5">FT</div>
+                                </>
+                              ) : (
+                                <span className="text-sm font-black text-white/40">vs</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={22} />
