@@ -315,14 +315,14 @@ export function LiveGoaliPlayer({
 
   // ── Shared: watermark ──────────────────────────────────────────────
   const Watermark = () => (
-    <div className="absolute top-13 right-4 pointer-events-none z-20">
-      <div className="flex items-center gap-2.5 bg-black/30 backdrop-blur-md border border-white/10 rounded-2xl px-3.5 py-2 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+    <div className="absolute top-2 sm:top-13 right-2 sm:right-4 pointer-events-none z-20">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 bg-black/30 backdrop-blur-md border border-white/10 rounded-xl sm:rounded-2xl px-2 sm:px-3.5 py-1.5 sm:py-2 shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
         <img
           src="/livegoali.png"
           alt="LiveGoali"
-          className="w-9 h-9 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+          className="w-5 h-5 sm:w-9 sm:h-9 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
         />
-        <div className="flex flex-col leading-none">
+        <div className="hidden sm:flex flex-col leading-none">
           <span
             className="text-white font-black text-sm tracking-widest uppercase"
             style={{ textShadow: "0 1px 8px rgba(0,0,0,0.9)" }}
