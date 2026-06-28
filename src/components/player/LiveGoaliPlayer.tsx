@@ -79,7 +79,6 @@ export function LiveGoaliPlayer({
   const [qualityLevels,      setQualityLevels]      = useState<Array<{ height: number; bitrate: number }>>([]);
   const [currentQuality,     setCurrentQuality]     = useState(-1);
   const retryCountRef = useRef(0);
-  const justShowedControlsRef = useRef(false);
 
   const activeStreams  = streams.filter((s) => s.isActive).sort((a, b) => a.priority - b.priority);
   const currentStream  = activeStreams[currentStreamIndex];
@@ -271,29 +270,10 @@ export function LiveGoaliPlayer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, isFullscreen]);
 
-  const togglePlay = () => {
+  const togglePlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     if (video.paused) safePlay(video); else video.pause();
-  };
-
-  const handleContainerTouchStart = useCallback(() => {
-    if (!showControls) {
-      showControlsFor3s();
-      justShowedControlsRef.current = true;
-    } else {
-      showControlsFor3s();
-      justShowedControlsRef.current = false;
-    }
-  }, [showControls, showControlsFor3s]);
-
-  const handleContainerClick = useCallback(() => {
-    if (justShowedControlsRef.current) {
-      justShowedControlsRef.current = false;
-      return;
-    }
-    togglePlay();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const toggleMute = () => {
     const video = videoRef.current;
@@ -446,13 +426,12 @@ export function LiveGoaliPlayer({
         playsInline autoPlay preload="auto"
       />
 
-      {/* Transparent overlay — captures clicks/touches above the video element.
-          On iOS the <video> element eats touch events; this layer sits above it. */}
+      {/* Tap overlay — shows controls on touch/click; sits above video but below all UI */}
       <div
         className="absolute inset-0 z-[11]"
         style={{ cursor: isPlaying && !showControls ? "none" : "default" }}
-        onTouchStart={handleContainerTouchStart}
-        onClick={handleContainerClick}
+        onTouchStart={showControlsFor3s}
+        onClick={showControlsFor3s}
       />
 
       {/* Persistent bottom vignette */}
@@ -495,20 +474,22 @@ export function LiveGoaliPlayer({
         )}
       </AnimatePresence>
 
-      {/* Center play button — when paused */}
+      {/* Center play button — tappable, sits above overlay */}
       <AnimatePresence>
         {!isPlaying && !isLoading && !error && activeStreams.length > 0 && (
-          <motion.div
+          <motion.button
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.7 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+            className="absolute inset-0 flex items-center justify-center z-[25]"
+            onClick={(e) => { e.stopPropagation(); togglePlay(); }}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); togglePlay(); }}
           >
-            <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+            <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)] pointer-events-none">
               <Play className="w-7 h-7 text-white fill-white ml-1" />
             </div>
-          </motion.div>
+          </motion.button>
         )}
       </AnimatePresence>
 
@@ -623,11 +604,6 @@ export function LiveGoaliPlayer({
             className="absolute bottom-0 left-0 right-0 z-30"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* LIVE progress line */}
-            {isLive && (
-              <div className="h-0.5 bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
-            )}
-
             <div className="bg-black/80 backdrop-blur-md px-4 py-3">
               <div className="flex items-center gap-2 sm:gap-3">
 
