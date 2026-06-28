@@ -467,7 +467,6 @@ export function LiveGoaliPlayer({
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="absolute inset-0 flex items-center justify-center z-[25]"
             onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); togglePlay(); }}
           >
             <div className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)] pointer-events-none">
               <Play className="w-7 h-7 text-white fill-white ml-1" />
@@ -592,7 +591,7 @@ export function LiveGoaliPlayer({
                 {/* Play / Pause */}
                 <button
                   onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                  className="w-8 h-8 flex items-center justify-center text-white hover:text-[#00FF84] transition-colors shrink-0"
+                  className="w-10 h-10 flex items-center justify-center text-white hover:text-[#00FF84] transition-colors shrink-0"
                 >
                   {isPlaying
                     ? <Pause className="w-5 h-5 fill-current" />
