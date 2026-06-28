@@ -390,19 +390,19 @@ export default async function HomePage() {
                                       </div>
 
                                       {mHasTwoSides ? (
-                                        /* Football / two-participant: two-column with VS */
+                                        /* Two-sided match: two-column with VS, logos for any sport with teams */
                                         <>
                                           <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                                             <span className="text-sm font-semibold text-gray-200 truncate text-right group-hover/match:text-white transition-colors">
                                               {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
                                             </span>
-                                            {mIsFootball && <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={26} />}
+                                            {!!match.homeTeam && <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? ""} size={26} />}
                                           </div>
                                           <div className="shrink-0 w-8 text-center">
                                             <span className="text-[10px] font-black text-white/30">VS</span>
                                           </div>
                                           <div className="flex items-center gap-2 flex-1 min-w-0">
-                                            {mIsFootball && <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={26} />}
+                                            {!!match.awayTeam && <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? ""} size={26} />}
                                             <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
                                               {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
                                             </span>

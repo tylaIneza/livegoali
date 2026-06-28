@@ -151,7 +151,7 @@ export default async function LiveMatchPage({ params }: Props) {
                 </div>
               )}
               <div className="text-center shrink-0 px-3">
-                {(match.status === "LIVE" || match.status === "HALFTIME" || match.status === "FINISHED") ? (
+                {(match.status === "LIVE" || match.status === "HALFTIME" || match.status === "FINISHED") && hasScore ? (
                   <div className="text-2xl sm:text-3xl font-black text-[#00FF84] tabular-nums leading-none">
                     {match.homeScore ?? 0} – {match.awayScore ?? 0}
                   </div>
