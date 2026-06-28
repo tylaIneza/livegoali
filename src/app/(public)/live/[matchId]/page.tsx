@@ -29,9 +29,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     });
     if (!match) return { title: "Match Not Found" };
+    const p1 = match.homeTeam?.name ?? match.participant1 ?? "TBA";
+    const p2 = match.awayTeam?.name ?? match.participant2 ?? "TBA";
+    const eventTitle = match.title ?? `${p1} vs ${p2}`;
+    const competition = match.league?.name ?? "";
     return {
-      title: `${match.homeTeam.name} vs ${match.awayTeam.name} Live`,
-      description: `Watch ${match.homeTeam.name} vs ${match.awayTeam.name} live on LiveGoali — ${match.league.name}.`,
+      title: `${eventTitle} — Live`,
+      description: competition
+        ? `Watch ${eventTitle} live on LiveGoali — ${competition}.`
+        : `Watch ${eventTitle} live on LiveGoali.`,
     };
   } catch {
     return { title: "Live Match | LiveGoali" };
@@ -49,6 +55,7 @@ export default async function LiveMatchPage({ params }: Props) {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+        sport: { select: { id: true, name: true, icon: true, slug: true } },
         streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
         statistics: true,
         events: { orderBy: { minute: "desc" }, take: 20 },
@@ -63,6 +70,46 @@ export default async function LiveMatchPage({ params }: Props) {
   if (!match) notFound();
 
   const isLive = match.status === "LIVE" || match.status === "HALFTIME";
+  const sportSlug = match.sport?.slug ?? null;
+  const isFootball = sportSlug === "football" || !!match.homeTeamId;
+  const NO_SCORE_SPORTS = ["formula1", "ufc", "boxing"];
+  const SOLO_SPORTS = ["formula1"]; // races — no direct opponent
+  const hasScore = !sportSlug || !NO_SCORE_SPORTS.includes(sportSlug);
+  const isSoloEvent = SOLO_SPORTS.includes(sportSlug ?? "");
+  const hasTwoSides = isFootball || (!isSoloEvent && !!match.participant1 && !!match.participant2);
+
+  // If the stored value is a full <iframe> tag, extract just the src URL.
+  function extractStreamUrl(raw: string): string {
+    if (raw.trimStart().startsWith("<")) {
+      const m = raw.match(/src="([^"]+)"/);
+      return m?.[1] ?? raw;
+    }
+    return raw;
+  }
+
+  const playerStreams = match.streams.length > 0
+    ? match.streams.map((s) => ({
+        id: s.id,
+        url: extractStreamUrl(s.url),
+        type: s.type,
+        quality: s.quality,
+        isPrimary: s.isPrimary,
+        isActive: s.isActive,
+        priority: s.priority,
+        label: s.label,
+      }))
+    : match.streamUrl
+      ? [{
+          id: "global",
+          url: extractStreamUrl(match.streamUrl),
+          type: (match.streamType ?? "IFRAME") as import("@prisma/client").StreamType,
+          quality: match.streamQuality ?? "HD",
+          isPrimary: true,
+          isActive: true,
+          priority: 0,
+          label: "Global Stream",
+        }]
+      : [];
 
   return (
     <div className="bg-[#0B0F14]">
@@ -73,65 +120,107 @@ export default async function LiveMatchPage({ params }: Props) {
 
         {/* Match header */}
         <div className="mb-6 p-4 rounded-2xl glass border border-white/8">
-          {/* Top row: league + live badge */}
+          {/* Top row: league/sport + live badge */}
           <div className="flex items-center justify-between mb-4">
-            <Link href={`/league/${match.league.slug}`} className="flex items-center gap-2 min-w-0">
-              {match.league.logo && (
-                <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain shrink-0" />
-              )}
-              <span className="text-xs text-white/75 truncate">{match.league.name}</span>
-            </Link>
+            {match.league?.slug ? (
+              <Link href={`/league/${match.league.slug}`} className="flex items-center gap-2 min-w-0">
+                {match.league.logo && (
+                  <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain shrink-0" />
+                )}
+                <span className="text-xs text-white/75 truncate">{match.league.name}</span>
+              </Link>
+            ) : (
+              <span className="text-xs text-white/75 truncate">{match.title ?? "Live Event"}</span>
+            )}
             {isLive && <LiveBadge minute={match.matchMinute} status={match.status} />}
           </div>
 
-          {/* Teams row */}
-          <div className="flex items-center justify-between gap-2">
-            {/* Home */}
-            <Link href={`/team/${match.homeTeam.slug}`} className="flex flex-col sm:flex-row items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
-              {match.homeTeam.logo && (
-                <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={40} height={40} className="object-contain shrink-0" />
+          {/* Teams / Event — sport conditional */}
+          {isFootball ? (
+            /* ── Football: team logos + score ── */
+            <div className="flex items-center justify-between gap-2">
+              {match.homeTeam?.slug ? (
+                <Link href={`/team/${match.homeTeam.slug}`} className="flex flex-col sm:flex-row items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
+                  {match.homeTeam.logo && (
+                    <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={40} height={40} className="object-contain shrink-0" />
+                  )}
+                  <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-left truncate">{match.homeTeam.name}</span>
+                </Link>
+              ) : (
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-white text-sm sm:text-lg truncate">{match.participant1 ?? "—"}</span>
+                </div>
               )}
-              <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-left truncate">{match.homeTeam.name}</span>
-            </Link>
-
-            {/* VS */}
-            <div className="text-xl sm:text-2xl font-black text-white/70 shrink-0 px-2">VS</div>
-
-            {/* Away */}
-            <Link href={`/team/${match.awayTeam.slug}`} className="flex flex-col sm:flex-row-reverse items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
-              {match.awayTeam.logo && (
-                <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={40} height={40} className="object-contain shrink-0" />
+              <div className="text-center shrink-0 px-3">
+                {(match.status === "LIVE" || match.status === "HALFTIME" || match.status === "FINISHED") ? (
+                  <div className="text-2xl sm:text-3xl font-black text-[#00FF84] tabular-nums leading-none">
+                    {match.homeScore ?? 0} – {match.awayScore ?? 0}
+                  </div>
+                ) : (
+                  <div className="text-xl sm:text-2xl font-black text-white/60">VS</div>
+                )}
+              </div>
+              {match.awayTeam?.slug ? (
+                <Link href={`/team/${match.awayTeam.slug}`} className="flex flex-col sm:flex-row-reverse items-center gap-2 hover:opacity-80 transition-opacity flex-1 min-w-0">
+                  {match.awayTeam.logo && (
+                    <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={40} height={40} className="object-contain shrink-0" />
+                  )}
+                  <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-right truncate">{match.awayTeam.name}</span>
+                </Link>
+              ) : (
+                <div className="flex-1 min-w-0 text-right">
+                  <span className="font-bold text-white text-sm sm:text-lg truncate">{match.participant2 ?? "—"}</span>
+                </div>
               )}
-              <span className="font-bold text-white text-sm sm:text-lg text-center sm:text-right truncate">{match.awayTeam.name}</span>
-            </Link>
-          </div>
+            </div>
+          ) : hasTwoSides ? (
+            /* ── Head-to-head: UFC, Boxing, Cricket, etc. ── */
+            <div className="flex items-center gap-4">
+              <div className="flex-1 flex flex-col items-center gap-2 text-center min-w-0">
+                <div className="w-14 h-14 rounded-full bg-[#00FF84]/10 border-2 border-[#00FF84]/25 flex items-center justify-center shrink-0">
+                  <span className="text-xl font-black text-[#00FF84]">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
+                </div>
+                <span className="font-bold text-white text-sm sm:text-base leading-tight w-full">{match.participant1}</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 shrink-0">
+                {match.sport?.icon && <span className="text-2xl leading-none">{match.sport.icon}</span>}
+                <span className="text-base sm:text-lg font-black text-white/50">VS</span>
+              </div>
+              <div className="flex-1 flex flex-col items-center gap-2 text-center min-w-0">
+                <div className="w-14 h-14 rounded-full bg-blue-500/10 border-2 border-blue-500/25 flex items-center justify-center shrink-0">
+                  <span className="text-xl font-black text-blue-400">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
+                </div>
+                <span className="font-bold text-white text-sm sm:text-base leading-tight w-full">{match.participant2}</span>
+              </div>
+            </div>
+          ) : (
+            /* ── Solo event: F1 race, etc. ── */
+            <div className="flex flex-col items-center gap-2 py-1 text-center">
+              {match.sport?.icon && <span className="text-4xl leading-none">{match.sport.icon}</span>}
+              <div className="font-black text-white text-lg sm:text-2xl leading-tight">
+                {match.title ?? match.participant1 ?? "Live Event"}
+              </div>
+              {match.sport?.name && <div className="text-xs text-white/50 mt-0.5">{match.sport.name}</div>}
+            </div>
+          )}
         </div>
 
         {/* Player + sidebar */}
         <div className="grid lg:grid-cols-[1fr,380px] gap-6">
           <div>
             <LiveGoaliPlayer
-              streams={match.streams.map((s) => ({
-                id: s.id,
-                url: s.url,
-                type: s.type,
-                quality: s.quality,
-                isPrimary: s.isPrimary,
-                isActive: s.isActive,
-                priority: s.priority,
-                label: s.label,
-              }))}
-              matchTitle={`${match.homeTeam.name} vs ${match.awayTeam.name}`}
-              homeTeam={match.homeTeam.shortName || match.homeTeam.name}
-              awayTeam={match.awayTeam.shortName || match.awayTeam.name}
-              homeScore={match.homeScore ?? 0}
-              awayScore={match.awayScore ?? 0}
+              streams={playerStreams}
+              matchTitle={match.title ?? `${match.homeTeam?.name ?? match.participant1 ?? ""} vs ${match.awayTeam?.name ?? match.participant2 ?? ""}`}
+              homeTeam={match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? undefined}
+              awayTeam={match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? undefined}
+              homeScore={hasScore ? (match.homeScore ?? 0) : undefined}
+              awayScore={hasScore ? (match.awayScore ?? 0) : undefined}
               isLive={isLive}
-              matchMinute={match.matchMinute}
+              matchMinute={isFootball ? match.matchMinute : undefined}
             />
 
-            {/* Stats */}
-            {match.statistics && (
+            {/* Stats — football only */}
+            {isFootball && match.statistics && (
               <div className="mt-4 p-4 rounded-xl glass border border-white/8">
                 <h3 className="text-sm font-bold text-white mb-4">Match Statistics</h3>
                 <div className="space-y-3">
@@ -173,8 +262,8 @@ export default async function LiveMatchPage({ params }: Props) {
               expectedHomeGoals: match.prediction.expectedHomeGoals,
               expectedAwayGoals: match.prediction.expectedAwayGoals,
             } : null}
-            homeTeam={match.homeTeam.name}
-            awayTeam={match.awayTeam.name}
+            homeTeam={match.homeTeam?.name ?? match.participant1 ?? ""}
+            awayTeam={match.awayTeam?.name ?? match.participant2 ?? ""}
           />
           </div>
         </div>

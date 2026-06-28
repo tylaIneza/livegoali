@@ -81,7 +81,7 @@ export default async function AdminStreamsPage() {
         </h2>
         <AddStreamForm matches={activeMatches.map((m) => ({
           id: m.id,
-          label: `${m.homeTeam.shortName || m.homeTeam.name} vs ${m.awayTeam.shortName || m.awayTeam.name} — ${m.league.name}`,
+          label: `${m.homeTeam?.shortName || m.homeTeam?.name} vs ${m.awayTeam?.shortName || m.awayTeam?.name} — ${m.league?.name ?? ""}`,
           status: m.status,
         }))} />
       </div>
@@ -116,9 +116,9 @@ export default async function AdminStreamsPage() {
                       </span>
                     )}
                     <span className="text-sm font-bold text-white">
-                      {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
+                      {m.homeTeam?.shortName || m.homeTeam?.name} vs {m.awayTeam?.shortName || m.awayTeam?.name}
                     </span>
-                    <span className="text-xs text-white/70">{m.league.name}</span>
+                    <span className="text-xs text-white/70">{m.league?.name}</span>
                     <span className="text-xs text-white/60">{formatMatchDate(m.scheduledAt)}</span>
                   </div>
                   <Button variant="ghost" size="sm" asChild className="h-7 text-xs">

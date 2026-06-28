@@ -16,6 +16,7 @@ export default async function EditMatchPage({ params }: Props) {
         streams: { orderBy: { priority: "asc" } },
         homeTeam: { select: { id: true, name: true, logo: true } },
         awayTeam: { select: { id: true, name: true, logo: true } },
+        sport: { select: { name: true, icon: true, slug: true } },
       },
     }),
     prisma.league.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),

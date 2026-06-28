@@ -73,6 +73,7 @@ export default async function FixturesPage({
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+      sport: { select: { slug: true, name: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true }, take: 1 },
     },
     orderBy: { scheduledAt: "asc" },
@@ -81,7 +82,7 @@ export default async function FixturesPage({
   type MatchItem = (typeof matches)[number];
 
   const byLeague = matches.reduce<Record<string, MatchItem[]>>((acc, m) => {
-    const key = m.league.id;
+    const key = m.league?.id ?? "other";
     if (!acc[key]) acc[key] = [];
     acc[key].push(m);
     return acc;
@@ -194,27 +195,37 @@ export default async function FixturesPage({
       ) : (
         <div className="space-y-3">
           {Object.values(byLeague).map((leagueMatches) => {
-            const league = leagueMatches[0].league;
+            const league = leagueMatches[0].league ?? null;
             return (
-              <div key={league.id} className="rounded-2xl border border-white/7 bg-[#0D1117] overflow-hidden">
-                {/* League header */}
-                <Link href={`/league/${league.slug}`} className="block group/league">
-                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-[#121821]/50 hover:bg-[#1a2235]/50 transition-colors">
-                    {league.logo ? (
-                      <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
-                    ) : (
-                      <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
-                    )}
-                    <span className="text-sm font-bold text-white group-hover/league:text-[#00FF84] transition-colors">
-                      {league.name}
-                    </span>
-                    <span className="text-xs text-white/40">· {league.country}</span>
+              <div key={league?.id ?? "other"} className="rounded-2xl border border-white/7 bg-[#0D1117] overflow-hidden">
+                {/* League / sport header */}
+                {league?.slug ? (
+                  <Link href={`/league/${league.slug}`} className="block group/league">
+                    <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-[#121821]/50 hover:bg-[#1a2235]/50 transition-colors">
+                      {league.logo ? (
+                        <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
+                      ) : (
+                        <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
+                      )}
+                      <span className="text-sm font-bold text-white group-hover/league:text-[#00FF84] transition-colors">
+                        {league.name}
+                      </span>
+                      <span className="text-xs text-white/40">· {league.country}</span>
+                      <span className="ml-auto text-[10px] text-white/30 font-medium">
+                        {leagueMatches.length} match{leagueMatches.length !== 1 ? "es" : ""}
+                      </span>
+                      <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover/league:text-[#00FF84]/60 transition-colors" />
+                    </div>
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-[#121821]/50">
+                    <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
+                    <span className="text-sm font-bold text-white">Other Events</span>
                     <span className="ml-auto text-[10px] text-white/30 font-medium">
-                      {leagueMatches.length} match{leagueMatches.length !== 1 ? "es" : ""}
+                      {leagueMatches.length} event{leagueMatches.length !== 1 ? "s" : ""}
                     </span>
-                    <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover/league:text-[#00FF84]/60 transition-colors" />
                   </div>
-                </Link>
+                )}
 
                 {/* Match rows */}
                 <div className="divide-y divide-white/4">
@@ -222,6 +233,13 @@ export default async function FixturesPage({
                     const isLive = match.status === "LIVE" || match.status === "HALFTIME";
                     const isFinished = match.status === "FINISHED";
                     const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
+                    const fSportSlug = match.sport?.slug ?? null;
+                    const NO_SCORE = ["formula1", "ufc", "boxing"];
+                    const SOLO_F = ["formula1"];
+                    const fHasScore = !fSportSlug || !NO_SCORE.includes(fSportSlug);
+                    const fIsFootball = fSportSlug === "football" || !!match.homeTeamId;
+                    const fIsSolo = SOLO_F.includes(fSportSlug ?? "");
+                    const fHasTwoSides = fIsFootball || (!fIsSolo && !!match.participant1 && !!match.participant2);
 
                     return (
                       <Link key={match.id} href={href} className="block group/match">
@@ -239,34 +257,59 @@ export default async function FixturesPage({
                             )}
                           </div>
 
-                          {/* Home team */}
-                          <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                            <span className={`text-sm font-semibold truncate text-right ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
-                              {match.homeTeam.shortName || match.homeTeam.name}
-                            </span>
-                            <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={26} />
-                          </div>
-
-                          {/* Score / VS */}
-                          <div className={`text-sm font-black tabular-nums w-16 text-center shrink-0 ${
-                            isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-white/30"
-                          }`}>
-                            {isFinished || isLive
-                              ? `${match.homeScore ?? 0} – ${match.awayScore ?? 0}`
-                              : "vs"}
-                          </div>
-
-                          {/* Away team */}
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={26} />
-                            <span className={`text-sm font-semibold truncate ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
-                              {match.awayTeam.shortName || match.awayTeam.name}
-                            </span>
-                          </div>
+                          {fIsFootball ? (
+                            /* ── Football: team logos + score ── */
+                            <>
+                              <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                <span className={`text-sm font-semibold truncate text-right ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
+                                  {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
+                                </span>
+                                <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={26} />
+                              </div>
+                              <div className={`text-sm font-black tabular-nums w-16 text-center shrink-0 ${
+                                isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-white/30"
+                              }`}>
+                                {(isFinished || isLive) && fHasScore
+                                  ? `${match.homeScore ?? 0} – ${match.awayScore ?? 0}`
+                                  : "vs"}
+                              </div>
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={26} />
+                                <span className={`text-sm font-semibold truncate ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
+                                  {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
+                                </span>
+                              </div>
+                            </>
+                          ) : fHasTwoSides ? (
+                            /* ── Head-to-head: UFC, Boxing, etc. ── */
+                            <>
+                              <div className="flex items-center gap-1 flex-1 min-w-0 justify-end">
+                                <span className={`text-sm font-semibold truncate text-right ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
+                                  {match.participant1 ?? "TBA"}
+                                </span>
+                              </div>
+                              <div className="text-xs font-black text-white/30 w-10 text-center shrink-0">
+                                {match.sport?.icon ?? "VS"}
+                              </div>
+                              <div className="flex items-center gap-1 flex-1 min-w-0">
+                                <span className={`text-sm font-semibold truncate ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
+                                  {match.participant2 ?? "TBA"}
+                                </span>
+                              </div>
+                            </>
+                          ) : (
+                            /* ── Solo event: F1 race ── */
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              {match.sport?.icon && <span className="text-base leading-none shrink-0">{match.sport.icon}</span>}
+                              <span className={`text-sm font-semibold truncate ${isLive ? "text-white" : "text-gray-200 group-hover/match:text-white"} transition-colors`}>
+                                {match.title ?? match.participant1 ?? "Event"}
+                              </span>
+                            </div>
+                          )}
 
                           {/* Right indicator */}
                           <div className="shrink-0 w-8 flex justify-end">
-                            {isLive && match.streams.length > 0 ? (
+                            {isLive && (match.streams.length > 0 || !!match.streamUrl) ? (
                               <Wifi className="w-3.5 h-3.5 text-[#00FF84]" />
                             ) : !isFinished && !isLive ? (
                               <CountdownTimer

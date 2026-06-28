@@ -12,6 +12,7 @@ export default async function AdminMatchesPage() {
       homeTeam: { select: { name: true, logo: true } },
       awayTeam: { select: { name: true, logo: true } },
       league: { select: { name: true } },
+      sport: { select: { name: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true } },
     },
     orderBy: { scheduledAt: "desc" },

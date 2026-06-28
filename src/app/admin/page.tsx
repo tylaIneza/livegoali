@@ -51,6 +51,7 @@ async function getAdminStats() {
       homeTeam: { select: { name: true, shortName: true } },
       awayTeam: { select: { name: true, shortName: true } },
       league: { select: { name: true } },
+      sport: { select: { name: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true } },
     },
     orderBy: { scheduledAt: "asc" },
@@ -82,7 +83,7 @@ export default async function AdminDashboard() {
 
   const statCards = [
     { label: "Total Users", value: stats.totalUsers, icon: Users, color: "text-blue-400", bg: "bg-blue-400/10" },
-    { label: "Live Matches", value: stats.liveMatches, icon: Radio, color: "text-red-400", bg: "bg-red-400/10", highlight: true },
+    { label: "Live Events", value: stats.liveMatches, icon: Radio, color: "text-red-400", bg: "bg-red-400/10", highlight: true },
     { label: "Site Visits", value: stats.siteVisitsTotal, sub: `+${stats.siteVisitsToday} today`, icon: Globe, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
     { label: "Match Views", value: stats.totalMatchViews, icon: Eye, color: "text-purple-400", bg: "bg-purple-400/10" },
     { label: "Watchtime", value: stats.watchHoursFormatted, icon: Timer, color: "text-orange-400", bg: "bg-orange-400/10", sub: "hours watched" },

@@ -6,7 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Trophy, Radio, Users, Newspaper,
   TrendingUp, Megaphone, Settings, ChevronLeft, Menu,
-  Shield, BarChart3, Star, Bell, RefreshCw
+  Shield, BarChart3, Star, Bell, RefreshCw, Dumbbell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +20,7 @@ interface Props {
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/sports", label: "Sports", icon: Dumbbell },
   { href: "/admin/matches", label: "Matches", icon: Trophy },
   { href: "/admin/leagues", label: "Leagues", icon: Star },
   { href: "/admin/streams", label: "Streams", icon: Radio },

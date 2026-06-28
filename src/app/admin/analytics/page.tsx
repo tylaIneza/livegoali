@@ -92,9 +92,9 @@ export default async function AdminAnalyticsPage() {
                   <tr key={m.id} className="hover:bg-white/2 transition-colors">
                     <td className="px-4 py-3">
                       <p className="text-sm font-medium text-white">
-                        {m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}
+                        {m.homeTeam?.shortName || m.homeTeam?.name} vs {m.awayTeam?.shortName || m.awayTeam?.name}
                       </p>
-                      <p className="text-xs text-white/60">{m.league.name}</p>
+                      <p className="text-xs text-white/60">{m.league?.name}</p>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs font-bold ${

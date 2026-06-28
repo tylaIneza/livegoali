@@ -8,9 +8,13 @@ import { getSocket } from "@/lib/socketClient";
 interface Match {
   id: string;
   status: string;
-  homeTeam: { name: string; shortName: string | null };
-  awayTeam: { name: string; shortName: string | null };
-  league: { name: string };
+  title?: string | null;
+  participant1?: string | null;
+  participant2?: string | null;
+  homeTeam?: { name: string; shortName: string | null } | null;
+  awayTeam?: { name: string; shortName: string | null } | null;
+  league?: { name: string } | null;
+  sport?: { name: string; icon: string } | null;
   streams: { id: string }[];
 }
 
@@ -105,9 +109,15 @@ export function ActiveMatchesWidget() {
                 <div key={match.id} className="flex items-center justify-between p-3 rounded-lg bg-[#0B0F14] border border-white/5">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white truncate">
-                      {match.homeTeam.name} vs {match.awayTeam.name}
+                      {match.homeTeam
+                        ? `${match.homeTeam.name} vs ${match.awayTeam?.name ?? ""}`
+                        : match.participant1 && match.participant2
+                          ? `${match.participant1} vs ${match.participant2}`
+                          : match.title ?? "Event"}
                     </p>
-                    <p className="text-xs text-white/70">{match.league.name}</p>
+                    <p className="text-xs text-white/70">
+                      {match.sport ? `${match.sport.icon} ${match.sport.name}` : match.league?.name ?? "—"}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-3">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${

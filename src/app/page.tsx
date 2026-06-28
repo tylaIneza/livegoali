@@ -66,6 +66,7 @@ export default async function HomePage() {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+        sport: { select: { slug: true, name: true, icon: true } },
         streams: { where: { isActive: true }, select: { id: true }, take: 1 },
       },
       orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
@@ -76,6 +77,7 @@ export default async function HomePage() {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+        sport: { select: { slug: true, name: true, icon: true } },
       },
       orderBy: { scheduledAt: "asc" },
       take: 40,
@@ -86,6 +88,7 @@ export default async function HomePage() {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+        sport: { select: { slug: true, name: true, icon: true } },
       },
       orderBy: { scheduledAt: "desc" },
       take: 8,
@@ -106,8 +109,9 @@ export default async function HomePage() {
   function byLeague(matches: UpcomingMatch[]) {
     const g: Record<string, UpcomingMatch[]> = {};
     for (const m of matches) {
-      if (!g[m.league.id]) g[m.league.id] = [];
-      g[m.league.id].push(m);
+      const lid = m.league?.id ?? "other";
+      if (!g[lid]) g[lid] = [];
+      g[lid].push(m);
     }
     return Object.values(g);
   }
@@ -166,72 +170,123 @@ export default async function HomePage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {liveMatches.map((match) => (
-                  <div
-                    key={match.id}
-                    className="relative rounded-2xl overflow-hidden border border-red-500/20 bg-[#0D1117] shadow-[0_0_40px_rgba(239,68,68,0.07)] group hover:border-red-500/35 hover:shadow-[0_0_50px_rgba(239,68,68,0.12)] transition-all duration-300"
-                  >
-                    {/* Top accent line */}
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
-
-                    <div className="p-5">
-                      {/* League row */}
-                      <div className="flex items-center justify-between mb-5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {match.league.logo && (
-                            <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain shrink-0" />
-                          )}
-                          <span className="text-xs text-white/70 font-medium truncate">{match.league.name}</span>
-                          {match.round && <span className="text-xs text-white/40 shrink-0">· {match.round}</span>}
-                        </div>
-                        <LiveBadge startedAt={match.startedAt} minute={match.matchMinute} status={match.status} size="sm" />
-                      </div>
-
-                      {/* Teams + Score */}
-                      <div className="flex items-center gap-3">
-                        {/* Home team */}
-                        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-                          <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={56} />
-                          <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
-                            {match.homeTeam.shortName || match.homeTeam.name}
-                          </span>
-                        </div>
-
-                        {/* Score / Minute */}
-                        <div className="flex flex-col items-center shrink-0 gap-1.5">
-                          <div className="text-3xl font-black text-white tabular-nums leading-none">
-                            {match.homeScore ?? 0}
-                            <span className="text-white/30 mx-1.5">–</span>
-                            {match.awayScore ?? 0}
+                {liveMatches.map((match) => {
+                  const sportSlug = match.sport?.slug ?? null;
+                  const NO_SCORE = ["formula1", "ufc", "boxing"];
+                  const SOLO = ["formula1"];
+                  const hasScore = !sportSlug || !NO_SCORE.includes(sportSlug);
+                  const isSolo = SOLO.includes(sportSlug ?? "");
+                  const hasTwoSidesCard = (sportSlug === "football" || !!match.homeTeamId) ||
+                    (!isSolo && !!match.participant1 && !!match.participant2);
+                  const watchLabel = sportSlug === "formula1" ? "Watch Race"
+                    : (sportSlug === "ufc" || sportSlug === "boxing") ? "Watch Fight"
+                    : "Watch Live";
+                  return (
+                    <div
+                      key={match.id}
+                      className="relative rounded-2xl overflow-hidden border border-red-500/20 bg-[#0D1117] shadow-[0_0_40px_rgba(239,68,68,0.07)] group hover:border-red-500/35 hover:shadow-[0_0_50px_rgba(239,68,68,0.12)] transition-all duration-300"
+                    >
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
+                      <div className="p-5">
+                        {/* League / sport row */}
+                        <div className="flex items-center justify-between mb-5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {match.league?.logo ? (
+                              <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain shrink-0" />
+                            ) : match.sport?.icon ? (
+                              <span className="text-sm leading-none shrink-0">{match.sport.icon}</span>
+                            ) : null}
+                            <span className="text-xs text-white/70 font-medium truncate">
+                              {match.league?.name ?? match.sport?.name ?? "Live Event"}
+                            </span>
+                            {match.round && <span className="text-xs text-white/40 shrink-0">· {match.round}</span>}
                           </div>
                           <LiveBadge startedAt={match.startedAt} minute={match.matchMinute} status={match.status} size="sm" />
-                          {match.streams.length > 0 && (
-                            <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/80">
-                              <Wifi className="w-2.5 h-2.5" /> Stream available
+                        </div>
+
+                        {hasScore ? (
+                          /* ── Football / scored: team logos + score ── */
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                              <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={56} />
+                              <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
+                                {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-center shrink-0 gap-1.5">
+                              <div className="text-3xl font-black text-white tabular-nums leading-none">
+                                {match.homeScore ?? 0}
+                                <span className="text-white/30 mx-1.5">–</span>
+                                {match.awayScore ?? 0}
+                              </div>
+                              {(match.streams.length > 0 || !!match.streamUrl) && (
+                                <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/80">
+                                  <Wifi className="w-2.5 h-2.5" /> Stream available
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                              <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={56} />
+                              <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
+                                {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
+                              </span>
+                            </div>
+                          </div>
+                        ) : hasTwoSidesCard ? (
+                          /* ── Head-to-head: UFC, Boxing, etc. — participants + VS ── */
+                          <div className="flex items-center gap-3 py-1">
+                            <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                              <div className="w-14 h-14 rounded-full bg-[#00FF84]/10 border-2 border-[#00FF84]/25 flex items-center justify-center shrink-0">
+                                <span className="text-xl font-black text-[#00FF84]">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
+                              </div>
+                              <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
+                                {match.participant1 ?? "TBA"}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-center shrink-0 gap-1">
+                              {match.sport?.icon && <span className="text-xl leading-none">{match.sport.icon}</span>}
+                              <span className="text-base font-black text-white/50">VS</span>
+                              {(match.streams.length > 0 || !!match.streamUrl) && (
+                                <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/80 mt-0.5">
+                                  <Wifi className="w-2.5 h-2.5" /> Stream
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
+                              <div className="w-14 h-14 rounded-full bg-blue-500/10 border-2 border-blue-500/25 flex items-center justify-center shrink-0">
+                                <span className="text-xl font-black text-blue-400">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
+                              </div>
+                              <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
+                                {match.participant2 ?? "TBA"}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          /* ── Solo event: F1 race, etc. ── */
+                          <div className="flex flex-col items-center gap-2 py-3 text-center">
+                            {match.sport?.icon && <span className="text-4xl leading-none">{match.sport.icon}</span>}
+                            <span className="text-base font-black text-white leading-tight">
+                              {match.title ?? match.participant1 ?? "Live Event"}
                             </span>
-                          )}
-                        </div>
+                            {(match.streams.length > 0 || !!match.streamUrl) && (
+                              <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/80 mt-1">
+                                <Wifi className="w-2.5 h-2.5" /> Stream available
+                              </span>
+                            )}
+                          </div>
+                        )}
 
-                        {/* Away team */}
-                        <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-                          <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={56} />
-                          <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2 w-full">
-                            {match.awayTeam.shortName || match.awayTeam.name}
-                          </span>
-                        </div>
+                        <Link
+                          href={`/live/${match.id}`}
+                          className="mt-5 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#00FF84] text-black font-bold text-sm hover:bg-[#00FF84]/85 active:scale-[0.98] transition-all"
+                        >
+                          <Play className="w-4 h-4 fill-black" />
+                          {watchLabel}
+                        </Link>
                       </div>
-
-                      {/* CTA */}
-                      <Link
-                        href={`/live/${match.id}`}
-                        className="mt-5 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#00FF84] text-black font-bold text-sm hover:bg-[#00FF84]/85 active:scale-[0.98] transition-all"
-                      >
-                        <Play className="w-4 h-4 fill-black" />
-                        Watch Live
-                      </Link>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
@@ -288,66 +343,91 @@ export default async function HomePage() {
 
                     <div className="space-y-2.5">
                       {byLeague(dayMatches).map((leagueMatches) => {
-                        const league = leagueMatches[0].league;
+                        const league = leagueMatches[0].league ?? null;
                         return (
-                          <div key={league.id} className="rounded-2xl border border-white/7 bg-[#0D1117]/80 overflow-hidden">
-                            {/* League header */}
-                            <Link href={`/league/${league.slug}`} className="block group/league">
-                              <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-white/5 bg-[#121821]/60 hover:bg-[#1a2235]/60 transition-colors">
-                                {league.logo ? (
-                                  <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
-                                ) : (
-                                  <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
-                                )}
-                                <span className="text-xs font-bold text-white group-hover/league:text-[#00FF84] transition-colors">{league.name}</span>
-                                <span className="text-[10px] text-white/40">· {league.country}</span>
-                                <ChevronRight className="w-3 h-3 text-white/20 group-hover/league:text-[#00FF84]/60 transition-colors ml-auto" />
+                          <div key={league?.id ?? "other"} className="rounded-2xl border border-white/7 bg-[#0D1117]/80 overflow-hidden">
+                            {/* League / event header */}
+                            {league?.slug ? (
+                              <Link href={`/league/${league.slug}`} className="block group/league">
+                                <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-white/5 bg-[#121821]/60 hover:bg-[#1a2235]/60 transition-colors">
+                                  {league.logo ? (
+                                    <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
+                                  ) : (
+                                    <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
+                                  )}
+                                  <span className="text-xs font-bold text-white group-hover/league:text-[#00FF84] transition-colors">{league.name}</span>
+                                  <span className="text-[10px] text-white/40">· {league.country}</span>
+                                  <ChevronRight className="w-3 h-3 text-white/20 group-hover/league:text-[#00FF84]/60 transition-colors ml-auto" />
+                                </div>
+                              </Link>
+                            ) : (
+                              <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-white/5 bg-[#121821]/60">
+                                <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
+                                <span className="text-xs font-bold text-white">Other Events</span>
                               </div>
-                            </Link>
+                            )}
 
                             {/* Match rows */}
                             <div className="divide-y divide-white/4">
-                              {leagueMatches.map((match) => (
-                                <Link key={match.id} href={`/match/${match.slug}`} className="block group/match">
-                                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
-                                    {/* Time */}
-                                    <div className="w-11 shrink-0 text-center">
-                                      <span className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums">
-                                        {format(new Date(match.scheduledAt), "HH:mm")}
-                                      </span>
-                                    </div>
+                              {leagueMatches.map((match) => {
+                                const mSportSlug = match.sport?.slug ?? null;
+                                const NO_SCORE = ["formula1", "ufc", "boxing"];
+                                const SOLO_U = ["formula1"];
+                                const mHasScore = !mSportSlug || !NO_SCORE.includes(mSportSlug);
+                                const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
+                                const mIsSolo = SOLO_U.includes(mSportSlug ?? "");
+                                const mHasTwoSides = mIsFootball ||
+                                  (!mIsSolo && !!match.participant1 && !!match.participant2);
+                                return (
+                                  <Link key={match.id} href={`/match/${match.slug}`} className="block group/match">
+                                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
+                                      {/* Time */}
+                                      <div className="w-11 shrink-0 text-center">
+                                        <span className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums">
+                                          {format(new Date(match.scheduledAt), "HH:mm")}
+                                        </span>
+                                      </div>
 
-                                    {/* Home */}
-                                    <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                                      <span className="text-sm font-semibold text-gray-200 truncate text-right group-hover/match:text-white transition-colors">
-                                        {match.homeTeam.shortName || match.homeTeam.name}
-                                      </span>
-                                      <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={26} />
-                                    </div>
+                                      {mHasTwoSides ? (
+                                        /* Football / two-participant: two-column with VS */
+                                        <>
+                                          <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                            <span className="text-sm font-semibold text-gray-200 truncate text-right group-hover/match:text-white transition-colors">
+                                              {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
+                                            </span>
+                                            {mIsFootball && <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={26} />}
+                                          </div>
+                                          <div className="shrink-0 w-8 text-center">
+                                            <span className="text-[10px] font-black text-white/30">VS</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            {mIsFootball && <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={26} />}
+                                            <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
+                                              {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
+                                            </span>
+                                          </div>
+                                        </>
+                                      ) : (
+                                        /* Solo event: F1 — show sport icon + title */
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                          {match.sport?.icon && <span className="text-base leading-none shrink-0">{match.sport.icon}</span>}
+                                          <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
+                                            {match.title ?? match.participant1 ?? "Event"}
+                                          </span>
+                                        </div>
+                                      )}
 
-                                    {/* VS */}
-                                    <div className="shrink-0 w-8 text-center">
-                                      <span className="text-[10px] font-black text-white/30">VS</span>
+                                      {/* Countdown */}
+                                      <div className="shrink-0">
+                                        <CountdownTimer
+                                          scheduledAt={match.scheduledAt}
+                                          className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
+                                        />
+                                      </div>
                                     </div>
-
-                                    {/* Away */}
-                                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                                      <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={26} />
-                                      <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
-                                        {match.awayTeam.shortName || match.awayTeam.name}
-                                      </span>
-                                    </div>
-
-                                    {/* Countdown */}
-                                    <div className="shrink-0">
-                                      <CountdownTimer
-                                        scheduledAt={match.scheduledAt}
-                                        className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
-                                      />
-                                    </div>
-                                  </div>
-                                </Link>
-                              ))}
+                                  </Link>
+                                );
+                              })}
                             </div>
                           </div>
                         );
@@ -372,45 +452,63 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="rounded-2xl border border-white/7 bg-[#0D1117]/80 overflow-hidden divide-y divide-white/4">
-                {recentFinished.map((match) => (
-                  <Link key={match.id} href={`/match/${match.slug}`} className="block group">
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
-                      {/* League */}
-                      <div className="flex items-center gap-1.5 w-24 shrink-0 min-w-0">
-                        {match.league.logo && (
-                          <Image src={match.league.logo} alt={match.league.name} width={14} height={14} className="object-contain shrink-0" />
+                {recentFinished.map((match) => {
+                  const rSportSlug = match.sport?.slug ?? null;
+                  const NO_SCORE = ["formula1", "ufc", "boxing"];
+                  const rHasScore = !rSportSlug || !NO_SCORE.includes(rSportSlug);
+                  const rIsFootball = rSportSlug === "football" || !!match.homeTeamId;
+                  return (
+                    <Link key={match.id} href={`/match/${match.slug}`} className="block group">
+                      <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
+                        {/* League / sport */}
+                        <div className="flex items-center gap-1.5 w-24 shrink-0 min-w-0">
+                          {match.league?.logo ? (
+                            <Image src={match.league.logo} alt={match.league.name} width={14} height={14} className="object-contain shrink-0" />
+                          ) : match.sport?.icon ? (
+                            <span className="text-xs leading-none shrink-0">{match.sport.icon}</span>
+                          ) : null}
+                          <span className="text-[11px] text-white/50 truncate">
+                            {match.league?.name ?? match.sport?.name}
+                          </span>
+                        </div>
+
+                        {(rIsFootball || rHasScore) ? (
+                          /* Football / scored: two-team + score */
+                          <>
+                            <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                              <span className="text-sm font-semibold text-gray-300 truncate text-right group-hover:text-white transition-colors">
+                                {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
+                              </span>
+                              <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={22} />
+                            </div>
+                            <div className="shrink-0 px-3 text-center">
+                              <span className="text-base font-black text-white tabular-nums">
+                                {match.homeScore ?? 0} – {match.awayScore ?? 0}
+                              </span>
+                              <div className="text-[9px] text-white/40 font-bold text-center mt-0.5">FT</div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={22} />
+                              <span className="text-sm font-semibold text-gray-300 truncate group-hover:text-white transition-colors">
+                                {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          /* No-score event: show event title */
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <span className="text-sm font-semibold text-gray-300 truncate group-hover:text-white transition-colors">
+                              {match.title ?? match.participant1 ?? "Event"}
+                            </span>
+                            <span className="text-[10px] text-white/40 font-bold shrink-0">FT</span>
+                          </div>
                         )}
-                        <span className="text-[11px] text-white/50 truncate">{match.league.name}</span>
-                      </div>
 
-                      {/* Home */}
-                      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                        <span className="text-sm font-semibold text-gray-300 truncate text-right group-hover:text-white transition-colors">
-                          {match.homeTeam.shortName || match.homeTeam.name}
-                        </span>
-                        <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={22} />
+                        <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/60 shrink-0 transition-colors" />
                       </div>
-
-                      {/* Score */}
-                      <div className="shrink-0 px-3 text-center">
-                        <span className="text-base font-black text-white tabular-nums">
-                          {match.homeScore ?? 0} – {match.awayScore ?? 0}
-                        </span>
-                        <div className="text-[9px] text-white/40 font-bold text-center mt-0.5">FT</div>
-                      </div>
-
-                      {/* Away */}
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={22} />
-                        <span className="text-sm font-semibold text-gray-300 truncate group-hover:text-white transition-colors">
-                          {match.awayTeam.shortName || match.awayTeam.name}
-                        </span>
-                      </div>
-
-                      <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-white/60 shrink-0 transition-colors" />
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </section>
           )}

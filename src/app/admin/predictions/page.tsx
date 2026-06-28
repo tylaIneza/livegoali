@@ -46,9 +46,9 @@ export default async function AdminPredictionsPage() {
                 <tr key={pred.id} className="hover:bg-white/2 transition-colors">
                   <td className="px-4 py-3">
                     <p className="font-medium text-white text-xs">
-                      {pred.match.homeTeam.shortName || pred.match.homeTeam.name} vs {pred.match.awayTeam.shortName || pred.match.awayTeam.name}
+                      {pred.match.homeTeam?.shortName || pred.match.homeTeam?.name} vs {pred.match.awayTeam?.shortName || pred.match.awayTeam?.name}
                     </p>
-                    <p className="text-white/60 text-[10px]">{pred.match.league.name} · {formatMatchDate(pred.match.scheduledAt)}</p>
+                    <p className="text-white/60 text-[10px]">{pred.match.league?.name} · {formatMatchDate(pred.match.scheduledAt)}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className="text-sm font-bold text-[#00FF84]">{pred.homeWinProb.toFixed(0)}%</span>

@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+      sport: { select: { id: true, name: true, slug: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true, url: true, type: true, quality: true, isPrimary: true, isActive: true, priority: true, label: true }, orderBy: { priority: "asc" }, take: 1 },
       prediction: { select: { homeWinProb: true, drawProb: true, awayWinProb: true, confidence: true } },
     },
@@ -80,24 +81,36 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
 
-  // Accept either IDs (legacy) or team names (new)
-  const homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId, body.homeTeamLogo);
-  const awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId, body.awayTeamLogo);
+  // Football uses team relations; other sports use participant fields
+  let homeTeamId: string | undefined;
+  let awayTeamId: string | undefined;
+  if (body.leagueId && (body.homeTeamName || body.homeTeamId)) {
+    homeTeamId = body.homeTeamId ?? await findOrCreateTeam(body.homeTeamName, body.leagueId, body.homeTeamLogo);
+    awayTeamId = body.awayTeamId ?? await findOrCreateTeam(body.awayTeamName, body.leagueId, body.awayTeamLogo);
+  }
 
   const match = await prisma.match.create({
     data: {
       slug: body.slug,
-      leagueId: body.leagueId,
-      homeTeamId,
-      awayTeamId,
+      sportId: body.sportId ?? null,
+      leagueId: body.leagueId ?? null,
+      homeTeamId: homeTeamId ?? null,
+      awayTeamId: awayTeamId ?? null,
+      title: body.title ?? null,
+      participant1: body.participant1 ?? null,
+      participant2: body.participant2 ?? null,
+      streamUrl: body.streamUrl ?? null,
+      streamType: body.streamType ?? "IFRAME",
+      streamQuality: body.streamQuality ?? "HD",
+      metadata: body.metadata ?? null,
       scheduledAt: new Date(body.scheduledAt),
       isFeatured: body.isFeatured ?? false,
       enableComments: body.enableComments ?? true,
       enableChat: body.enableChat ?? true,
-      enablePrediction: body.enablePrediction ?? true,
-      venue: body.venue,
-      round: body.round,
-      season: body.season,
+      enablePrediction: body.enablePrediction ?? false,
+      venue: body.venue ?? null,
+      round: body.round ?? null,
+      season: body.season ?? null,
     },
   });
 

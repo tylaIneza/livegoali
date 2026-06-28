@@ -27,6 +27,7 @@ enum StreamType {
   HLS
   DASH
   MP4
+  IFRAME
 }
 
 enum PredictionOutcome {
@@ -70,15 +71,15 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts          Account[]
-  sessions          Session[]
-  predictions       PredictionEntry[]
-  comments          Comment[]
-  chatMessages      LiveChatMessage[]
-  favorites         Favorite[]
-  notifications     Notification[]
-  vipSubscription   VIPSubscription?
-  auditLogs         AuditLog[]
+  accounts        Account[]
+  sessions        Session[]
+  predictions     PredictionEntry[]
+  comments        Comment[]
+  chatMessages    LiveChatMessage[]
+  favorites       Favorite[]
+  notifications   Notification[]
+  vipSubscription VIPSubscription?
+  auditLogs       AuditLog[]
 
   @@index([email])
 }
@@ -122,45 +123,61 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model League {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  country     String
-  logo        String?  @db.Text
-  season      String
-  isActive    Boolean  @default(true)
-  isFeatured  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Sport {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  icon         String   @default("🏆")
+  enabled      Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  matches     Match[]
-  teams       Team[]
-  standings   Standing[]
-  favorites   Favorite[]
+  matches Match[]
+
+  @@index([slug])
+  @@index([enabled])
+}
+
+model League {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  country    String
+  logo       String?  @db.Text
+  season     String
+  isActive   Boolean  @default(true)
+  isFeatured Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  matches   Match[]
+  teams     Team[]
+  standings Standing[]
+  favorites Favorite[]
 
   @@index([slug])
 }
 
 model Team {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  shortName   String?
-  logo        String?  @db.Text
-  stadium     String?
-  city        String?
-  country     String?
-  coach       String?
-  founded     Int?
-  website     String?
-  leagueId    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  shortName String?
+  logo      String?  @db.Text
+  stadium   String?
+  city      String?
+  country   String?
+  coach     String?
+  founded   Int?
+  website   String?
+  leagueId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  league      League?   @relation(fields: [leagueId], references: [id])
-  homeMatches Match[]   @relation("HomeTeam")
-  awayMatches Match[]   @relation("AwayTeam")
+  league      League?    @relation(fields: [leagueId], references: [id])
+  homeMatches Match[]    @relation("HomeTeam")
+  awayMatches Match[]    @relation("AwayTeam")
   players     Player[]
   standings   Standing[]
   favorites   Favorite[]
@@ -170,21 +187,21 @@ model Team {
 }
 
 model Player {
-  id           String    @id @default(cuid())
-  name         String
-  slug         String    @unique
-  position     String?
-  nationality  String?
-  dateOfBirth  DateTime?
-  number       Int?
-  image        String?   @db.Text
-  marketValue  Float?
-  teamId       String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  position    String?
+  nationality String?
+  dateOfBirth DateTime?
+  number      Int?
+  image       String?   @db.Text
+  marketValue Float?
+  teamId      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  team         Team?    @relation(fields: [teamId], references: [id])
-  lineups      LineupPlayer[]
+  team    Team?          @relation(fields: [teamId], references: [id])
+  lineups LineupPlayer[]
 
   @@index([slug])
   @@index([teamId])
@@ -193,9 +210,17 @@ model Player {
 model Match {
   id               String      @id @default(cuid())
   slug             String      @unique
-  leagueId         String
-  homeTeamId       String
-  awayTeamId       String
+  sportId          String?
+  leagueId         String?
+  homeTeamId       String?
+  awayTeamId       String?
+  title            String?
+  participant1     String?
+  participant2     String?
+  streamUrl        String?     @db.Text
+  streamType       String      @default("IFRAME")
+  streamQuality    String      @default("HD")
+  metadata         String?     @db.Text
   homeScore        Int?        @default(0)
   awayScore        Int?        @default(0)
   homeHalfScore    Int?
@@ -221,9 +246,10 @@ model Match {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  league            League            @relation(fields: [leagueId], references: [id])
-  homeTeam          Team              @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  awayTeam          Team              @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  sport             Sport?            @relation(fields: [sportId], references: [id])
+  league            League?           @relation(fields: [leagueId], references: [id])
+  homeTeam          Team?             @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam          Team?             @relation("AwayTeam", fields: [awayTeamId], references: [id])
   streams           StreamSource[]
   statistics        MatchStatistic?
   lineups           Lineup[]
@@ -234,6 +260,7 @@ model Match {
   predictionEntries PredictionEntry[]
 
   @@index([slug])
+  @@index([sportId])
   @@index([leagueId])
   @@index([homeTeamId])
   @@index([awayTeamId])
@@ -289,7 +316,7 @@ model MatchStatistic {
 }
 
 model Lineup {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   matchId   String
   teamId    String
   formation String?
@@ -333,20 +360,20 @@ model MatchEvent {
 }
 
 model Prediction {
-  id                String            @id @default(cuid())
-  matchId           String            @unique
+  id                String             @id @default(cuid())
+  matchId           String             @unique
   homeWinProb       Float
   drawProb          Float
   awayWinProb       Float
   expectedHomeGoals Float?
   expectedAwayGoals Float?
   confidence        Float
-  aiExplanation     String?           @db.Text
-  expertAnalysis    String?           @db.Text
+  aiExplanation     String?            @db.Text
+  expertAnalysis    String?            @db.Text
   recommendation    PredictionOutcome?
-  isOverridden      Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  isOverridden      Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
 }

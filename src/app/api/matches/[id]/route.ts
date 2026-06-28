@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // Fetch current state so we can react to transitions
   const current = await prisma.match.findUnique({
     where: { id },
-    select: { status: true, matchMinute: true, scheduledAt: true },
+    select: { status: true },
   });
   if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -35,18 +35,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.status !== undefined) {
     data.status = body.status;
 
-    const goingLive = body.status === "LIVE" && current.status !== "LIVE";
-    if (goingLive) {
-      if (current.status === "HALFTIME") {
-        // Second half — timer starts NOW (halftime just ended)
-        data.startedAt = new Date();
-        data.matchMinute = 45;
-      } else {
-        // First half — use scheduledAt so the counter starts exactly at kickoff
-        // even if admin sets LIVE early to prepare streams
-        data.startedAt = current.scheduledAt;
-        data.matchMinute = null;
-      }
+    if (body.status === "LIVE" && current.status !== "LIVE") {
+      data.startedAt = new Date();
     }
   }
 
@@ -54,21 +44,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.homeScore !== undefined) data.homeScore = body.homeScore;
   if (body.awayScore !== undefined) data.awayScore = body.awayScore;
 
-  // ── Minute recalibration ─────────────────────────────────────
-  // When admin manually sends matchMinute (not during a LIVE transition),
-  // adjust startedAt so the auto-timer shows the desired minute immediately.
-  const isLiveTransition = body.status === "LIVE" && current.status !== "LIVE";
-  if (body.matchMinute !== undefined && !isLiveTransition) {
-    if (typeof body.matchMinute === "number" && body.matchMinute >= 0) {
-      const base = current.matchMinute ?? 0; // 0 = first half, 45 = second half
-      const desiredElapsed = Math.max(0, body.matchMinute - base - 1);
-      data.startedAt = new Date(Date.now() - desiredElapsed * 60_000);
-      // Keep the half-base (matchMinute in DB) unchanged — only adjust startedAt
-    }
-  }
-
   // ── Kickoff time ─────────────────────────────────────────────
   if (body.scheduledAt !== undefined) data.scheduledAt = new Date(body.scheduledAt);
+
+  // ── Stream / event fields ────────────────────────────────────
+  // Accept either a bare URL or a full <iframe> tag — store only the URL.
+  if (body.streamUrl !== undefined) {
+    const raw: string = body.streamUrl ?? "";
+    if (raw.trimStart().startsWith("<")) {
+      const m = raw.match(/src="([^"]+)"/);
+      data.streamUrl = m?.[1] ?? raw;
+    } else {
+      data.streamUrl = raw;
+    }
+  }
+  if (body.streamType !== undefined) data.streamType = body.streamType;
+  if (body.streamQuality !== undefined) data.streamQuality = body.streamQuality;
+  if (body.title !== undefined) data.title = body.title;
+  if (body.participant1 !== undefined) data.participant1 = body.participant1;
+  if (body.participant2 !== undefined) data.participant2 = body.participant2;
 
   // ── Other fields ─────────────────────────────────────────────
   if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;

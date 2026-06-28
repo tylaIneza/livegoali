@@ -459,6 +459,9 @@ export async function generateAIPrediction(matchId: string) {
     },
   });
   if (!match) throw new Error("Match not found");
+  if (!match.homeTeamId || !match.awayTeamId || !match.homeTeam || !match.awayTeam) {
+    throw new Error("Predictions are only available for football matches");
+  }
 
   const [homeForm, awayForm, h2h] = await Promise.all([
     getTeamRecentForm(match.homeTeamId, 6),
@@ -467,7 +470,7 @@ export async function generateAIPrediction(matchId: string) {
   ]);
 
   // Detect if this is an international / World Cup match
-  const neutral = isNeutralVenue(match.league.name);
+  const neutral = isNeutralVenue(match.league?.name ?? "");
   const international = neutral ||
     isNationalTeam(match.homeTeam.name) ||
     isNationalTeam(match.awayTeam.name);

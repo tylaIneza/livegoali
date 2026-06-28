@@ -17,9 +17,13 @@ interface Match {
   awayScore: number | null;
   matchMinute: number | null;
   scheduledAt: Date;
-  homeTeam: { name: string; logo: string | null };
-  awayTeam: { name: string; logo: string | null };
-  league: { name: string };
+  title?: string | null;
+  participant1?: string | null;
+  participant2?: string | null;
+  homeTeam?: { name: string; logo: string | null } | null;
+  awayTeam?: { name: string; logo: string | null } | null;
+  league?: { name: string } | null;
+  sport?: { name: string; icon: string } | null;
   streams: { id: string }[];
 }
 
@@ -96,20 +100,27 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
               <tr key={match.id} className="hover:bg-white/2 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} />
+                    {match.homeTeam ? (
+                      <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} />
+                    ) : (
+                      <span className="text-base w-7 text-center">{match.sport?.icon ?? "🏆"}</span>
+                    )}
                     <div>
                       <p className="text-sm font-semibold text-white">
-                        {match.homeTeam.name} vs {match.awayTeam.name}
+                        {match.homeTeam
+                          ? `${match.homeTeam.name} vs ${match.awayTeam?.name ?? ""}`
+                          : match.participant1 && match.participant2
+                            ? `${match.participant1} vs ${match.participant2}`
+                            : match.title ?? "Untitled Event"}
                       </p>
-                      {(match.status === "LIVE" || match.status === "HALFTIME") && match.matchMinute && (
-                        <p className="text-xs text-[#00FF84] font-bold">{match.matchMinute}'</p>
-                      )}
                     </div>
-                    <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} />
+                    {match.awayTeam && <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} />}
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-sm text-white/75">{match.league.name}</span>
+                  <span className="text-sm text-white/75">
+                    {match.sport ? `${match.sport.icon} ${match.sport.name}` : match.league?.name ?? "—"}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   <span className="text-sm text-white/75">{formatMatchDate(match.scheduledAt)}</span>
