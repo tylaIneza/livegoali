@@ -8,8 +8,12 @@ import { prisma } from "../lib/prisma";
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
 // Two dedicated clients required by the Redis adapter (pub/sub pattern)
-const pubClient = new Redis(REDIS_URL, { maxRetriesPerRequest: 3 });
+const pubClient = new Redis(REDIS_URL, { maxRetriesPerRequest: 3, lazyConnect: false });
 const subClient = pubClient.duplicate();
+
+// Prevent unhandled error events from crashing the process
+pubClient.on("error", (err) => console.error("[redis:pub] connection error:", err.message));
+subClient.on("error", (err) => console.error("[redis:sub] connection error:", err.message));
 
 // Redis key helpers
 const vwKey = (matchId: string) => `vw:${matchId}`;
