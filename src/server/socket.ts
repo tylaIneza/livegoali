@@ -2,6 +2,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
 import Redis from "ioredis";
+import { randomBytes } from "crypto";
 import { prisma } from "../lib/prisma";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
@@ -260,6 +261,56 @@ io.on("connection", (socket) => {
   });
 });
 
+// ── Visit counter flush — Redis → MySQL every 60 seconds ─────────────────────
+// /api/track writes visit counts to Redis (microseconds).
+// This function batches them into MySQL once per minute.
+
+async function incrementDbSetting(key: string, count: number) {
+  if (count <= 0) return;
+  const id = randomBytes(12).toString("hex");
+  await prisma.$executeRaw`
+    INSERT INTO Settings (id, \`key\`, value, updatedAt)
+    VALUES (${id}, ${key}, ${String(count)}, NOW())
+    ON DUPLICATE KEY UPDATE value = CAST(CAST(value AS UNSIGNED) + ${count} AS CHAR), updatedAt = NOW()
+  `;
+}
+
+async function flushVisitCounters() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const countryKeys = await pubClient.keys("visits:country:*");
+
+    // Atomically grab-and-clear all counters in one pipeline
+    const pipeline = pubClient.pipeline();
+    pipeline.getdel("visits:total");
+    pipeline.getdel(`visits:${today}`);
+    for (const key of countryKeys) pipeline.getdel(key);
+    const results = await pipeline.exec();
+
+    const total = parseInt((results?.[0]?.[1] as string) || "0");
+    const todayCount = parseInt((results?.[1]?.[1] as string) || "0");
+
+    const writes: Promise<void>[] = [
+      incrementDbSetting("site_visits_total", total),
+      incrementDbSetting(`site_visits_${today}`, todayCount),
+    ];
+
+    countryKeys.forEach((key, i) => {
+      const count = parseInt((results?.[2 + i]?.[1] as string) || "0");
+      const country = key.replace("visits:country:", "");
+      writes.push(incrementDbSetting(`country_visits_${country}`, count));
+    });
+
+    await Promise.all(writes);
+
+    if (total > 0) {
+      console.log(`[flush] ${total} visits, ${todayCount} today flushed to DB`);
+    }
+  } catch (err) {
+    console.error("[flush] visit counter flush failed:", err);
+  }
+}
+
 // ── Auto-live: set SCHEDULED matches to LIVE 30 min before kickoff ────────────
 async function autoLiveMatches() {
   const now = new Date();
@@ -280,7 +331,9 @@ async function autoLiveMatches() {
 
 resetViewerCounts().then(() => {
   autoLiveMatches();
+  flushVisitCounters();
   setInterval(autoLiveMatches, 60_000);
+  setInterval(flushVisitCounters, 60_000);
 });
 
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;
