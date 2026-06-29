@@ -11,7 +11,7 @@ export const redis =
     lazyConnect: true,
   });
 
-if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis;
+globalForRedis.redis = redis;
 
 export async function cacheGet<T>(key: string): Promise<T | null> {
   try {

@@ -145,7 +145,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="icon" asChild className="h-8 w-8">
-                      <Link href={`/match/${match.slug}`} target="_blank">
+                      <Link href={match.status === "LIVE" || match.status === "HALFTIME" ? `/live/${match.id}` : `/match/${match.slug}`} target="_blank">
                         <Eye className="w-4 h-4" />
                       </Link>
                     </Button>
