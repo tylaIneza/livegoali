@@ -40,7 +40,13 @@ export async function cacheDel(key: string): Promise<void> {
 
 export async function cacheDelPattern(pattern: string): Promise<void> {
   try {
-    const keys = await redis.keys(pattern);
+    const keys: string[] = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await redis.scan(cursor, "MATCH", pattern, "COUNT", 100);
+      cursor = next;
+      keys.push(...batch);
+    } while (cursor !== "0");
     if (keys.length > 0) await redis.del(...keys);
   } catch {
     // silent fail

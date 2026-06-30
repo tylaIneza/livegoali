@@ -17,7 +17,7 @@ export function MatchWatcher({ matchId }: { matchId: string }) {
     };
 
     check();
-    const interval = setInterval(check, 15_000);
+    const interval = setInterval(check, 300_000); // 5 min — was 15s (20x fewer DB queries)
     return () => clearInterval(interval);
   }, [matchId]);
 

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { cacheGet, cacheSet } from "@/lib/redis";
 import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
@@ -56,11 +57,29 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
   );
 }
 
+// Minimal shape that covers every field accessed on match objects across this page.
+// Must be a non-nested interface so Redis-deserialized JSON (dates as strings) satisfies it.
+interface MatchListItem {
+  id: string; slug: string; title: string | null; status: string;
+  scheduledAt: Date | string; startedAt: Date | string | null;
+  homeScore: number | null; awayScore: number | null;
+  matchMinute: number | null; round: string | null;
+  participant1: string | null; participant2: string | null;
+  isFeatured: boolean; streamUrl: string | null; homeTeamId: string | null;
+  streams: { id: string }[];
+  homeTeam: { id: string; name: string; slug: string; logo: string | null; shortName: string | null } | null;
+  awayTeam: { id: string; name: string; slug: string; logo: string | null; shortName: string | null } | null;
+  league: { id: string; name: string; slug: string; logo: string | null; country: string | null } | null;
+  sport: { slug: string; name: string; icon: string | null } | null;
+}
+
 export default async function HomePage() {
   const now = new Date();
 
-  const [liveMatches, upcomingMatches, recentFinished] = await Promise.all([
-    prisma.match.findMany({
+  const [liveMatches, upcomingMatches, recentFinished] = (await Promise.all([
+    // Redis JSON doesn't carry Prisma relation types — cast after fetching.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cacheGet<any>("home:live").then((c: any) => c ?? prisma.match.findMany({
       where: { status: { in: ["LIVE", "HALFTIME"] } },
       include: {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -70,8 +89,9 @@ export default async function HomePage() {
         streams: { where: { isActive: true }, select: { id: true }, take: 1 },
       },
       orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
-    }),
-    prisma.match.findMany({
+    }).then((d) => { cacheSet("home:live", d, 15); return d; })),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cacheGet<any>("home:upcoming").then((c: any) => c ?? prisma.match.findMany({
       where: { status: "SCHEDULED", scheduledAt: { gte: now } },
       include: {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -81,8 +101,9 @@ export default async function HomePage() {
       },
       orderBy: { scheduledAt: "asc" },
       take: 40,
-    }),
-    prisma.match.findMany({
+    }).then((d) => { cacheSet("home:upcoming", d, 30); return d; })),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cacheGet<any>("home:recent").then((c: any) => c ?? prisma.match.findMany({
       where: { status: "FINISHED" },
       include: {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -92,8 +113,8 @@ export default async function HomePage() {
       },
       orderBy: { scheduledAt: "desc" },
       take: 8,
-    }),
-  ]).catch(() => [[], [], []] as [never[], never[], never[]]);
+    }).then((d) => { cacheSet("home:recent", d, 120); return d; })),
+  ]).catch(() => [[], [], []])) as [MatchListItem[], MatchListItem[], MatchListItem[]];
 
   type UpcomingMatch = (typeof upcomingMatches)[number];
 

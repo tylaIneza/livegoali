@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { cacheGet, cacheSet } from "@/lib/redis";
 import { LiveGoaliPlayer } from "@/components/player/LiveGoaliPlayer";
 import { ViewTracker } from "@/components/ViewTracker";
 import { LiveViewerTracker } from "@/components/LiveViewerTracker";
@@ -17,17 +18,43 @@ interface Props {
   params: Promise<{ matchId: string }>;
 }
 
+// Raw DB fetch — all fields needed by both generateMetadata and the page body.
+async function fetchMatchFromDb(matchId: string) {
+  return prisma.match.findUnique({
+    where: { id: matchId },
+    include: {
+      homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
+      awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
+      league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
+      sport: { select: { id: true, name: true, icon: true, slug: true } },
+      streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
+      statistics: true,
+      events: { orderBy: { minute: "desc" }, take: 20 },
+      prediction: true,
+    },
+  });
+}
+
+type MatchData = NonNullable<Awaited<ReturnType<typeof fetchMatchFromDb>>>;
+
+// Redis-cached — 10s TTL lets generateMetadata and the page body share one DB
+// query, eliminating the double-fetch that caused 150k queries at 75k viewers.
+async function getMatchData(matchId: string): Promise<MatchData | null> {
+  try {
+    const cached = await cacheGet<MatchData>(`match:live:${matchId}`);
+    if (cached) return cached;
+  } catch {}
+  const match = await fetchMatchFromDb(matchId);
+  if (match) {
+    try { await cacheSet(`match:live:${matchId}`, match, 10); } catch {}
+  }
+  return match;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { matchId } = await params;
-    const match = await prisma.match.findUnique({
-      where: { id: matchId },
-      include: {
-        homeTeam: { select: { name: true } },
-        awayTeam: { select: { name: true } },
-        league: { select: { name: true } },
-      },
-    });
+    const match = await getMatchData(matchId);
     if (!match) return { title: "Match Not Found" };
     const p1 = match.homeTeam?.name ?? match.participant1 ?? "TBA";
     const p2 = match.awayTeam?.name ?? match.participant2 ?? "TBA";
@@ -47,21 +74,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LiveMatchPage({ params }: Props) {
   const { matchId } = await params;
 
-  let match;
+  let match: MatchData | null;
   try {
-    match = await prisma.match.findUnique({
-      where: { id: matchId },
-      include: {
-        homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
-        awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
-        league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
-        sport: { select: { id: true, name: true, icon: true, slug: true } },
-        streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
-        statistics: true,
-        events: { orderBy: { minute: "desc" }, take: 20 },
-        prediction: true,
-      },
-    });
+    match = await getMatchData(matchId);
   } catch (err) {
     console.error("[LiveMatchPage] DB error:", err);
     return notFound();

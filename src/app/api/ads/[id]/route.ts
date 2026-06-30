@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { redis } from "@/lib/redis";
 import type { AdPlacement } from "@prisma/client";
 
 async function requireAdmin() {
@@ -47,8 +48,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { type } = await req.json();
 
   if (type === "view") {
-    await prisma.advertisement.update({ where: { id }, data: { views: { increment: 1 } } });
+    // Buffer in Redis — socket server flushes to DB every 60s.
+    // At 75k viewers × 3 banners this avoids ~225k DB writes/sec.
+    try { await redis.incr(`ads:views:${id}`); } catch {}
   } else if (type === "click") {
+    // Clicks are intentional user actions — write directly to DB for accuracy.
     await prisma.advertisement.update({ where: { id }, data: { clicks: { increment: 1 } } });
   }
 

@@ -41,11 +41,10 @@ export function LiveChat({ matchId }: { matchId: string }) {
 
   useEffect(() => {
     const socket = getSocket();
-    const user = session?.user as SessionUser | undefined;
 
-    const join = () => socket.emit("join-match", { matchId, userId: user?.id });
-    join();
-    socket.on("connect", join);
+    // join-match and leave-match are handled by LiveViewerTracker on the same page.
+    // Emitting them here too caused every viewer to join twice, doubling DB load
+    // (chat history fetched twice) and corrupting viewer counts in Redis.
 
     socket.on("chat-history", (history: ChatMessage[]) => {
       setMessages(history);
@@ -59,10 +58,8 @@ export function LiveChat({ matchId }: { matchId: string }) {
     });
 
     return () => {
-      socket.off("connect", join);
       socket.off("chat-history");
       socket.off("chat-message");
-      socket.emit("leave-match", matchId);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);

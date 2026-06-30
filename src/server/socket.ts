@@ -113,7 +113,13 @@ async function broadcastGlobalViewers() {
 
 // On startup: reset stale viewer counts from previous run
 async function resetViewerCounts() {
-  const keys = await pubClient.keys("vw:*");
+  const keys: string[] = [];
+  let cursor = "0";
+  do {
+    const [next, batch] = await pubClient.scan(cursor, "MATCH", "vw:*", "COUNT", 100);
+    cursor = next;
+    keys.push(...batch);
+  } while (cursor !== "0");
   if (keys.length) await pubClient.del(...keys);
   console.log("[socket] Viewer counts reset");
 }
@@ -149,25 +155,30 @@ io.on("connection", (socket) => {
         .catch((err) => console.error("[socket] view increment failed:", err));
     }
 
-    // Send recent chat history
+    // Send recent chat history — cached 30s so burst joins don't hammer DB
     try {
-      const messages = await prisma.liveChatMessage.findMany({
-        where: { matchId, isDeleted: false },
-        include: {
-          user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
-        },
-        orderBy: { createdAt: "asc" },
-        take: 50,
-      });
-      socket.emit(
-        "chat-history",
-        messages.map((m) => ({
+      const chatCacheKey = `chat:${matchId}`;
+      const cachedHistory = await pubClient.get(chatCacheKey);
+      if (cachedHistory) {
+        socket.emit("chat-history", JSON.parse(cachedHistory));
+      } else {
+        const messages = await prisma.liveChatMessage.findMany({
+          where: { matchId, isDeleted: false },
+          include: {
+            user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
+          },
+          orderBy: { createdAt: "asc" },
+          take: 50,
+        });
+        const history = messages.map((m) => ({
           id: m.id,
           content: m.content,
           createdAt: m.createdAt.toISOString(),
           user: m.user,
-        })),
-      );
+        }));
+        await pubClient.setex(chatCacheKey, 30, JSON.stringify(history));
+        socket.emit("chat-history", history);
+      }
     } catch (err) {
       console.error("[socket] chat history failed:", err);
     }
@@ -220,6 +231,8 @@ io.on("connection", (socket) => {
           createdAt: message.createdAt.toISOString(),
           user: message.user,
         });
+        // Invalidate chat history cache so the next join sees this message
+        pubClient.del(`chat:${matchId}`).catch(() => {});
       } catch (err) {
         console.error("[socket] message save failed:", err);
       }
@@ -279,10 +292,47 @@ async function incrementDbSetting(key: string, count: number) {
   `;
 }
 
+async function flushAdViews() {
+  try {
+    const adKeys: string[] = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await pubClient.scan(cursor, "MATCH", "ads:views:*", "COUNT", 100);
+      cursor = next;
+      adKeys.push(...batch);
+    } while (cursor !== "0");
+    if (!adKeys.length) return;
+
+    const pipeline = pubClient.pipeline();
+    for (const key of adKeys) pipeline.getdel(key);
+    const results = await pipeline.exec();
+
+    await Promise.all(
+      adKeys.map((key, i) => {
+        const count = parseInt((results?.[i]?.[1] as string) || "0");
+        if (count <= 0) return Promise.resolve();
+        const id = key.replace("ads:views:", "");
+        return prisma.advertisement
+          .update({ where: { id }, data: { views: { increment: count } } })
+          .catch(() => {});
+      }),
+    );
+  } catch (err) {
+    console.error("[flush] ad views flush failed:", err);
+  }
+}
+
 async function flushVisitCounters() {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const countryKeys = await pubClient.keys("visits:country:*");
+
+    const countryKeys: string[] = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await pubClient.scan(cursor, "MATCH", "visits:country:*", "COUNT", 100);
+      cursor = next;
+      countryKeys.push(...batch);
+    } while (cursor !== "0");
 
     // Atomically grab-and-clear all counters in one pipeline
     const pipeline = pubClient.pipeline();
@@ -336,8 +386,10 @@ async function autoLiveMatches() {
 resetViewerCounts().then(() => {
   autoLiveMatches();
   flushVisitCounters();
+  flushAdViews();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
+  setInterval(flushAdViews, 60_000);
 });
 
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;
