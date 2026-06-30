@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -157,6 +158,7 @@ model League {
   favorites Favorite[]
 
   @@index([slug])
+  @@fulltext([name])
 }
 
 model Team {
@@ -184,6 +186,7 @@ model Team {
 
   @@index([slug])
   @@index([leagueId])
+  @@fulltext([name])
 }
 
 model Player {
@@ -266,6 +269,8 @@ model Match {
   @@index([awayTeamId])
   @@index([status])
   @@index([scheduledAt])
+  @@index([status, scheduledAt])
+  @@fulltext([title, participant1, participant2])
 }
 
 model StreamSource {
