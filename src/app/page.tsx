@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { Play, Radio, Clock, Calendar, ChevronRight, Wifi } from "lucide-react";
+import { Play, Radio, Clock, Calendar, ChevronRight, Wifi, Star, Zap } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { AdBanner } from "@/components/AdBanner";
@@ -99,7 +99,7 @@ export default async function HomePage() {
         league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
         sport: { select: { slug: true, name: true, icon: true } },
       },
-      orderBy: { scheduledAt: "asc" },
+      orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
       take: 40,
     }).then((d) => { cacheSet("home:upcoming", d, 30); return d; })),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -204,13 +204,23 @@ export default async function HomePage() {
                   return (
                     <div
                       key={match.id}
-                      className="relative rounded-2xl overflow-hidden border border-red-500/20 bg-[#0D1117] shadow-[0_0_40px_rgba(239,68,68,0.07)] group hover:border-red-500/35 hover:shadow-[0_0_50px_rgba(239,68,68,0.12)] transition-all duration-300"
+                      className={`relative rounded-2xl overflow-hidden border bg-[#0D1117] group transition-all duration-300 ${
+                        match.isFeatured
+                          ? "md:col-span-2 border-yellow-500/30 shadow-[0_0_60px_rgba(234,179,8,0.12)] hover:border-yellow-500/50 hover:shadow-[0_0_80px_rgba(234,179,8,0.18)]"
+                          : "border-red-500/20 shadow-[0_0_40px_rgba(239,68,68,0.07)] hover:border-red-500/35 hover:shadow-[0_0_50px_rgba(239,68,68,0.12)]"
+                      }`}
                     >
-                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
-                      <div className="p-5">
+                      {/* Top accent line */}
+                      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent ${match.isFeatured ? "via-yellow-400/70" : "via-red-500/70"}`} />
+                      <div className={`p-5 ${match.isFeatured ? "sm:p-7" : ""}`}>
                         {/* League / sport row */}
                         <div className="flex items-center justify-between mb-5">
                           <div className="flex items-center gap-2 min-w-0">
+                            {match.isFeatured && (
+                              <span className="flex items-center gap-1 text-[10px] font-black text-yellow-400 bg-yellow-500/12 border border-yellow-500/25 px-2 py-0.5 rounded-full shrink-0">
+                                <Star className="w-2.5 h-2.5 fill-yellow-400" /> FEATURED
+                              </span>
+                            )}
                             {match.league?.logo ? (
                               <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain shrink-0" />
                             ) : match.sport?.icon ? (
@@ -351,6 +361,58 @@ export default async function HomePage() {
               </div>
             ) : (
               <div className="space-y-8">
+                {/* Featured upcoming matches — shown before day groups */}
+                {upcomingMatches.filter((m) => m.isFeatured).length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {upcomingMatches.filter((m) => m.isFeatured).map((match) => {
+                      const kickoff = match.scheduledAt
+                        ? new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(match.scheduledAt))
+                        : "TBD";
+                      const hasTeams = !!(match.participant1 && match.participant2);
+                      return (
+                        <Link
+                          key={match.id}
+                          href={`/live/${match.id}`}
+                          className="relative rounded-2xl overflow-hidden border border-yellow-500/30 bg-gradient-to-br from-[#1a1500]/80 to-[#0D1117] shadow-[0_0_40px_rgba(234,179,8,0.1)] hover:border-yellow-500/50 hover:shadow-[0_0_60px_rgba(234,179,8,0.18)] transition-all group block"
+                        >
+                          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-yellow-400/70 to-transparent" />
+                          <div className="p-5">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-1 text-[10px] font-black text-yellow-400 bg-yellow-500/12 border border-yellow-500/25 px-2 py-0.5 rounded-full">
+                                  <Star className="w-2.5 h-2.5 fill-yellow-400" /> FEATURED
+                                </span>
+                                {match.league?.logo ? (
+                                  <Image src={match.league.logo} alt={match.league.name} width={14} height={14} className="object-contain" />
+                                ) : match.sport?.icon ? (
+                                  <span className="text-xs">{match.sport.icon}</span>
+                                ) : null}
+                                <span className="text-xs text-white/60 truncate">{match.league?.name ?? match.sport?.name ?? "Event"}</span>
+                              </div>
+                              <span className="text-[10px] text-yellow-400/80 font-semibold bg-yellow-500/10 px-2 py-0.5 rounded-lg shrink-0">{kickoff}</span>
+                            </div>
+                            {hasTeams ? (
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-black text-white flex-1 text-right leading-tight">{match.participant1}</span>
+                                <span className="text-xs font-black text-yellow-400/70 px-2 py-0.5 rounded-lg border border-yellow-500/20 shrink-0">VS</span>
+                                <span className="text-sm font-black text-white flex-1 leading-tight">{match.participant2}</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm font-black text-white">{match.title ?? match.participant1 ?? "Event"}</span>
+                            )}
+                            <div className="mt-4 flex items-center justify-between">
+                              <span className="text-xs text-white/40">{match.round ?? ""}</span>
+                              <span className="text-xs font-bold text-yellow-400 group-hover:gap-2 flex items-center gap-1 transition-all">
+                                Set Reminder <ChevronRight className="w-3 h-3" />
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {Object.entries(dayGroups).map(([day, dayMatches]) => (
                   <div key={day}>
                     {/* Day header */}
