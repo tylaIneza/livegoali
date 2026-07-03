@@ -239,7 +239,7 @@ export default async function FixturesPage({
                     const fIsFootball = fSportSlug === "football" || !!match.homeTeamId;
                     const fHasScore = fSportSlug === "football" || (!fSportSlug && !!match.homeTeamId);
                     const fIsSolo = SOLO_F.includes(fSportSlug ?? "");
-                    const fHasTwoSides = fIsFootball || (!fIsSolo && !!match.participant1 && !!match.participant2);
+                    const fHasTwoSides = !fIsSolo && (fIsFootball || (!!match.participant1 && !!match.participant2));
 
                     return (
                       <Link key={match.id} href={href} className="block group/match">

@@ -188,7 +188,7 @@ export default async function LivePage() {
                   const isFootball = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
                   const isSolo = SOLO.includes(sportSlug ?? "");
                   const hasTeams = !!match.homeTeam;
-                  const hasTwoSidesCard = hasTeams || (!isSolo && !!match.participant1 && !!match.participant2);
+                  const hasTwoSidesCard = !isSolo && (hasTeams || (!!match.participant1 && !!match.participant2));
                   const hasScore = isFootball;
                   const homeScore = match.homeScore ?? 0;
                   const awayScore = match.awayScore ?? 0;
@@ -374,7 +374,7 @@ export default async function LivePage() {
                   const mSportSlug = match.sport?.slug ?? null;
                   const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
                   const mIsSolo = ["formula1"].includes(mSportSlug ?? "");
-                  const mHasTwoSides = mIsFootball || (!mIsSolo && !!match.participant1 && !!match.participant2);
+                  const mHasTwoSides = !mIsSolo && (mIsFootball || (!!match.participant1 && !!match.participant2));
                   const isoScheduled = String(match.scheduledAt);
                   const kickoffDay = isToday(new Date(match.scheduledAt)) ? "Today"
                     : isTomorrow(new Date(match.scheduledAt)) ? "Tomorrow"

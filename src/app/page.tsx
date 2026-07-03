@@ -198,7 +198,7 @@ export default async function HomePage() {
                   const isFootball = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
                   const isSolo = SOLO.includes(sportSlug ?? "");
                   const hasTeams = !!match.homeTeam;
-                  const hasTwoSidesCard = hasTeams || (!isSolo && !!match.participant1 && !!match.participant2);
+                  const hasTwoSidesCard = !isSolo && (hasTeams || (!!match.participant1 && !!match.participant2));
                   const watchLabel = sportSlug === "formula1" ? "Watch Race"
                     : (sportSlug === "ufc" || sportSlug === "boxing") ? "Watch Fight"
                     : "Watch Live";
@@ -459,8 +459,7 @@ export default async function HomePage() {
                                 const SOLO_U = ["formula1"];
                                 const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
                                 const mIsSolo = SOLO_U.includes(mSportSlug ?? "");
-                                const mHasTwoSides = mIsFootball ||
-                                  (!mIsSolo && !!match.participant1 && !!match.participant2);
+                                const mHasTwoSides = !mIsSolo && (mIsFootball || (!!match.participant1 && !!match.participant2));
                                 return (
                                   <Link key={match.id} href={`/match/${match.slug}`} className="block group/match">
                                     <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
