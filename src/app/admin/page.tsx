@@ -9,6 +9,7 @@ import {
 import { LiveViewersWidget } from "@/components/admin/LiveViewersWidget";
 import { ActiveMatchesWidget } from "@/components/admin/ActiveMatchesWidget";
 import { TopCountriesWidget } from "@/components/admin/TopCountriesWidget";
+import { DashboardGreeting } from "@/components/admin/DashboardGreeting";
 import Link from "next/link";
 
 async function getAdminStats() {
@@ -114,9 +115,6 @@ function fmt(n: number | string) {
 export default async function AdminDashboard() {
   const [session, stats] = await Promise.all([auth(), getAdminStats()]);
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
   const statCards = [
     {
       label: "Total Users",
@@ -201,7 +199,7 @@ export default async function AdminDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(0,255,132,0.07),transparent_60%)]" />
         <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-white/50 font-medium mb-1">{greeting} 👋</p>
+            <p className="text-sm text-white/50 font-medium mb-1"><DashboardGreeting /></p>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
               {session?.user.name?.split(" ")[0] || "Admin"}<span className="text-[#00FF84]">.</span>
             </h1>
