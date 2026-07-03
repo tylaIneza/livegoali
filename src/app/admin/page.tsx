@@ -272,30 +272,57 @@ export default async function AdminDashboard() {
               <div className="w-8 h-8 rounded-lg bg-blue-500/12 flex items-center justify-center">
                 <Users className="w-4 h-4 text-blue-400" />
               </div>
-              <span className="font-bold text-white text-sm">Recent Users</span>
+              <div>
+                <span className="font-bold text-white text-sm block">Recent Users</span>
+                <span className="text-[10px] text-white/40">{stats.totalUsers} total registered</span>
+              </div>
             </div>
-            <Link href="/admin/users" className="text-xs text-white/40 hover:text-[#00FF84] transition-colors font-semibold flex items-center gap-1">
+            <Link href="/admin/users" className="text-xs text-[#00FF84] hover:text-[#00e070] transition-colors font-bold flex items-center gap-1 bg-[#00FF84]/8 border border-[#00FF84]/15 px-3 py-1.5 rounded-lg">
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="p-4 space-y-2">
+          <div className="p-4 space-y-2.5">
             {stats.recentUsers.map((user, i) => {
               const initials = (user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase();
-              const colors = ["bg-blue-500/20 text-blue-300", "bg-purple-500/20 text-purple-300", "bg-green-500/20 text-green-300", "bg-orange-500/20 text-orange-300", "bg-pink-500/20 text-pink-300"];
+              const avatarStyles = [
+                { bg: "rgba(59,130,246,0.20)", border: "rgba(59,130,246,0.35)", color: "#93C5FD" },
+                { bg: "rgba(168,85,247,0.20)", border: "rgba(168,85,247,0.35)", color: "#C4B5FD" },
+                { bg: "rgba(0,255,132,0.15)", border: "rgba(0,255,132,0.30)", color: "#00FF84" },
+                { bg: "rgba(249,115,22,0.20)", border: "rgba(249,115,22,0.35)", color: "#FDB274" },
+                { bg: "rgba(236,72,153,0.20)", border: "rgba(236,72,153,0.35)", color: "#F9A8D4" },
+              ];
+              const av = avatarStyles[i % avatarStyles.length];
+              const isSuperAdmin = user.role === "SUPER_ADMIN";
+              const isAdmin = user.role === "ADMIN";
+              const joinedDaysAgo = Math.floor((Date.now() - new Date(user.createdAt).getTime()) / 86400000);
+              const joinedLabel = joinedDaysAgo === 0 ? "Today" : joinedDaysAgo === 1 ? "Yesterday" : `${joinedDaysAgo}d ago`;
               return (
-                <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/6 transition-colors">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${colors[i % colors.length]}`}>
+                <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01]"
+                  style={{ background: "rgba(255,255,255,0.025)", borderColor: "rgba(255,255,255,0.06)" }}>
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-base font-black shrink-0 border-2"
+                    style={{ background: av.bg, borderColor: av.border, color: av.color }}>
                     {initials}
                   </div>
+                  {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{user.name || "Unknown"}</p>
-                    <p className="text-xs text-white/40 truncate">{user.email}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-bold text-white truncate">{user.name || "Unknown"}</p>
+                      {isSuperAdmin && <span className="text-[9px] font-black text-yellow-400 bg-yellow-500/12 border border-yellow-500/25 px-1.5 py-0.5 rounded-full shrink-0">SUPER</span>}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-[11px] text-white/40 truncate flex-1">{user.email}</p>
+                      <span className="text-[10px] text-white/25 shrink-0">{joinedLabel}</span>
+                    </div>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border shrink-0 ${
-                    user.role === "ADMIN" || user.role === "SUPER_ADMIN"
-                      ? "bg-[#00FF84]/10 text-[#00FF84] border-[#00FF84]/20"
-                      : "bg-white/5 text-white/50 border-white/8"
-                  }`}>{user.role}</span>
+                  {/* Role badge */}
+                  <span className={`text-[10px] px-2 py-1 rounded-lg font-bold shrink-0 ${
+                    isSuperAdmin
+                      ? "bg-yellow-500/12 text-yellow-400 border border-yellow-500/20"
+                      : isAdmin
+                        ? "bg-[#00FF84]/10 text-[#00FF84] border border-[#00FF84]/20"
+                        : "bg-white/5 text-white/40 border border-white/8"
+                  }`}>{user.role === "SUPER_ADMIN" ? "Admin" : user.role}</span>
                 </div>
               );
             })}
@@ -307,19 +334,22 @@ export default async function AdminDashboard() {
       </div>
 
       {/* ── Site summary strip ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Matches", value: fmt(stats.totalMatches), color: "#00FF84", icon: Trophy },
-          { label: "Total News", value: fmt(stats.totalNews), color: "#3B82F6", icon: MessageSquare },
-          { label: "Countries", value: stats.topCountries.length, color: "#A855F7", icon: Globe },
-          { label: "Today Visits", value: fmt(stats.siteVisitsToday), color: "#F97316", icon: TrendingUp },
+          { label: "Total Matches", value: fmt(stats.totalMatches), sub: "all time", color: "#00FF84", gradFrom: "rgba(0,255,132,0.12)", border: "rgba(0,255,132,0.20)", icon: Trophy },
+          { label: "News Articles", value: fmt(stats.totalNews), sub: "published", color: "#3B82F6", gradFrom: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.20)", icon: MessageSquare },
+          { label: "Countries", value: stats.topCountries.length, sub: "in audience", color: "#A855F7", gradFrom: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.20)", icon: Globe },
+          { label: "Today Visits", value: fmt(stats.siteVisitsToday), sub: "since midnight", color: "#F97316", gradFrom: "rgba(249,115,22,0.12)", border: "rgba(249,115,22,0.20)", icon: TrendingUp },
         ].map((item) => (
-          <div key={item.label} className="rounded-xl border border-white/6 bg-[#121821]/80 p-4 flex items-center gap-3">
-            <item.icon className="w-4 h-4 shrink-0" style={{ color: item.color }} />
-            <div>
-              <div className="text-lg font-black text-white">{item.value}</div>
-              <div className="text-xs text-white/40">{item.label}</div>
+          <div key={item.label} className="relative rounded-2xl overflow-hidden p-5 border"
+            style={{ background: `linear-gradient(135deg, ${item.gradFrom} 0%, rgba(13,17,23,0.8) 100%)`, borderColor: item.border }}>
+            <div className="absolute inset-x-0 top-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${item.color}80, transparent)` }} />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: `${item.color}15` }}>
+              <item.icon className="w-5 h-5" style={{ color: item.color }} />
             </div>
+            <div className="text-3xl font-black" style={{ color: item.color }}>{item.value}</div>
+            <div className="text-sm font-bold text-white mt-1">{item.label}</div>
+            <div className="text-xs text-white/35 mt-0.5">{item.sub}</div>
           </div>
         ))}
       </div>

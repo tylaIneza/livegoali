@@ -1,4 +1,4 @@
-import { Globe, ArrowUpRight } from "lucide-react";
+import { Globe } from "lucide-react";
 
 const COUNTRY_NAMES: Record<string, string> = {
   US: "United States", GB: "United Kingdom", NG: "Nigeria", GH: "Ghana",
@@ -19,18 +19,20 @@ const COUNTRY_NAMES: Record<string, string> = {
   IR: "Iran", IL: "Israel", JO: "Jordan", LB: "Lebanon",
 };
 
-const BAR_COLORS = [
-  "from-[#00FF84] to-[#00CC6A]",
-  "from-blue-500 to-blue-400",
-  "from-purple-500 to-purple-400",
-  "from-orange-500 to-orange-400",
-  "from-pink-500 to-pink-400",
-  "from-yellow-500 to-yellow-400",
-  "from-red-500 to-red-400",
-  "from-cyan-500 to-cyan-400",
-  "from-indigo-500 to-indigo-400",
-  "from-teal-500 to-teal-400",
+const BAR_COLORS: [string, string][] = [
+  ["#00FF84", "#00CC6A"],
+  ["#3B82F6", "#2563EB"],
+  ["#A855F7", "#9333EA"],
+  ["#F97316", "#EA580C"],
+  ["#EC4899", "#DB2777"],
+  ["#EAB308", "#CA8A04"],
+  ["#EF4444", "#DC2626"],
+  ["#06B6D4", "#0891B2"],
+  ["#8B5CF6", "#7C3AED"],
+  ["#14B8A6", "#0D9488"],
 ];
+
+const RANK_COLORS = ["text-yellow-400", "text-white/50", "text-orange-400/70"];
 
 function countryFlag(code: string): string {
   return code
@@ -50,44 +52,49 @@ export function TopCountriesWidget({ countries }: Props) {
           <div className="w-8 h-8 rounded-lg bg-[#00FF84]/10 flex items-center justify-center">
             <Globe className="w-4 h-4 text-[#00FF84]" />
           </div>
-          <span className="font-bold text-white text-sm">Audience Countries</span>
+          <div>
+            <span className="font-bold text-white text-sm block">Audience Countries</span>
+            <span className="text-[10px] text-white/40">{countries.length} countries tracked</span>
+          </div>
         </div>
-        {countries.length > 0 && (
-          <span className="text-xs text-white/40 font-semibold">{countries.length} countries</span>
-        )}
       </div>
 
       <div className="p-4">
         {countries.length === 0 ? (
           <div className="py-10 text-center">
             <Globe className="w-10 h-10 text-white/10 mx-auto mb-3" />
-            <p className="text-sm text-white/40">No visit data yet</p>
+            <p className="text-sm text-white/40 font-medium">No visit data yet</p>
             <p className="text-xs text-white/25 mt-1">Countries appear once visitors load the site</p>
           </div>
         ) : (
           <div className="space-y-3">
             {countries.map((c, i) => {
               const max = countries[0].count;
-              const pct = Math.round((c.count / max) * 100);
+              const pct = Math.max(4, Math.round((c.count / max) * 100));
               const name = COUNTRY_NAMES[c.code] ?? c.code;
-              const barColor = BAR_COLORS[i % BAR_COLORS.length];
+              const [from, to] = BAR_COLORS[i % BAR_COLORS.length];
+              const rankColor = RANK_COLORS[i] ?? "text-white/25";
               return (
-                <div key={c.code} className="group flex items-center gap-3">
-                  <span className="text-[10px] text-white/30 w-4 shrink-0 font-bold">{i + 1}</span>
-                  <span className="text-xl leading-none shrink-0">{countryFlag(c.code)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm text-white font-medium truncate">{name}</span>
-                      <span className="text-xs font-bold text-white/60 ml-2 shrink-0">
+                <div key={c.code} className="group">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <span className={`text-xs font-black w-4 shrink-0 text-center ${rankColor}`}>{i + 1}</span>
+                    <span className="text-xl leading-none shrink-0">{countryFlag(c.code)}</span>
+                    <div className="flex-1 flex items-center justify-between min-w-0 gap-2">
+                      <span className="text-sm font-semibold text-white truncate">{name}</span>
+                      <span className="text-xs font-bold shrink-0" style={{ color: from }}>
                         {c.count.toLocaleString()}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full bg-gradient-to-r ${barColor} transition-all duration-500`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
+                  </div>
+                  <div className="ml-7 h-2 rounded-full bg-white/5 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${pct}%`,
+                        background: `linear-gradient(90deg, ${from}, ${to})`,
+                        boxShadow: `0 0 8px ${from}60`,
+                      }}
+                    />
                   </div>
                 </div>
               );
