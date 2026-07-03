@@ -69,7 +69,7 @@ async function getAdminStats() {
     .map((r) => ({ code: r.key.replace("country_visits_", ""), count: parseInt(r.value) || 0 }))
     .filter((c) => c.count > 0)
     .sort((a, b) => b.count - a.count)
-    .slice(0, 50);
+;
 
   const activeMatches = await prisma.match.findMany({
     where: { status: { in: ["LIVE", "HALFTIME", "SCHEDULED"] } },
