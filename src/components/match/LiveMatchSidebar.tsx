@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { MessageSquare, TrendingUp, Clock } from "lucide-react";
+import { MessageSquare, TrendingUp, Clock, Zap, Target } from "lucide-react";
 import { LiveChat } from "@/components/match/LiveChat";
 import { CommentSection } from "@/components/match/CommentSection";
 import { cn } from "@/lib/utils";
@@ -34,26 +34,22 @@ interface SidebarProps {
 
 type Tab = "chat" | "commentary" | "prediction";
 
-const eventIcons: Record<string, string> = {
-  GOAL: "⚽",
-  YELLOW_CARD: "🟨",
-  RED_CARD: "🟥",
-  SUBSTITUTION: "🔄",
-  VAR: "📺",
-  PENALTY: "🥅",
-  KICKOFF: "▶️",
-  HALFTIME: "⏸️",
-  FULLTIME: "⏹️",
+const EVENT_CONFIG: Record<string, { icon: string; color: string; bg: string; border: string }> = {
+  GOAL:         { icon: "⚽", color: "#00FF84", bg: "rgba(0,255,132,0.10)", border: "rgba(0,255,132,0.25)" },
+  YELLOW_CARD:  { icon: "🟨", color: "#EAB308", bg: "rgba(234,179,8,0.10)",  border: "rgba(234,179,8,0.25)" },
+  RED_CARD:     { icon: "🟥", color: "#EF4444", bg: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.25)" },
+  SUBSTITUTION: { icon: "🔄", color: "#A855F7", bg: "rgba(168,85,247,0.10)", border: "rgba(168,85,247,0.20)" },
+  VAR:          { icon: "📺", color: "#3B82F6", bg: "rgba(59,130,246,0.10)", border: "rgba(59,130,246,0.20)" },
+  PENALTY:      { icon: "🥅", color: "#F97316", bg: "rgba(249,115,22,0.10)", border: "rgba(249,115,22,0.20)" },
+  KICKOFF:      { icon: "▶️", color: "#00FF84", bg: "rgba(0,255,132,0.06)",  border: "rgba(0,255,132,0.15)" },
+  HALFTIME:     { icon: "⏸️", color: "#EAB308", bg: "rgba(234,179,8,0.08)",  border: "rgba(234,179,8,0.15)" },
+  FULLTIME:     { icon: "⏹️", color: "#94A3B8", bg: "rgba(148,163,184,0.08)", border: "rgba(148,163,184,0.15)" },
 };
+const DEFAULT_EVENT = { icon: "📌", color: "#94A3B8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.12)" };
 
 export function LiveMatchSidebar({
-  matchId,
-  enableChat,
-  enableComments,
-  events: initialEvents,
-  prediction: initialPrediction,
-  homeTeam,
-  awayTeam,
+  matchId, enableChat, enableComments, events: initialEvents,
+  prediction: initialPrediction, homeTeam, awayTeam,
 }: SidebarProps) {
   const [tab, setTab] = useState<Tab>(enableChat ? "chat" : "commentary");
   const [prediction, setPrediction] = useState(initialPrediction);
@@ -71,8 +67,6 @@ export function LiveMatchSidebar({
 
   useEffect(() => {
     const socket = getSocket();
-
-    // Receive new match events instantly via socket
     socket.on("match-event", (event: {
       id?: string; type: string; minute: number;
       playerName?: string; teamId?: string; description?: string;
@@ -83,132 +77,177 @@ export function LiveMatchSidebar({
         return [newEvent, ...prev];
       });
     });
-
-    // Keep prediction refresh at 60s (predictions don't go through socket)
     const predInterval = setInterval(fetchPrediction, 60_000);
-
     return () => {
       socket.off("match-event");
       clearInterval(predInterval);
     };
   }, [fetchPrediction]);
 
-  const tabs: Array<{ id: Tab; label: string; icon: React.ComponentType<{className?: string}> }> = [
+  const tabs: Array<{ id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
     ...(enableChat ? [{ id: "chat" as Tab, label: "Live Chat", icon: MessageSquare }] : []),
     { id: "commentary", label: "Commentary", icon: Clock },
-    { id: "prediction", label: "Prediction", icon: TrendingUp },
+    { id: "prediction", label: "AI Predict", icon: TrendingUp },
   ];
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-[#0B0F14] border border-white/8">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={cn(
-              "flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all",
-              tab === t.id
-                ? "bg-[#121821] text-[#00FF84]"
-                : "text-white/70 hover:text-gray-300"
-            )}
-          >
-            <t.icon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t.label}</span>
-          </button>
-        ))}
+    <div className="flex flex-col gap-4">
+      {/* ── Tabs ── */}
+      <div className="flex gap-1 p-1 rounded-2xl bg-[#121821] border border-white/8">
+        {tabs.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200",
+                active
+                  ? "bg-[#00FF84] text-[#0B0F14] shadow-[0_2px_12px_rgba(0,255,132,0.30)]"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <t.icon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-h-[500px]">
-        {tab === "chat" && enableChat && (
-          <LiveChat matchId={matchId} />
-        )}
+      {/* ── Content ── */}
+      <div className="min-h-[500px]">
+        {/* Live Chat */}
+        {tab === "chat" && enableChat && <LiveChat matchId={matchId} />}
 
+        {/* Commentary */}
         {tab === "commentary" && (
-          <div className="h-full rounded-xl border border-white/8 bg-[#121821] overflow-hidden">
-            <div className="p-3 border-b border-white/8">
+          <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#00FF84]/10 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-[#00FF84]" />
+              </div>
               <h3 className="text-sm font-bold text-white">Live Commentary</h3>
+              {events.length > 0 && (
+                <span className="ml-auto text-[10px] font-bold text-white/30 bg-white/5 px-2 py-0.5 rounded-full">{events.length} events</span>
+              )}
             </div>
-            <div className="overflow-y-auto h-[450px] p-3 space-y-2">
+            <div className="overflow-y-auto max-h-[480px] p-3 space-y-2">
               {events.length === 0 ? (
-                <div className="text-center text-white/70 text-sm py-8">
-                  <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  No events yet
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-14 h-14 rounded-full bg-white/4 flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-white/20" />
+                  </div>
+                  <p className="text-sm text-white/40 font-medium">No events yet</p>
+                  <p className="text-xs text-white/25">Match events will appear here in real-time</p>
                 </div>
               ) : (
-                events.map((event) => (
-                  <div
-                    key={event.id}
-                    className="flex gap-3 p-2.5 rounded-lg bg-[#0B0F14] border border-white/5"
-                  >
-                    <div className="text-center min-w-[40px]">
-                      <span className="text-xs font-bold text-[#00FF84]">{event.minute}&apos;</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base">{eventIcons[event.type] || "📌"}</span>
-                        <span className="text-xs font-semibold text-white">{event.type.replace(/_/g, " ")}</span>
+                events.map((event) => {
+                  const cfg = EVENT_CONFIG[event.type] ?? DEFAULT_EVENT;
+                  const isGoal = event.type === "GOAL";
+                  return (
+                    <div
+                      key={event.id}
+                      className={cn(
+                        "flex gap-3 p-3 rounded-xl border transition-all",
+                        isGoal && "shadow-[0_0_16px_rgba(0,255,132,0.12)]"
+                      )}
+                      style={{ background: cfg.bg, borderColor: cfg.border }}
+                    >
+                      {/* Minute */}
+                      <div className="flex flex-col items-center shrink-0 min-w-[36px]">
+                        <span className="text-xs font-black" style={{ color: cfg.color }}>{event.minute}&apos;</span>
+                        {isGoal && <Zap className="w-3 h-3 mt-1" style={{ color: cfg.color }} />}
                       </div>
-                      {event.playerName && (
-                        <p className="text-xs text-white/75 mt-0.5">{event.playerName}</p>
-                      )}
-                      {event.description && (
-                        <p className="text-xs text-white/70 mt-0.5">{event.description}</p>
-                      )}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base leading-none">{cfg.icon}</span>
+                          <span className="text-xs font-bold" style={{ color: cfg.color }}>
+                            {event.type.replace(/_/g, " ")}
+                          </span>
+                        </div>
+                        {event.playerName && (
+                          <p className="text-sm font-semibold text-white mt-1">{event.playerName}</p>
+                        )}
+                        {event.description && (
+                          <p className="text-xs text-white/50 mt-0.5">{event.description}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
         )}
 
+        {/* AI Prediction */}
         {tab === "prediction" && (
-          <div className="rounded-xl border border-white/8 bg-[#121821] overflow-hidden">
-            <div className="p-3 border-b border-white/8">
+          <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-purple-500/12 flex items-center justify-center">
+                <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+              </div>
               <h3 className="text-sm font-bold text-white">AI Prediction</h3>
+              <span className="ml-auto text-[10px] font-black text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full">BETA</span>
             </div>
-            <div className="p-4">
+            <div className="p-5">
               {prediction ? (
-                <div className="space-y-4">
+                <div className="space-y-5">
+                  {/* Win probability boxes */}
                   <div className="grid grid-cols-3 gap-2">
-                    <PredBox label={homeTeam.split(" ")[homeTeam.split(" ").length - 1]} value={prediction.homeWinProb} color="text-[#00FF84]" />
-                    <PredBox label="Draw" value={prediction.drawProb} color="text-yellow-400" />
-                    <PredBox label={awayTeam.split(" ")[awayTeam.split(" ").length - 1]} value={prediction.awayWinProb} color="text-blue-400" />
+                    <PredBox label={homeTeam.split(" ").pop() ?? homeTeam} value={prediction.homeWinProb} color="#00FF84" bg="rgba(0,255,132,0.10)" border="rgba(0,255,132,0.20)" />
+                    <PredBox label="Draw" value={prediction.drawProb} color="#EAB308" bg="rgba(234,179,8,0.10)" border="rgba(234,179,8,0.20)" />
+                    <PredBox label={awayTeam.split(" ").pop() ?? awayTeam} value={prediction.awayWinProb} color="#3B82F6" bg="rgba(59,130,246,0.10)" border="rgba(59,130,246,0.20)" />
                   </div>
 
-                  <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
-                    <div className="h-full bg-[#00FF84] rounded-l-full" style={{ width: `${prediction.homeWinProb}%` }} />
-                    <div className="h-full bg-yellow-400" style={{ width: `${prediction.drawProb}%` }} />
-                    <div className="h-full bg-blue-400 rounded-r-full" style={{ width: `${prediction.awayWinProb}%` }} />
+                  {/* Stacked bar */}
+                  <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
+                    <div className="h-full rounded-l-full" style={{ width: `${prediction.homeWinProb}%`, background: "#00FF84" }} />
+                    <div className="h-full" style={{ width: `${prediction.drawProb}%`, background: "#EAB308" }} />
+                    <div className="h-full rounded-r-full flex-1" style={{ background: "#3B82F6" }} />
                   </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/70">Confidence</span>
-                    <span className="font-bold text-[#00FF84]">{prediction.confidence.toFixed(0)}%</span>
-                  </div>
-
-                  {prediction.expectedHomeGoals !== null && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-white/70">Expected Goals</span>
-                      <span className="font-bold text-white">
-                        {prediction.expectedHomeGoals.toFixed(1)} - {prediction.expectedAwayGoals?.toFixed(1)}
+                  {/* Confidence + xG */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 rounded-xl border border-white/6 bg-white/3">
+                      <span className="text-xs text-white/50 font-medium flex items-center gap-1.5">
+                        <Target className="w-3.5 h-3.5" /> Confidence
                       </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-1.5 rounded-full bg-white/8 overflow-hidden">
+                          <div className="h-full rounded-full bg-[#00FF84]" style={{ width: `${prediction.confidence}%` }} />
+                        </div>
+                        <span className="text-sm font-black text-[#00FF84] w-10 text-right">{prediction.confidence.toFixed(0)}%</span>
+                      </div>
                     </div>
-                  )}
 
+                    {prediction.expectedHomeGoals !== null && (
+                      <div className="flex items-center justify-between p-3 rounded-xl border border-white/6 bg-white/3">
+                        <span className="text-xs text-white/50 font-medium">Expected Goals (xG)</span>
+                        <span className="text-sm font-black text-white">
+                          {prediction.expectedHomeGoals.toFixed(1)}
+                          <span className="text-white/30 mx-1">—</span>
+                          {prediction.expectedAwayGoals?.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* AI explanation */}
                   {prediction.aiExplanation && (
-                    <div className="p-3 rounded-lg bg-[#0B0F14] border border-white/6">
-                      <p className="text-xs text-white/70 leading-relaxed">{prediction.aiExplanation}</p>
+                    <div className="p-4 rounded-xl border border-purple-500/15 bg-purple-500/5">
+                      <p className="text-[11px] font-bold text-purple-400 mb-2 uppercase tracking-wide">AI Analysis</p>
+                      <p className="text-xs text-white/60 leading-relaxed">{prediction.aiExplanation}</p>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center text-white/70 text-sm py-8">
-                  <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  No prediction available
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <div className="w-14 h-14 rounded-full bg-purple-500/8 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-purple-400/40" />
+                  </div>
+                  <p className="text-sm text-white/40 font-medium">No prediction available</p>
                 </div>
               )}
             </div>
@@ -216,21 +255,29 @@ export function LiveMatchSidebar({
         )}
       </div>
 
-      {/* Comments below */}
+      {/* Comments section */}
       {enableComments && (
-        <div className="mt-2">
-          <CommentSection matchId={matchId} />
+        <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+            </div>
+            <h3 className="text-sm font-bold text-white">Fan Comments</h3>
+          </div>
+          <div className="p-3">
+            <CommentSection matchId={matchId} />
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function PredBox({ label, value, color }: { label: string; value: number; color: string }) {
+function PredBox({ label, value, color, bg, border }: { label: string; value: number; color: string; bg: string; border: string }) {
   return (
-    <div className="text-center p-3 rounded-xl bg-[#0B0F14] border border-white/8">
-      <div className={`text-2xl font-black ${color}`}>{value.toFixed(0)}%</div>
-      <div className="text-xs text-white/70 mt-1 truncate">{label}</div>
+    <div className="text-center p-3 rounded-xl border" style={{ background: bg, borderColor: border }}>
+      <div className="text-2xl font-black" style={{ color }}>{value.toFixed(0)}%</div>
+      <div className="text-[10px] text-white/50 mt-1 truncate font-semibold">{label}</div>
     </div>
   );
 }
