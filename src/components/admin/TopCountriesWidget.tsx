@@ -59,7 +59,7 @@ export function TopCountriesWidget({ countries }: Props) {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 max-h-[480px] overflow-y-auto">
         {countries.length === 0 ? (
           <div className="py-10 text-center">
             <Globe className="w-10 h-10 text-white/10 mx-auto mb-3" />
