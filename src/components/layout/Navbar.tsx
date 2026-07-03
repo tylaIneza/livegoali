@@ -26,7 +26,7 @@ type SearchResults = {
 };
 
 const navLinks = [
-  { href: "/", label: "Live", icon: Zap, badge: "LIVE" },
+  { href: "/live", label: "Live", icon: Zap, badge: "LIVE" },
   { href: "/fixtures", label: "Fixtures", icon: Tv },
   { href: "/predictions", label: "Predictions", icon: Trophy },
   { href: "/news", label: "News", icon: Newspaper },
