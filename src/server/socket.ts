@@ -303,9 +303,12 @@ async function flushAdViews() {
     } while (cursor !== "0");
     if (!adKeys.length) return;
 
-    const pipeline = pubClient.pipeline();
-    for (const key of adKeys) pipeline.getdel(key);
-    const results = await pipeline.exec();
+    const getPipeline = pubClient.pipeline();
+    for (const key of adKeys) getPipeline.get(key);
+    const results = await getPipeline.exec();
+    const delPipeline = pubClient.pipeline();
+    for (const key of adKeys) delPipeline.del(key);
+    await delPipeline.exec();
 
     await Promise.all(
       adKeys.map((key, i) => {
@@ -333,9 +336,12 @@ async function flushMatchViews() {
     } while (cursor !== "0");
     if (!keys.length) return;
 
-    const pipeline = pubClient.pipeline();
-    for (const key of keys) pipeline.getdel(key);
-    const results = await pipeline.exec();
+    const getPipeline = pubClient.pipeline();
+    for (const key of keys) getPipeline.get(key);
+    const results = await getPipeline.exec();
+    const delPipeline = pubClient.pipeline();
+    for (const key of keys) delPipeline.del(key);
+    await delPipeline.exec();
 
     await Promise.all(
       keys.map((key, i) => {
@@ -361,15 +367,20 @@ async function flushVisitCounters() {
       countryKeys.push(...batch);
     } while (cursor !== "0");
 
-    // Atomically grab-and-clear all counters in one pipeline
-    const pipeline = pubClient.pipeline();
-    pipeline.getdel("visits:total");
-    pipeline.getdel(`visits:${today}`);
-    for (const key of countryKeys) pipeline.getdel(key);
-    const results = await pipeline.exec();
+    const allKeys = ["visits:total", `visits:${today}`, ...countryKeys];
+    if (allKeys.length === 0) return;
 
-    const total = parseInt((results?.[0]?.[1] as string) || "0");
-    const todayCount = parseInt((results?.[1]?.[1] as string) || "0");
+    // GET all values, then DEL them — compatible with all Redis versions (no GETDEL)
+    const getPipeline = pubClient.pipeline();
+    for (const key of allKeys) getPipeline.get(key);
+    const getResults = await getPipeline.exec();
+
+    const delPipeline = pubClient.pipeline();
+    for (const key of allKeys) delPipeline.del(key);
+    await delPipeline.exec();
+
+    const total = parseInt((getResults?.[0]?.[1] as string) || "0");
+    const todayCount = parseInt((getResults?.[1]?.[1] as string) || "0");
 
     const writes: Promise<void>[] = [
       incrementDbSetting("site_visits_total", total),
@@ -377,7 +388,7 @@ async function flushVisitCounters() {
     ];
 
     countryKeys.forEach((key, i) => {
-      const count = parseInt((results?.[2 + i]?.[1] as string) || "0");
+      const count = parseInt((getResults?.[2 + i]?.[1] as string) || "0");
       const country = key.replace("visits:country:", "");
       writes.push(incrementDbSetting(`country_visits_${country}`, count));
     });
