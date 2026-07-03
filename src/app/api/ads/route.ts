@@ -11,30 +11,33 @@ export async function GET(req: NextRequest) {
   const placement = searchParams.get("placement") as AdPlacement | null;
   const all = searchParams.get("all") === "1"; // admin: return all including inactive
 
-  // Skip cache for admin requests
-  if (!all) {
-    const cacheKey = `ads:${placement ?? "all"}`;
-    const cached = await cacheGet(cacheKey);
-    if (cached) return NextResponse.json(cached);
-
-    const now = new Date();
-    const ads = await prisma.advertisement.findMany({
-      where: {
-        isActive: true,
-        ...(placement ? { placement } : {}),
-        AND: [
-          { OR: [{ startDate: null }, { startDate: { lte: now } }] },
-          { OR: [{ endDate: null }, { endDate: { gte: now } }] },
-        ],
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    await cacheSet(cacheKey, ads, AD_CACHE_TTL);
+  if (all) {
+    const session = await auth();
+    if (!session || !["ADMIN", "SUPER_ADMIN"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const ads = await prisma.advertisement.findMany({ orderBy: { createdAt: "desc" } });
     return NextResponse.json(ads);
   }
 
-  const ads = await prisma.advertisement.findMany({ orderBy: { createdAt: "desc" } });
+  const cacheKey = `ads:${placement ?? "all"}`;
+  const cached = await cacheGet(cacheKey);
+  if (cached) return NextResponse.json(cached);
+
+  const now = new Date();
+  const ads = await prisma.advertisement.findMany({
+    where: {
+      isActive: true,
+      ...(placement ? { placement } : {}),
+      AND: [
+        { OR: [{ startDate: null }, { startDate: { lte: now } }] },
+        { OR: [{ endDate: null }, { endDate: { gte: now } }] },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  await cacheSet(cacheKey, ads, AD_CACHE_TTL);
   return NextResponse.json(ads);
 }
 
@@ -44,25 +47,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { title, imageUrl, videoUrl, targetUrl, placement, startDate, endDate } = await req.json();
-  if (!title || !targetUrl || !placement) {
-    return NextResponse.json({ error: "Title, target URL and placement are required" }, { status: 400 });
+  try {
+    const { title, imageUrl, videoUrl, targetUrl, placement, startDate, endDate, revenue } = await req.json();
+    if (!title || !targetUrl || !placement) {
+      return NextResponse.json({ error: "Title, target URL and placement are required" }, { status: 400 });
+    }
+
+    const ad = await prisma.advertisement.create({
+      data: {
+        title,
+        imageUrl: imageUrl || null,
+        videoUrl: videoUrl || null,
+        targetUrl,
+        placement: placement as AdPlacement,
+        startDate: startDate ? new Date(startDate) : null,
+        endDate: endDate ? new Date(endDate) : null,
+        revenue: parseFloat(revenue) || 0,
+      },
+    });
+
+    await cacheDelPattern("ads:*");
+    return NextResponse.json(ad, { status: 201 });
+  } catch (err) {
+    console.error("[ads POST]", err);
+    return NextResponse.json({ error: "Failed to create ad" }, { status: 500 });
   }
-
-  const ad = await prisma.advertisement.create({
-    data: {
-      title,
-      imageUrl: imageUrl || null,
-      videoUrl: videoUrl || null,
-      targetUrl,
-      placement: placement as AdPlacement,
-      startDate: startDate ? new Date(startDate) : null,
-      endDate: endDate ? new Date(endDate) : null,
-    },
-  });
-
-  // Bust all ad caches so the new ad appears immediately
-  await cacheDelPattern("ads:*");
-
-  return NextResponse.json(ad, { status: 201 });
 }
