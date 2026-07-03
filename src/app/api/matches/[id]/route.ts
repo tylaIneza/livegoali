@@ -81,7 +81,30 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   }
 
   const { id } = await params;
-  await prisma.match.delete({ where: { id } });
 
+  // Read views before deletion so we can persist them permanently
+  const match = await prisma.match.findUnique({
+    where: { id },
+    select: { views: true },
+  });
+
+  if (match && match.views > 0) {
+    const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+    // Atomic upsert: adds to running total, never loses counts on concurrent deletes
+    await Promise.all([
+      prisma.$executeRaw`
+        INSERT INTO Settings (id, \`key\`, value, updatedAt)
+        VALUES (UUID(), 'match_views_archived_total', ${String(match.views)}, NOW())
+        ON DUPLICATE KEY UPDATE value = CAST(CAST(value AS UNSIGNED) + ${match.views} AS CHAR), updatedAt = NOW()
+      `,
+      prisma.$executeRaw`
+        INSERT INTO Settings (id, \`key\`, value, updatedAt)
+        VALUES (UUID(), ${`match_views_month_${month}`}, ${String(match.views)}, NOW())
+        ON DUPLICATE KEY UPDATE value = CAST(CAST(value AS UNSIGNED) + ${match.views} AS CHAR), updatedAt = NOW()
+      `,
+    ]);
+  }
+
+  await prisma.match.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

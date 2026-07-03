@@ -322,6 +322,33 @@ async function flushAdViews() {
   }
 }
 
+async function flushMatchViews() {
+  try {
+    const keys: string[] = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await pubClient.scan(cursor, "MATCH", "match_views:*", "COUNT", 100);
+      cursor = next;
+      keys.push(...batch);
+    } while (cursor !== "0");
+    if (!keys.length) return;
+
+    const pipeline = pubClient.pipeline();
+    for (const key of keys) pipeline.getdel(key);
+    const results = await pipeline.exec();
+
+    await Promise.all(
+      keys.map((key, i) => {
+        const count = parseInt((results?.[i]?.[1] as string) || "0");
+        const month = key.replace("match_views:", ""); // YYYY-MM
+        return incrementDbSetting(`match_views_month_${month}`, count);
+      }),
+    );
+  } catch (err) {
+    console.error("[flush] match views flush failed:", err);
+  }
+}
+
 async function flushVisitCounters() {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -387,9 +414,11 @@ resetViewerCounts().then(() => {
   autoLiveMatches();
   flushVisitCounters();
   flushAdViews();
+  flushMatchViews();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
   setInterval(flushAdViews, 60_000);
+  setInterval(flushMatchViews, 60_000);
 });
 
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;

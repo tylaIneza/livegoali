@@ -37,6 +37,30 @@ async function getAdminStats() {
     prisma.match.aggregate({ _sum: { views: true } }),
   ]);
 
+  // Monthly match views (last 6 months) + archived total from deleted matches
+  const last6Months = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - (5 - i));
+    return d.toISOString().slice(0, 7);
+  });
+
+  const [monthlyViewRows, archivedViewsRow] = await Promise.all([
+    prisma.settings.findMany({
+      where: { key: { in: last6Months.map((m) => `match_views_month_${m}`) } },
+    }),
+    prisma.settings.findUnique({ where: { key: "match_views_archived_total" } }),
+  ]);
+
+  const monthlyMatchViews = last6Months.map((month) => {
+    const row = monthlyViewRows.find((r) => r.key === `match_views_month_${month}`);
+    const [year, mon] = month.split("-");
+    const label = new Date(parseInt(year), parseInt(mon) - 1, 1)
+      .toLocaleDateString("en", { month: "short" });
+    return { month, label, views: parseInt(row?.value ?? "0") || 0 };
+  });
+
+  const archivedMatchViews = parseInt(archivedViewsRow?.value ?? "0") || 0;
+
   const countryRows = await prisma.settings.findMany({
     where: { key: { startsWith: "country_visits_" } },
   });
@@ -73,7 +97,9 @@ async function getAdminStats() {
     siteVisitsTotal: parseInt(siteVisitsTotal?.value ?? "0"),
     siteVisitsToday: parseInt(siteVisitsToday?.value ?? "0"),
     activeMatches, recentUsers,
-    totalMatchViews: totalViewsAgg._sum.views ?? 0,
+    totalMatchViews: (totalViewsAgg._sum.views ?? 0) + archivedMatchViews,
+    archivedMatchViews,
+    monthlyMatchViews,
     topCountries,
   };
 }
@@ -255,6 +281,77 @@ export default async function AdminDashboard() {
           </Link>
         ))}
       </div>
+
+      {/* ── Match Views Breakdown ── */}
+      {(() => {
+        const maxViews = Math.max(...stats.monthlyMatchViews.map((m) => m.views), 1);
+        const liveViews = stats.totalMatchViews - stats.archivedMatchViews;
+        return (
+          <div className="relative rounded-2xl overflow-hidden border border-purple-500/20 bg-gradient-to-br from-purple-500/8 to-[#0D1117]"
+            style={{ boxShadow: "0 4px 40px rgba(168,85,247,0.08)" }}>
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-purple-500/60 to-transparent" />
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col lg:flex-row lg:items-start gap-8">
+
+                {/* Left — totals */}
+                <div className="shrink-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Eye className="w-4 h-4 text-purple-400" />
+                    <span className="text-sm font-bold text-white/60 uppercase tracking-widest">Match Views</span>
+                  </div>
+                  <div className="text-6xl font-black text-white leading-none tracking-tight" style={{ color: "#A855F7" }}>
+                    {fmt(stats.totalMatchViews)}
+                  </div>
+                  <p className="text-white/40 text-sm mt-2">total video plays (all time)</p>
+
+                  <div className="flex gap-4 mt-5">
+                    <div className="rounded-xl border border-purple-500/20 bg-purple-500/8 px-4 py-3">
+                      <div className="text-xl font-black text-purple-300">{fmt(liveViews)}</div>
+                      <div className="text-[11px] text-white/40 mt-0.5">Active matches</div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/4 px-4 py-3">
+                      <div className="text-xl font-black text-white/60">{fmt(stats.archivedMatchViews)}</div>
+                      <div className="text-[11px] text-white/40 mt-0.5">Deleted matches</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right — monthly bar chart */}
+                <div className="flex-1">
+                  <p className="text-xs text-white/40 font-semibold uppercase tracking-wider mb-4">Last 6 months</p>
+                  <div className="flex items-end gap-3 h-28">
+                    {stats.monthlyMatchViews.map((m) => {
+                      const pct = Math.max(4, Math.round((m.views / maxViews) * 100));
+                      const isCurrent = m.month === new Date().toISOString().slice(0, 7);
+                      return (
+                        <div key={m.month} className="flex-1 flex flex-col items-center gap-1.5 group">
+                          <span className="text-[10px] font-bold text-white/50 group-hover:text-white transition-colors">
+                            {m.views > 0 ? fmt(m.views) : "—"}
+                          </span>
+                          <div className="w-full rounded-t-lg relative overflow-hidden" style={{ height: "72px" }}>
+                            <div
+                              className="absolute bottom-0 w-full rounded-t-lg transition-all duration-700"
+                              style={{
+                                height: `${pct}%`,
+                                background: isCurrent
+                                  ? "linear-gradient(180deg,#A855F7,#7C3AED)"
+                                  : "linear-gradient(180deg,rgba(168,85,247,0.5),rgba(124,58,237,0.3))",
+                                boxShadow: isCurrent ? "0 -4px 12px rgba(168,85,247,0.4)" : "none",
+                              }}
+                            />
+                          </div>
+                          <span className={`text-[10px] font-bold ${isCurrent ? "text-purple-400" : "text-white/35"}`}>{m.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-white/25 mt-3">Views are tracked in real-time and preserved even after matches are deleted.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Live Viewers ── */}
       <LiveViewersWidget />

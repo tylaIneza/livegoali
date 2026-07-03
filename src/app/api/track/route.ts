@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
           anonViews: !isUser ? { increment: 1 } : undefined,
         },
       }).catch(() => {});
+
+      // Track monthly views in Redis — socket server flushes to DB every 60s
+      const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+      redis.incr(`match_views:${month}`).catch(() => {});
     }
 
     if (type === "site") {
