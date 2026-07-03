@@ -24,7 +24,7 @@ export function CountdownTimer({
   scheduledAt: string | Date;
   className?: string;
 }) {
-  const [label, setLabel] = useState(() => compute(scheduledAt));
+  const [label, setLabel] = useState("");
 
   useEffect(() => {
     setLabel(compute(scheduledAt));
@@ -32,5 +32,6 @@ export function CountdownTimer({
     return () => clearInterval(id);
   }, [scheduledAt]);
 
+  if (!label) return null;
   return <span className={className}>{label}</span>;
 }
