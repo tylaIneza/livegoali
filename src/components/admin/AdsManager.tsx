@@ -430,7 +430,7 @@ export function AdsManager() {
 
       {/* Add Modal */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[92vh] overflow-hidden p-0">
+        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[90dvh] overflow-hidden p-0 top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
             <DialogTitle>New Advertisement</DialogTitle>
           </DialogHeader>
@@ -448,7 +448,7 @@ export function AdsManager() {
 
       {/* Edit Modal */}
       <Dialog open={!!editTarget} onOpenChange={(o) => { if (!o) setEditTarget(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[92vh] overflow-hidden p-0">
+        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[90dvh] overflow-hidden p-0 top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
             <DialogTitle>Edit Ad</DialogTitle>
           </DialogHeader>
@@ -466,7 +466,7 @@ export function AdsManager() {
 
       {/* Delete Modal */}
       <Dialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
-        <DialogContent className="w-[95vw] max-w-sm">
+        <DialogContent className="w-[95vw] max-w-sm top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
           <DialogHeader><DialogTitle className="text-red-400 flex items-center gap-2"><Trash2 className="w-4 h-4" /> Delete Ad</DialogTitle></DialogHeader>
           <p className="text-white/70 text-sm py-1">Delete <span className="font-bold text-white">"{deleteTarget?.title}"</span>? This cannot be undone.</p>
           <DialogFooter className="flex-col sm:flex-row gap-2">
