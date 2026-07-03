@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Trophy, Radio, Users, Newspaper,
   TrendingUp, Megaphone, Settings, ChevronLeft, Menu,
   Shield, BarChart3, Star, Bell, RefreshCw, Dumbbell,
-  LogOut, ExternalLink,
+  LogOut, ExternalLink, Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -25,6 +25,7 @@ const navItems = [
   { href: "/admin/streams",       label: "Streams",        icon: Radio,           color: "#EC4899", group: "content" },
   { href: "/admin/predictions",   label: "Predictions",    icon: TrendingUp,      color: "#8B5CF6", group: "content" },
   { href: "/admin/news",          label: "News",           icon: Newspaper,       color: "#3B82F6", group: "content" },
+  { href: "/admin/countries",     label: "Countries",      icon: Globe,           color: "#00FF84", group: "manage", adminOnly: true },
   { href: "/admin/users",         label: "Users",          icon: Users,           color: "#06B6D4", group: "manage", adminOnly: true },
   { href: "/admin/ads",           label: "Advertisements", icon: Megaphone,       color: "#A855F7", group: "manage", adminOnly: true },
   { href: "/admin/sync",          label: "Data Sync",      icon: RefreshCw,       color: "#14B8A6", group: "manage", adminOnly: true },
