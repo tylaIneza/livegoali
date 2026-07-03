@@ -4,12 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { cacheGet, cacheSet } from "@/lib/redis";
 import Link from "next/link";
 import Image from "next/image";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { Play, Radio, Calendar, ChevronRight, Wifi, Star, Zap, Users } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
-import { AdBanner } from "@/components/AdBanner";
 import { HomeRefresher } from "@/components/HomeRefresher";
 import { LocalTime } from "@/components/LocalTime";
 import { isToday, isTomorrow } from "date-fns";
@@ -100,16 +97,9 @@ export default async function LivePage() {
   ]).catch(() => [[], []])) as [MatchListItem[], MatchListItem[]];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       <HomeRefresher />
-      <Navbar />
-
-      <div className="max-w-[1400px] mx-auto w-full px-4 pt-2">
-        <AdBanner placement="HEADER" className="h-16 sm:h-20" />
-      </div>
-
-      <main className="flex-1">
-        {/* ── Hero Banner ── */}
+      {/* ── Hero Banner ── */}
         <div className="relative overflow-hidden border-b border-white/6"
           style={{ background: "linear-gradient(135deg, #110808 0%, #0B0F14 40%, #06040f 100%)" }}>
           {/* Ambient glows */}
@@ -460,12 +450,6 @@ export default async function LivePage() {
           )}
 
         </div>
-      </main>
-
-      <div className="max-w-[1400px] mx-auto w-full px-4 pb-2">
-        <AdBanner placement="FOOTER" className="h-16 sm:h-20" />
-      </div>
-      <Footer />
-    </div>
+    </>
   );
 }

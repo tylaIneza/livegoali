@@ -12,6 +12,7 @@ import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { LocalTime } from "@/components/LocalTime";
 import { AdBanner } from "@/components/AdBanner";
 import { HomeRefresher } from "@/components/HomeRefresher";
+import { ViewTracker } from "@/components/ViewTracker";
 import { isToday, isTomorrow, format } from "date-fns";
 import type { Metadata } from "next";
 
@@ -140,6 +141,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <ViewTracker type="site" />
       <HomeRefresher />
       <Navbar />
       <div className="max-w-[1400px] mx-auto w-full px-4 pt-2">
