@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Eye, MousePointer, Megaphone, TrendingUp, DollarSign, Pause, Play, ExternalLink } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 
 type AdPlacement = "HEADER" | "SIDEBAR" | "FOOTER" | "IN_PLAYER" | "VIDEO" | "POPUP" | "SPONSORED";
@@ -428,55 +427,77 @@ export function AdsManager() {
         </div>
       </div>
 
-      {/* Add Modal */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[90dvh] overflow-hidden p-0 top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
-            <DialogTitle>New Advertisement</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
-            {FormBody}
+      {/* Add Panel */}
+      {addOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.85)" }} onClick={() => setAddOpen(false)}>
+          <div
+            className="relative mx-auto mt-4 mb-4 w-[96vw] max-w-lg bg-[#121821] border border-white/12 rounded-2xl flex flex-col shadow-2xl"
+            style={{ maxHeight: "calc(100dvh - 32px)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 shrink-0">
+              <h2 className="text-base font-black text-white">New Advertisement</h2>
+              <button onClick={() => setAddOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/8 transition-colors text-xl leading-none">×</button>
+            </div>
+            {/* Scrollable form */}
+            <div className="flex-1 overflow-y-auto px-5 py-4 min-h-0">
+              {FormBody}
+            </div>
+            {/* Sticky footer — always visible */}
+            <div className="shrink-0 px-5 py-4 border-t border-white/8 bg-[#121821] rounded-b-2xl flex gap-3">
+              <button onClick={() => setAddOpen(false)} className="flex-1 py-3 rounded-xl border border-white/12 text-white/70 text-sm font-semibold hover:text-white transition-colors">Cancel</button>
+              <button onClick={handleAdd} disabled={saving} className="flex-1 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-black text-sm hover:bg-[#00e070] disabled:opacity-50 transition-colors">
+                {saving ? "Creating…" : "Create Ad"}
+              </button>
+            </div>
           </div>
-          <div className="px-6 py-4 border-t border-white/8 shrink-0 flex flex-col sm:flex-row gap-2 bg-[#121821]">
-            <button onClick={() => setAddOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-white/70 text-sm hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleAdd} disabled={saving} className="w-full sm:flex-1 px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
-              {saving ? "Creating…" : "Create Ad"}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
-      {/* Edit Modal */}
-      <Dialog open={!!editTarget} onOpenChange={(o) => { if (!o) setEditTarget(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[90dvh] overflow-hidden p-0 top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
-          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
-            <DialogTitle>Edit Ad</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
-            {FormBody}
+      {/* Edit Panel */}
+      {!!editTarget && (
+        <div className="fixed inset-0 z-50 flex flex-col" style={{ background: "rgba(0,0,0,0.85)" }} onClick={() => setEditTarget(null)}>
+          <div
+            className="relative mx-auto mt-4 mb-4 w-[96vw] max-w-lg bg-[#121821] border border-white/12 rounded-2xl flex flex-col shadow-2xl"
+            style={{ maxHeight: "calc(100dvh - 32px)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 shrink-0">
+              <h2 className="text-base font-black text-white">Edit Ad</h2>
+              <button onClick={() => setEditTarget(null)} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/8 transition-colors text-xl leading-none">×</button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4 min-h-0">
+              {FormBody}
+            </div>
+            <div className="shrink-0 px-5 py-4 border-t border-white/8 bg-[#121821] rounded-b-2xl flex gap-3">
+              <button onClick={() => setEditTarget(null)} className="flex-1 py-3 rounded-xl border border-white/12 text-white/70 text-sm font-semibold hover:text-white transition-colors">Cancel</button>
+              <button onClick={handleEdit} disabled={saving} className="flex-1 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-black text-sm hover:bg-[#00e070] disabled:opacity-50 transition-colors">
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
           </div>
-          <div className="px-6 py-4 border-t border-white/8 shrink-0 flex flex-col sm:flex-row gap-2 bg-[#121821]">
-            <button onClick={() => setEditTarget(null)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-white/70 text-sm hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleEdit} disabled={saving} className="w-full sm:flex-1 px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
-              {saving ? "Saving…" : "Save Changes"}
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
 
-      {/* Delete Modal */}
-      <Dialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
-        <DialogContent className="w-[95vw] max-w-sm top-[3dvh] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
-          <DialogHeader><DialogTitle className="text-red-400 flex items-center gap-2"><Trash2 className="w-4 h-4" /> Delete Ad</DialogTitle></DialogHeader>
-          <p className="text-white/70 text-sm py-1">Delete <span className="font-bold text-white">"{deleteTarget?.title}"</span>? This cannot be undone.</p>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <button onClick={() => setDeleteTarget(null)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-white/70 text-sm hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleDelete} disabled={deleting} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 disabled:opacity-50 transition-colors">
-              {deleting ? "Deleting…" : "Delete"}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Delete Confirm */}
+      {!!deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: "rgba(0,0,0,0.85)" }} onClick={() => setDeleteTarget(null)}>
+          <div className="w-full max-w-sm bg-[#121821] border border-white/12 rounded-2xl p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 mb-3">
+              <Trash2 className="w-4 h-4 text-red-400" />
+              <h2 className="text-base font-black text-red-400">Delete Ad</h2>
+            </div>
+            <p className="text-white/70 text-sm mb-5">Delete <span className="font-bold text-white">"{deleteTarget?.title}"</span>? This cannot be undone.</p>
+            <div className="flex gap-3">
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 rounded-xl border border-white/12 text-white/70 text-sm font-semibold hover:text-white transition-colors">Cancel</button>
+              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 disabled:opacity-50 transition-colors">
+                {deleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
