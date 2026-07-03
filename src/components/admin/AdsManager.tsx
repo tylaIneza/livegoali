@@ -430,29 +430,37 @@ export function AdsManager() {
 
       {/* Add Modal */}
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New Advertisement</DialogTitle></DialogHeader>
-          {FormBody}
-          <DialogFooter className="mt-4 flex-col sm:flex-row gap-2">
+        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[92vh] overflow-hidden p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
+            <DialogTitle>New Advertisement</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
+            {FormBody}
+          </div>
+          <div className="px-6 py-4 border-t border-white/8 shrink-0 flex flex-col sm:flex-row gap-2 bg-[#121821]">
             <button onClick={() => setAddOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-white/70 text-sm hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleAdd} disabled={saving} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
+            <button onClick={handleAdd} disabled={saving} className="w-full sm:flex-1 px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
               {saving ? "Creating…" : "Create Ad"}
             </button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={!!editTarget} onOpenChange={(o) => { if (!o) setEditTarget(null); }}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Edit Ad</DialogTitle></DialogHeader>
-          {FormBody}
-          <DialogFooter className="mt-4 flex-col sm:flex-row gap-2">
+        <DialogContent className="w-[95vw] max-w-lg flex flex-col max-h-[92vh] overflow-hidden p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 shrink-0">
+            <DialogTitle>Edit Ad</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-6 py-5 min-h-0">
+            {FormBody}
+          </div>
+          <div className="px-6 py-4 border-t border-white/8 shrink-0 flex flex-col sm:flex-row gap-2 bg-[#121821]">
             <button onClick={() => setEditTarget(null)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/10 text-white/70 text-sm hover:text-white transition-colors">Cancel</button>
-            <button onClick={handleEdit} disabled={saving} className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
+            <button onClick={handleEdit} disabled={saving} className="w-full sm:flex-1 px-5 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] disabled:opacity-50 transition-colors">
               {saving ? "Saving…" : "Save Changes"}
             </button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 
