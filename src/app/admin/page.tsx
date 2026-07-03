@@ -226,7 +226,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Stat Cards ── */}
+      {/* ── Stat Cards + Match Views (all in one grid) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {statCards.map((s) => (
           <Link
@@ -239,11 +239,8 @@ export default async function AdminDashboard() {
               boxShadow: `0 4px 24px ${s.glow}`,
             }}
           >
-            {/* Top accent line */}
             <div className="absolute inset-x-0 top-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${s.accent}, transparent)` }} />
-
             <div className="p-5">
-              {/* Icon + live badge */}
               <div className="flex items-start justify-between mb-4">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: s.iconBg }}>
                   <s.icon className="w-5 h-5" style={{ color: s.accent }} />
@@ -253,92 +250,88 @@ export default async function AdminDashboard() {
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" /> LIVE
                   </span>
                 )}
-                {!s.live && (
-                  <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />
-                )}
+                {!s.live && <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />}
               </div>
-
-              {/* Value */}
-              <div className="text-3xl font-black tracking-tight" style={{ color: s.accent }}>
-                {s.value}
-              </div>
+              <div className="text-3xl font-black tracking-tight" style={{ color: s.accent }}>{s.value}</div>
               <p className="text-sm font-bold text-white mt-1">{s.label}</p>
               <p className="text-xs mt-0.5" style={{ color: `${s.accent}99` }}>{s.sub}</p>
             </div>
           </Link>
         ))}
-      </div>
 
-      {/* ── Match Views Breakdown ── */}
-      {(() => {
-        const maxViews = Math.max(...stats.monthlyMatchViews.map((m) => m.views), 1);
-        const liveViews = stats.totalMatchViews - stats.archivedMatchViews;
-        return (
-          <div className="relative rounded-2xl overflow-hidden border border-purple-500/20 bg-gradient-to-br from-purple-500/8 to-[#0D1117]"
-            style={{ boxShadow: "0 4px 40px rgba(168,85,247,0.08)" }}>
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-purple-500/60 to-transparent" />
-            <div className="p-6 sm:p-8">
-              <div className="flex flex-col lg:flex-row lg:items-start gap-8">
+        {/* Match Views — spans full bottom row with monthly chart */}
+        {(() => {
+          const maxViews = Math.max(...stats.monthlyMatchViews.map((m) => m.views), 1);
+          const liveViews = stats.totalMatchViews - stats.archivedMatchViews;
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          return (
+            <div
+              className="col-span-2 sm:col-span-3 relative rounded-2xl overflow-hidden border transition-all duration-300"
+              style={{
+                borderColor: "rgba(168,85,247,0.25)",
+                background: "linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(13,17,23,0.95) 100%)",
+                boxShadow: "0 4px 24px rgba(168,85,247,0.10)",
+              }}
+            >
+              <div className="absolute inset-x-0 top-0 h-0.5" style={{ background: "linear-gradient(90deg, transparent, #A855F7, transparent)" }} />
+              <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-5">
 
-                {/* Left — totals */}
-                <div className="shrink-0">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Eye className="w-4 h-4 text-purple-400" />
-                    <span className="text-sm font-bold text-white/60 uppercase tracking-widest">Match Views</span>
+                {/* Left — icon + numbers */}
+                <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(168,85,247,0.15)" }}>
+                    <Eye className="w-5 h-5 text-purple-400" />
                   </div>
-                  <div className="text-6xl font-black text-white leading-none tracking-tight" style={{ color: "#A855F7" }}>
-                    {fmt(stats.totalMatchViews)}
+                  <div className="sm:mt-3">
+                    <div className="text-3xl font-black tracking-tight text-purple-400">{fmt(stats.totalMatchViews)}</div>
+                    <p className="text-sm font-bold text-white mt-0.5">Match Views</p>
+                    <p className="text-xs text-purple-400/60 mt-0.5">all time · preserved on delete</p>
                   </div>
-                  <p className="text-white/40 text-sm mt-2">total video plays (all time)</p>
-
-                  <div className="flex gap-4 mt-5">
-                    <div className="rounded-xl border border-purple-500/20 bg-purple-500/8 px-4 py-3">
-                      <div className="text-xl font-black text-purple-300">{fmt(liveViews)}</div>
-                      <div className="text-[11px] text-white/40 mt-0.5">Active matches</div>
+                  <div className="hidden sm:flex gap-3 mt-4">
+                    <div className="rounded-lg border border-purple-500/20 bg-purple-500/8 px-3 py-1.5 text-center">
+                      <div className="text-base font-black text-purple-300">{fmt(liveViews)}</div>
+                      <div className="text-[10px] text-white/40">Active</div>
                     </div>
-                    <div className="rounded-xl border border-white/10 bg-white/4 px-4 py-3">
-                      <div className="text-xl font-black text-white/60">{fmt(stats.archivedMatchViews)}</div>
-                      <div className="text-[11px] text-white/40 mt-0.5">Deleted matches</div>
+                    <div className="rounded-lg border border-white/8 bg-white/4 px-3 py-1.5 text-center">
+                      <div className="text-base font-black text-white/50">{fmt(stats.archivedMatchViews)}</div>
+                      <div className="text-[10px] text-white/40">Archived</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Right — monthly bar chart */}
+                {/* Divider */}
+                <div className="hidden sm:block w-px self-stretch bg-white/6 mx-2" />
+
+                {/* Right — bar chart */}
                 <div className="flex-1">
-                  <p className="text-xs text-white/40 font-semibold uppercase tracking-wider mb-4">Last 6 months</p>
-                  <div className="flex items-end gap-3 h-28">
+                  <p className="text-[10px] text-white/35 font-bold uppercase tracking-widest mb-3">Monthly views — last 6 months</p>
+                  <div className="flex items-end gap-2 sm:gap-3" style={{ height: "72px" }}>
                     {stats.monthlyMatchViews.map((m) => {
                       const pct = Math.max(4, Math.round((m.views / maxViews) * 100));
-                      const isCurrent = m.month === new Date().toISOString().slice(0, 7);
+                      const isCurrent = m.month === currentMonth;
                       return (
-                        <div key={m.month} className="flex-1 flex flex-col items-center gap-1.5 group">
-                          <span className="text-[10px] font-bold text-white/50 group-hover:text-white transition-colors">
-                            {m.views > 0 ? fmt(m.views) : "—"}
+                        <div key={m.month} className="flex-1 flex flex-col items-center gap-1 group/bar h-full justify-end">
+                          <span className="text-[9px] font-bold text-white/40 group-hover/bar:text-white/80 transition-colors leading-none mb-1">
+                            {m.views > 0 ? fmt(m.views) : "·"}
                           </span>
-                          <div className="w-full rounded-t-lg relative overflow-hidden" style={{ height: "72px" }}>
-                            <div
-                              className="absolute bottom-0 w-full rounded-t-lg transition-all duration-700"
-                              style={{
-                                height: `${pct}%`,
-                                background: isCurrent
-                                  ? "linear-gradient(180deg,#A855F7,#7C3AED)"
-                                  : "linear-gradient(180deg,rgba(168,85,247,0.5),rgba(124,58,237,0.3))",
-                                boxShadow: isCurrent ? "0 -4px 12px rgba(168,85,247,0.4)" : "none",
-                              }}
-                            />
-                          </div>
-                          <span className={`text-[10px] font-bold ${isCurrent ? "text-purple-400" : "text-white/35"}`}>{m.label}</span>
+                          <div className="w-full rounded-t-md" style={{
+                            height: `${pct}%`,
+                            background: isCurrent
+                              ? "linear-gradient(180deg,#A855F7,#7C3AED)"
+                              : "linear-gradient(180deg,rgba(168,85,247,0.45),rgba(124,58,237,0.20))",
+                            boxShadow: isCurrent ? "0 -4px 10px rgba(168,85,247,0.35)" : "none",
+                            transition: "all 0.5s ease",
+                          }} />
+                          <span className={`text-[9px] font-bold mt-1 ${isCurrent ? "text-purple-400" : "text-white/30"}`}>{m.label}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <p className="text-[10px] text-white/25 mt-3">Views are tracked in real-time and preserved even after matches are deleted.</p>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
+      </div>
 
       {/* ── Live Viewers ── */}
       <LiveViewersWidget />
