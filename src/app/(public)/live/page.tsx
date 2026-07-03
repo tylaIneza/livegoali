@@ -11,7 +11,8 @@ import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { AdBanner } from "@/components/AdBanner";
 import { HomeRefresher } from "@/components/HomeRefresher";
-import { format, isToday, isTomorrow } from "date-fns";
+import { LocalTime } from "@/components/LocalTime";
+import { isToday, isTomorrow } from "date-fns";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -374,18 +375,19 @@ export default async function LivePage() {
                   const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
                   const mIsSolo = ["formula1"].includes(mSportSlug ?? "");
                   const mHasTwoSides = mIsFootball || (!mIsSolo && !!match.participant1 && !!match.participant2);
-                  const kickoffTime = format(new Date(match.scheduledAt), "HH:mm");
+                  const isoScheduled = String(match.scheduledAt);
                   const kickoffDay = isToday(new Date(match.scheduledAt)) ? "Today"
                     : isTomorrow(new Date(match.scheduledAt)) ? "Tomorrow"
-                    : format(new Date(match.scheduledAt), "EEE d MMM");
+                    : null;
 
                   return (
                     <Link key={match.id} href={`/match/${match.slug}`} className="block group/match">
                       <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/3 transition-colors">
                         {/* Time */}
                         <div className="w-14 shrink-0 text-center">
-                          <div className="text-sm font-black text-white/80 group-hover/match:text-white transition-colors tabular-nums">{kickoffTime}</div>
-                          <div className="text-[9px] text-white/35 font-semibold mt-0.5">{kickoffDay}</div>
+                          <LocalTime iso={isoScheduled} format="time" className="text-sm font-black text-white/80 group-hover/match:text-white transition-colors tabular-nums" />
+                          {kickoffDay && <div className="text-[9px] text-white/35 font-semibold mt-0.5">{kickoffDay}</div>}
+                          {!kickoffDay && <LocalTime iso={isoScheduled} format="date" className="text-[9px] text-white/35 font-semibold mt-0.5" />}
                         </div>
 
                         {/* League icon */}

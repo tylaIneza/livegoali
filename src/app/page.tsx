@@ -9,9 +9,10 @@ import { Footer } from "@/components/layout/Footer";
 import { Play, Radio, Clock, Calendar, ChevronRight, Wifi, Star, Zap } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
+import { LocalTime } from "@/components/LocalTime";
 import { AdBanner } from "@/components/AdBanner";
 import { HomeRefresher } from "@/components/HomeRefresher";
-import { format, isToday, isTomorrow } from "date-fns";
+import { isToday, isTomorrow, format } from "date-fns";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -365,9 +366,7 @@ export default async function HomePage() {
                 {upcomingMatches.filter((m) => m.isFeatured).length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {upcomingMatches.filter((m) => m.isFeatured).map((match) => {
-                      const kickoff = match.scheduledAt
-                        ? new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(match.scheduledAt))
-                        : "TBD";
+                      const kickoff = match.scheduledAt ? String(match.scheduledAt) : null;
                       const hasTeams = !!(match.participant1 && match.participant2);
                       return (
                         <Link
@@ -389,7 +388,7 @@ export default async function HomePage() {
                                 ) : null}
                                 <span className="text-xs text-white/60 truncate">{match.league?.name ?? match.sport?.name ?? "Event"}</span>
                               </div>
-                              <span className="text-[10px] text-yellow-400/80 font-semibold bg-yellow-500/10 px-2 py-0.5 rounded-lg shrink-0">{kickoff}</span>
+                              {kickoff && <LocalTime iso={kickoff} format="full" className="text-[10px] text-yellow-400/80 font-semibold bg-yellow-500/10 px-2 py-0.5 rounded-lg shrink-0" />}
                             </div>
                             {hasTeams ? (
                               <div className="flex items-center gap-3">
@@ -467,9 +466,7 @@ export default async function HomePage() {
                                     <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
                                       {/* Time */}
                                       <div className="w-11 shrink-0 text-center">
-                                        <span className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums">
-                                          {format(new Date(match.scheduledAt), "HH:mm")}
-                                        </span>
+                                        <LocalTime iso={String(match.scheduledAt)} format="time" className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums" />
                                       </div>
 
                                       {mHasTwoSides ? (

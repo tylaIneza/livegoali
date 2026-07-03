@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Brain, Target, TrendingUp, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatMatchDate } from "@/lib/utils";
+import { LocalTime } from "@/components/LocalTime";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -134,7 +134,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
           </div>
           <div className="flex items-center gap-2">
             {isLive && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold">LIVE</span>}
-            <span className="text-xs text-white/60">{formatMatchDate(match.scheduledAt)}</span>
+            <LocalTime iso={String(match.scheduledAt)} format="full" className="text-xs text-white/60" />
           </div>
         </div>
 

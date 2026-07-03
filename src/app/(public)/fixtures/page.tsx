@@ -6,7 +6,8 @@ import Image from "next/image";
 import { Calendar, ChevronLeft, ChevronRight, Wifi } from "lucide-react";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
-import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns";
+import { LocalTime } from "@/components/LocalTime";
+import { addDays, subDays, isToday, isTomorrow, isYesterday, format } from "date-fns";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -250,9 +251,7 @@ export default async function FixturesPage({
                             ) : isFinished ? (
                               <span className="text-xs text-white/50 font-bold">FT</span>
                             ) : (
-                              <span className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums">
-                                {format(new Date(match.scheduledAt), "HH:mm")}
-                              </span>
+                              <LocalTime iso={String(match.scheduledAt)} format="time" className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums" />
                             )}
                           </div>
 

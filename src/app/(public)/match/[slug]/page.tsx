@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { Button } from "@/components/ui/button";
 import { Play, TrendingUp } from "lucide-react";
-import { formatMatchDate } from "@/lib/utils";
+import { LocalTime } from "@/components/LocalTime";
 import type { Metadata } from "next";
 
 interface Props {
@@ -91,7 +91,7 @@ export default async function MatchPage({ params }: Props) {
           {isLive ? (
             <LiveBadge minute={match.matchMinute} status={match.status} />
           ) : (
-            <span className="text-sm text-white/70">{formatMatchDate(match.scheduledAt)}</span>
+            <span className="text-sm text-white/70"><LocalTime iso={String(match.scheduledAt)} format="full" /></span>
           )}
         </div>
 
@@ -125,7 +125,7 @@ export default async function MatchPage({ params }: Props) {
                 ) : (
                   <div className="text-5xl font-black text-white/60 mb-2">VS</div>
                 )}
-                <div className="text-sm text-white/70">{formatMatchDate(match.scheduledAt)}</div>
+                <div className="text-sm text-white/70"><LocalTime iso={String(match.scheduledAt)} format="full" /></div>
               </div>
               {match.awayTeam?.slug ? (
                 <Link href={`/team/${match.awayTeam.slug}`} className="flex flex-col items-center gap-3 group">
@@ -159,7 +159,7 @@ export default async function MatchPage({ params }: Props) {
               <div className="flex flex-col items-center gap-2 shrink-0">
                 {match.sport?.icon && <span className="text-4xl leading-none">{match.sport.icon}</span>}
                 <div className="text-3xl font-black text-white/50">VS</div>
-                <div className="text-xs text-white/50">{formatMatchDate(match.scheduledAt)}</div>
+                <div className="text-xs text-white/50"><LocalTime iso={String(match.scheduledAt)} format="full" /></div>
               </div>
               <div className="flex flex-col items-center gap-3 flex-1 min-w-0">
                 <div className="w-20 h-20 rounded-full bg-blue-500/10 border-2 border-blue-500/25 flex items-center justify-center">
@@ -178,7 +178,7 @@ export default async function MatchPage({ params }: Props) {
                 </div>
                 {match.sport?.name && <div className="text-sm text-white/50 mt-1">{match.sport.name}</div>}
               </div>
-              <div className="text-sm text-white/60">{formatMatchDate(match.scheduledAt)}</div>
+              <div className="text-sm text-white/60"><LocalTime iso={String(match.scheduledAt)} format="full" /></div>
             </div>
           )}
 
