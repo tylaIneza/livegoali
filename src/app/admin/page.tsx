@@ -226,7 +226,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Stat Cards + Match Views (all in one grid) ── */}
+      {/* ── Stat Cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {statCards.map((s) => (
           <Link
@@ -259,76 +259,46 @@ export default async function AdminDashboard() {
           </Link>
         ))}
 
-        {/* Match Views — spans full bottom row with monthly chart */}
+        {/* Match Views card — same size as others */}
         {(() => {
           const maxViews = Math.max(...stats.monthlyMatchViews.map((m) => m.views), 1);
-          const liveViews = stats.totalMatchViews - stats.archivedMatchViews;
           const currentMonth = new Date().toISOString().slice(0, 7);
           return (
-            <div
-              className="col-span-2 sm:col-span-3 relative rounded-2xl overflow-hidden border transition-all duration-300"
+            <Link
+              href="/admin/matches"
+              className="group relative rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-0.5"
               style={{
                 borderColor: "rgba(168,85,247,0.25)",
-                background: "linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(13,17,23,0.95) 100%)",
+                background: "linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(168,85,247,0.03) 100%)",
                 boxShadow: "0 4px 24px rgba(168,85,247,0.10)",
               }}
             >
               <div className="absolute inset-x-0 top-0 h-0.5" style={{ background: "linear-gradient(90deg, transparent, #A855F7, transparent)" }} />
-              <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-5">
-
-                {/* Left — icon + numbers */}
-                <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-0">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(168,85,247,0.15)" }}>
+              <div className="p-5">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: "rgba(168,85,247,0.15)" }}>
                     <Eye className="w-5 h-5 text-purple-400" />
                   </div>
-                  <div className="sm:mt-3">
-                    <div className="text-3xl font-black tracking-tight text-purple-400">{fmt(stats.totalMatchViews)}</div>
-                    <p className="text-sm font-bold text-white mt-0.5">Match Views</p>
-                    <p className="text-xs text-purple-400/60 mt-0.5">all time · preserved on delete</p>
-                  </div>
-                  <div className="hidden sm:flex gap-3 mt-4">
-                    <div className="rounded-lg border border-purple-500/20 bg-purple-500/8 px-3 py-1.5 text-center">
-                      <div className="text-base font-black text-purple-300">{fmt(liveViews)}</div>
-                      <div className="text-[10px] text-white/40">Active</div>
-                    </div>
-                    <div className="rounded-lg border border-white/8 bg-white/4 px-3 py-1.5 text-center">
-                      <div className="text-base font-black text-white/50">{fmt(stats.archivedMatchViews)}</div>
-                      <div className="text-[10px] text-white/40">Archived</div>
-                    </div>
-                  </div>
+                  <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-white/50 transition-colors" />
                 </div>
-
-                {/* Divider */}
-                <div className="hidden sm:block w-px self-stretch bg-white/6 mx-2" />
-
-                {/* Right — bar chart */}
-                <div className="flex-1">
-                  <p className="text-[10px] text-white/35 font-bold uppercase tracking-widest mb-3">Monthly views — last 6 months</p>
-                  <div className="flex items-end gap-2 sm:gap-3" style={{ height: "72px" }}>
-                    {stats.monthlyMatchViews.map((m) => {
-                      const pct = Math.max(4, Math.round((m.views / maxViews) * 100));
-                      const isCurrent = m.month === currentMonth;
-                      return (
-                        <div key={m.month} className="flex-1 flex flex-col items-center gap-1 group/bar h-full justify-end">
-                          <span className="text-[9px] font-bold text-white/40 group-hover/bar:text-white/80 transition-colors leading-none mb-1">
-                            {m.views > 0 ? fmt(m.views) : "·"}
-                          </span>
-                          <div className="w-full rounded-t-md" style={{
-                            height: `${pct}%`,
-                            background: isCurrent
-                              ? "linear-gradient(180deg,#A855F7,#7C3AED)"
-                              : "linear-gradient(180deg,rgba(168,85,247,0.45),rgba(124,58,237,0.20))",
-                            boxShadow: isCurrent ? "0 -4px 10px rgba(168,85,247,0.35)" : "none",
-                            transition: "all 0.5s ease",
-                          }} />
-                          <span className={`text-[9px] font-bold mt-1 ${isCurrent ? "text-purple-400" : "text-white/30"}`}>{m.label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                <div className="text-3xl font-black tracking-tight text-purple-400">{fmt(stats.totalMatchViews)}</div>
+                <p className="text-sm font-bold text-white mt-1">Match Views</p>
+                <p className="text-xs text-purple-400/60 mt-0.5">total · never lost on delete</p>
+                {/* Mini sparkline */}
+                <div className="flex items-end gap-1 mt-4" style={{ height: "28px" }}>
+                  {stats.monthlyMatchViews.map((m) => {
+                    const pct = Math.max(10, Math.round((m.views / maxViews) * 100));
+                    const isCurrent = m.month === currentMonth;
+                    return (
+                      <div key={m.month} className="flex-1 rounded-t-sm" style={{
+                        height: `${pct}%`,
+                        background: isCurrent ? "#A855F7" : "rgba(168,85,247,0.30)",
+                      }} />
+                    );
+                  })}
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })()}
       </div>
