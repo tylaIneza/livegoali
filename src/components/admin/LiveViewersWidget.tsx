@@ -11,6 +11,12 @@ interface MatchViewers {
   guests: number;
 }
 
+const fmt = (n: number) => {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toString();
+};
+
 export function LiveViewersWidget() {
   const [data, setData] = useState<MatchViewers[]>([]);
 
@@ -31,75 +37,105 @@ export function LiveViewersWidget() {
   const total = data.reduce((s, m) => s + m.total, 0);
   const totalUsers = data.reduce((s, m) => s + m.users, 0);
   const totalGuests = data.reduce((s, m) => s + m.guests, 0);
-  const userPct = total > 0 ? Math.round((totalUsers / total) * 100) : 0;
 
-  const fmt = (n: number) => {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-    return n.toString();
-  };
+  const cards = [
+    {
+      label: "Total Viewers",
+      value: fmt(total),
+      icon: Eye,
+      color: "#EF4444",
+      bg: "rgba(239,68,68,0.10)",
+      border: "rgba(239,68,68,0.20)",
+      glow: "rgba(239,68,68,0.12)",
+      badge: (
+        <span className="flex items-center gap-1 text-[10px] text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/20 px-2 py-0.5 rounded-full font-bold">
+          <Wifi className="w-2.5 h-2.5" /> Live
+        </span>
+      ),
+      pulse: true,
+    },
+    {
+      label: "Signed In",
+      value: fmt(totalUsers),
+      icon: UserCheck,
+      color: "#00FF84",
+      bg: "rgba(0,255,132,0.08)",
+      border: "rgba(0,255,132,0.18)",
+      glow: "rgba(0,255,132,0.10)",
+    },
+    {
+      label: "Guests",
+      value: fmt(totalGuests),
+      icon: UserX,
+      color: "#EAB308",
+      bg: "rgba(234,179,8,0.08)",
+      border: "rgba(234,179,8,0.18)",
+      glow: "rgba(234,179,8,0.10)",
+    },
+    {
+      label: "Live Matches",
+      value: data.length.toString(),
+      icon: Radio,
+      color: "#A855F7",
+      bg: "rgba(168,85,247,0.08)",
+      border: "rgba(168,85,247,0.18)",
+      glow: "rgba(168,85,247,0.10)",
+      pulse: true,
+    },
+  ];
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-red-500/20 bg-gradient-to-br from-red-500/8 to-[#0D1117]"
-      style={{ boxShadow: "0 4px 40px rgba(239,68,68,0.08)" }}>
-      {/* Top accent */}
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 px-1">
+        <span className="w-2 h-2 rounded-full bg-red-500 live-pulse shrink-0" />
+        <span className="text-sm font-bold text-white/70 uppercase tracking-widest">Live Viewers</span>
+        <span className="flex items-center gap-1 text-[10px] text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/20 px-2 py-0.5 rounded-full font-bold ml-1">
+          <Wifi className="w-2.5 h-2.5" /> Real-time
+        </span>
+      </div>
 
-      <div className="p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              className="relative rounded-2xl overflow-hidden p-5 flex flex-col gap-3 border transition-all duration-300"
+              style={{
+                background: card.bg,
+                borderColor: card.border,
+                boxShadow: `0 4px 24px ${card.glow}`,
+              }}
+            >
+              {/* Top accent line */}
+              <div
+                className="absolute inset-x-0 top-0 h-0.5"
+                style={{ background: `linear-gradient(90deg, transparent, ${card.color}, transparent)` }}
+              />
 
-          {/* Left — big number */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 live-pulse shrink-0" />
-              <span className="text-sm font-bold text-white/70 uppercase tracking-widest">Live Viewers</span>
-              <span className="flex items-center gap-1 text-[10px] text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/20 px-2 py-0.5 rounded-full font-bold">
-                <Wifi className="w-2.5 h-2.5" /> Real-time
-              </span>
-            </div>
-            <div className="flex items-end gap-3">
-              <Eye className="w-8 h-8 text-red-400 mb-1 shrink-0" />
-              <span className="text-6xl sm:text-7xl font-black text-white leading-none tracking-tight">{fmt(total)}</span>
-              <span className="text-white/40 text-base mb-2">watching</span>
-            </div>
-          </div>
-
-          {/* Right — breakdown */}
-          <div className="flex flex-col gap-4 sm:min-w-[220px]">
-            {/* Progress bar */}
-            <div>
-              <div className="flex justify-between text-xs text-white/50 mb-1.5">
-                <span>Signed in vs Guests</span>
-                <span>{userPct}% / {100 - userPct}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-white/6 overflow-hidden">
+              {/* Icon + badge row */}
+              <div className="flex items-start justify-between">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#00FF84] to-[#00CC6A] transition-all duration-700"
-                  style={{ width: `${userPct}%` }}
-                />
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: card.bg, border: `1px solid ${card.border}` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: card.color }} />
+                </div>
+                {card.pulse && (
+                  <span className="w-2 h-2 rounded-full mt-1 shrink-0" style={{ background: card.color, boxShadow: `0 0 6px ${card.color}` }} />
+                )}
               </div>
-            </div>
 
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl bg-[#00FF84]/8 border border-[#00FF84]/15 p-3 text-center">
-                <UserCheck className="w-4 h-4 text-[#00FF84] mx-auto mb-1" />
-                <div className="text-lg font-black text-[#00FF84]">{fmt(totalUsers)}</div>
-                <div className="text-[10px] text-white/50">Signed in</div>
-              </div>
-              <div className="rounded-xl bg-yellow-500/8 border border-yellow-500/15 p-3 text-center">
-                <UserX className="w-4 h-4 text-yellow-400 mx-auto mb-1" />
-                <div className="text-lg font-black text-yellow-400">{fmt(totalGuests)}</div>
-                <div className="text-[10px] text-white/50">Guests</div>
-              </div>
-              <div className="rounded-xl bg-red-500/8 border border-red-500/15 p-3 text-center">
-                <Radio className="w-4 h-4 text-red-400 mx-auto mb-1" />
-                <div className="text-lg font-black text-red-400">{data.length}</div>
-                <div className="text-[10px] text-white/50">Matches</div>
+              {/* Value */}
+              <div>
+                <div className="text-3xl font-black leading-none" style={{ color: card.color }}>
+                  {card.value}
+                </div>
+                <div className="text-xs text-white/50 font-medium mt-1.5">{card.label}</div>
               </div>
             </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
