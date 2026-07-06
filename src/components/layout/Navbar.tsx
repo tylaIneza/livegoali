@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, Search, Bell, User, ChevronDown,
   Shield, LogOut, Settings, Star, Tv, Trophy,
-  Newspaper, BarChart3, Zap
+  Newspaper, BarChart3, Zap, MonitorPlay
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +27,7 @@ type SearchResults = {
 
 const navLinks = [
   { href: "/live", label: "Live", icon: Zap, badge: "LIVE" },
+  { href: "/live-tv", label: "Live TV", icon: MonitorPlay, badge: "24/7" },
   { href: "/fixtures", label: "Fixtures", icon: Tv },
   { href: "/predictions", label: "Predictions", icon: Trophy },
   { href: "/news", label: "News", icon: Newspaper },

@@ -77,7 +77,14 @@ async function lookupAndRecordCountry(ip: string): Promise<void> {
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, matchId } = await req.json();
+    const { type, matchId, channelId } = await req.json();
+
+    if (type === "channel" && channelId) {
+      prisma.channel.update({
+        where: { id: channelId },
+        data: { views: { increment: 1 } },
+      }).catch(() => {});
+    }
 
     if (type === "match" && matchId) {
       let isUser = false;

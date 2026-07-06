@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Trophy, Radio, Users, Newspaper,
   TrendingUp, Megaphone, Settings, ChevronLeft, Menu,
   Shield, BarChart3, Star, Bell, RefreshCw, Dumbbell,
-  LogOut, ExternalLink, Globe,
+  LogOut, ExternalLink, Globe, MonitorPlay,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -23,6 +23,7 @@ const navItems = [
   { href: "/admin/matches",       label: "Matches",        icon: Trophy,          color: "#EF4444", group: "content" },
   { href: "/admin/leagues",       label: "Leagues",        icon: Star,            color: "#EAB308", group: "content" },
   { href: "/admin/streams",       label: "Streams",        icon: Radio,           color: "#EC4899", group: "content" },
+  { href: "/admin/channels",      label: "Live TV",        icon: MonitorPlay,     color: "#22D3EE", group: "content" },
   { href: "/admin/predictions",   label: "Predictions",    icon: TrendingUp,      color: "#8B5CF6", group: "content" },
   { href: "/admin/news",          label: "News",           icon: Newspaper,       color: "#3B82F6", group: "content" },
   { href: "/admin/countries",     label: "Countries",      icon: Globe,           color: "#00FF84", group: "manage", adminOnly: true },
