@@ -57,7 +57,7 @@ export function LiveGoaliPlayer({
   matchMinute,
 }: PlayerProps) {
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
-  const [extracting, setExtracting] = useState(false);
+  const [extractFailed, setExtractFailed] = useState(false);
   const videoRef       = useRef<HTMLVideoElement>(null);
   const hlsRef         = useRef<Hls | null>(null);
   const containerRef   = useRef<HTMLDivElement>(null);
@@ -87,18 +87,18 @@ export function LiveGoaliPlayer({
   const effectiveUrl   = resolvedUrl ?? (isWebpage ? null : rawUrl);
   const isMounted      = () => mountedRef.current;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _extracting = extracting; // keep linter happy — used indirectly via setExtracting
-
   useEffect(() => {
     if (!rawUrl || !isWebpage) return;
     setResolvedUrl(null);
-    setExtracting(true);
+    setExtractFailed(false);
     fetch(`/api/stream/extract?url=${encodeURIComponent(rawUrl)}`)
       .then((r) => r.json())
-      .then((data) => { if (mountedRef.current && data.url) setResolvedUrl(data.url); })
-      .catch(() => {})
-      .finally(() => { if (mountedRef.current) setExtracting(false); });
+      .then((data) => {
+        if (!mountedRef.current) return;
+        if (data.url) setResolvedUrl(data.url);
+        else setExtractFailed(true);
+      })
+      .catch(() => { if (mountedRef.current) setExtractFailed(true); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawUrl]);
 
@@ -345,8 +345,24 @@ export function LiveGoaliPlayer({
     </div>
   );
 
-  // ── IFRAME EMBED ────────────────────────────────────────────────────
-  if (isWebpage && !resolvedUrl) {
+  // ── RESOLVING STREAM ─────────────────────────────────────────────────
+  // Try to resolve a direct stream URL first; only fall back to the (slower,
+  // ad-laden) iframe embed if extraction actually fails.
+  if (isWebpage && !resolvedUrl && !extractFailed) {
+    return (
+      <div ref={containerRef} className="relative rounded-2xl overflow-hidden aspect-video bg-[#080C10] flex flex-col items-center justify-center gap-5">
+        <div className="relative w-14 h-14">
+          <div className="absolute inset-0 rounded-full border-2 border-white/8" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#00FF84] animate-spin" />
+        </div>
+        <p className="text-white/40 text-xs">Connecting to stream…</p>
+        <Watermark />
+      </div>
+    );
+  }
+
+  // ── IFRAME EMBED (fallback) ──────────────────────────────────────────
+  if (isWebpage && !resolvedUrl && extractFailed) {
     return (
       <div ref={containerRef} className="relative rounded-2xl overflow-hidden aspect-video bg-[#080C10] group">
         <iframe

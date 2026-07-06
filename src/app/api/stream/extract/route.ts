@@ -1,4 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
+
+const RESULT_TTL = 300; // seconds — how long a resolved stream URL stays cached
+const NEGATIVE_TTL = 30; // seconds — how long a failed extraction is cached, to avoid hammering broken pages
+const LOCK_TTL = 8; // seconds — must cover the fetch timeout below
+const WAIT_FOR_LOCK_MS = 6000; // how long a waiter polls before doing the fetch itself
+const FETCH_TIMEOUT_MS = 4000;
+
+type ExtractResult =
+  | { url: string; alternatives: string[]; type: "hls" | "dash"; source_page: string }
+  | { error: string };
+
+function cacheKey(url: string) {
+  return `stream:extract:${url}`;
+}
+
+function lockKey(url: string) {
+  return `stream:extract:lock:${url}`;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 // Patterns to find HLS/stream URLs inside webpage source
 const STREAM_PATTERNS = [
@@ -43,23 +66,10 @@ function extractStreamUrls(html: string): string[] {
   });
 }
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const targetUrl = searchParams.get("url");
-
-  if (!targetUrl) {
-    return NextResponse.json({ error: "url parameter required" }, { status: 400 });
-  }
-
-  // If it's already a direct stream, return it immediately
-  const lower = targetUrl.toLowerCase();
-  if (lower.includes(".m3u8") || lower.includes(".mpd")) {
-    return NextResponse.json({ url: targetUrl, type: "direct" });
-  }
-
+async function performExtraction(targetUrl: string): Promise<ExtractResult> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
     const response = await fetch(targetUrl, {
       signal: controller.signal,
@@ -76,33 +86,77 @@ export async function GET(req: NextRequest) {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: `Page returned ${response.status}` },
-        { status: 502 }
-      );
+      return { error: `Page returned ${response.status}` };
     }
 
     const html = await response.text();
     const urls = extractStreamUrls(html);
 
     if (urls.length === 0) {
-      return NextResponse.json(
-        { error: "No stream URL found on this page", html_length: html.length },
-        { status: 404 }
-      );
+      return { error: "No stream URL found on this page" };
     }
 
-    return NextResponse.json({
+    return {
       url: urls[0],
       alternatives: urls.slice(1, 5),
       type: urls[0].includes(".mpd") ? "dash" : "hls",
       source_page: targetUrl,
-    });
+    };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json(
-      { error: `Failed to fetch page: ${message}` },
-      { status: 502 }
-    );
+    return { error: `Failed to fetch page: ${message}` };
   }
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const targetUrl = searchParams.get("url");
+
+  if (!targetUrl) {
+    return NextResponse.json({ error: "url parameter required" }, { status: 400 });
+  }
+
+  // If it's already a direct stream, return it immediately — no scraping needed
+  const lower = targetUrl.toLowerCase();
+  if (lower.includes(".m3u8") || lower.includes(".mpd")) {
+    return NextResponse.json({ url: targetUrl, type: "direct" });
+  }
+
+  const key = cacheKey(targetUrl);
+
+  // Fast path: already resolved (or already known-broken) — no scrape, no lock.
+  const cached = await cacheGet<ExtractResult>(key);
+  if (cached) {
+    return NextResponse.json(cached, { status: "error" in cached ? 502 : 200 });
+  }
+
+  // Only one request per source URL should actually scrape it at a time.
+  const gotLock = await acquireLock(lockKey(targetUrl), LOCK_TTL);
+
+  if (gotLock) {
+    try {
+      const result = await performExtraction(targetUrl);
+      await cacheSet(key, result, "error" in result ? NEGATIVE_TTL : RESULT_TTL);
+      return NextResponse.json(result, { status: "error" in result ? 502 : 200 });
+    } finally {
+      await releaseLock(lockKey(targetUrl));
+    }
+  }
+
+  // Someone else is already scraping this URL — wait briefly for their result
+  // instead of duplicating the work.
+  const deadline = Date.now() + WAIT_FOR_LOCK_MS;
+  while (Date.now() < deadline) {
+    await sleep(300);
+    const result = await cacheGet<ExtractResult>(key);
+    if (result) {
+      return NextResponse.json(result, { status: "error" in result ? 502 : 200 });
+    }
+  }
+
+  // The other request is taking unusually long — fall back to doing it ourselves
+  // rather than making the client wait indefinitely.
+  const result = await performExtraction(targetUrl);
+  await cacheSet(key, result, "error" in result ? NEGATIVE_TTL : RESULT_TTL);
+  return NextResponse.json(result, { status: "error" in result ? 502 : 200 });
 }

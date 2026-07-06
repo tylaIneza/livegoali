@@ -57,3 +57,19 @@ export async function cacheDelPattern(pattern: string): Promise<void> {
     // silent fail
   }
 }
+
+// Simple mutual-exclusion lock so concurrent requests for the same key
+// don't all do the expensive work at once (cache stampede protection).
+export async function acquireLock(key: string, ttlSeconds: number): Promise<boolean> {
+  try {
+    const result = await redis.set(key, "1", "EX", ttlSeconds, "NX");
+    return result === "OK";
+  } catch {
+    // Redis unavailable — allow the caller to proceed rather than block it.
+    return true;
+  }
+}
+
+export async function releaseLock(key: string): Promise<void> {
+  await cacheDel(key);
+}

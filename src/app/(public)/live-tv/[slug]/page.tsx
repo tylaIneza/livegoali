@@ -76,7 +76,7 @@ export default async function LiveTvChannelPage({ params }: Props) {
         </div>
 
         {/* Player */}
-        <div className="rounded-2xl overflow-hidden border border-white/6 shadow-2xl">
+        <div className="rounded-2xl overflow-hidden border border-white/6 shadow-2xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl lg:mx-auto">
           <LiveGoaliPlayer
             streams={channel.sources}
             matchTitle={channel.name}
