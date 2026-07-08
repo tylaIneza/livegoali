@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MessageSquare, Play, Camera, Globe, Tv } from "lucide-react";
+import { TelegramIcon, TELEGRAM_URL } from "@/components/icons/TelegramIcon";
 
 const footerLinks = {
   Platform: [
@@ -51,6 +52,15 @@ export function Footer() {
               Watch Football Live. Anytime. Anywhere. Your ultimate destination for live football streaming, predictions, and statistics.
             </p>
             <div className="flex items-center gap-3">
+              <a
+                href={TELEGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Join our Telegram support group"
+                className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#2AABEE] to-[#229ED9] flex items-center justify-center text-white shadow-[0_0_16px_rgba(42,171,238,0.35)] hover:scale-110 transition-transform duration-200"
+              >
+                <TelegramIcon className="w-4 h-4" />
+              </a>
               {[
                 { icon: MessageSquare, href: "#" },
                 { icon: Play, href: "#" },

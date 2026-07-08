@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Mail, Briefcase, Shield, Clock, AlertCircle } from "lucide-react";
+import { Mail, Briefcase, Shield, Clock, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { TelegramIcon, TELEGRAM_URL } from "@/components/icons/TelegramIcon";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -18,6 +19,34 @@ export default function ContactPage() {
       </div>
 
       <div className="space-y-6">
+
+        {/* Telegram Support Group — fastest way to get help */}
+        <a
+          href={TELEGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative block overflow-hidden rounded-2xl border border-[#2AABEE]/30 bg-gradient-to-br from-[#17222f] to-[#121821] p-6 transition-all duration-300 hover:border-[#2AABEE]/60 hover:shadow-[0_0_40px_rgba(42,171,238,0.15)]"
+        >
+          <div className="pointer-events-none absolute -right-10 -top-10 w-40 h-40 rounded-full bg-[#2AABEE]/10 blur-2xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-[#2AABEE] to-[#229ED9] flex items-center justify-center shadow-[0_0_24px_rgba(42,171,238,0.4)]">
+              <TelegramIcon className="w-7 h-7 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <h2 className="text-white font-bold">Join Our Telegram Support Group</h2>
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#00FF84]/10 text-[#00FF84] text-[10px] font-bold px-2 py-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] live-pulse" />
+                  LIVE
+                </span>
+              </div>
+              <p className="text-white/70 text-sm">
+                Get instant help, stream links, and updates directly from our team and community — fastest way to reach us.
+              </p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-[#2AABEE] shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+          </div>
+        </a>
 
         {/* Get in Touch */}
         <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">

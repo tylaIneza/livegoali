@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { TelegramIcon, TELEGRAM_URL } from "@/components/icons/TelegramIcon";
 
 type SearchResults = {
   matches: Array<{
@@ -118,6 +119,19 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
+            {/* Telegram Support */}
+            <a
+              href={TELEGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Join our Telegram support group"
+              className="group relative flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2AABEE] to-[#229ED9] pl-2 pr-2 md:pr-3 py-2 text-white shadow-[0_0_14px_rgba(42,171,238,0.4)] transition-all duration-200 hover:shadow-[0_0_22px_rgba(42,171,238,0.65)] hover:scale-105 active:scale-95"
+            >
+              <span className="absolute inset-0 rounded-full bg-[#2AABEE]/40 animate-ping [animation-duration:2.4s] group-hover:hidden" />
+              <TelegramIcon className="relative w-4 h-4 shrink-0" />
+              <span className="relative hidden md:inline text-xs font-bold tracking-wide">Talk to Us</span>
+            </a>
+
             {/* Search */}
             <div ref={searchRef} className="relative hidden md:block">
               <button
@@ -320,6 +334,22 @@ export function Navbar() {
             className="md:hidden border-t border-white/8 bg-[#0B0F14]"
           >
             <div className="px-4 py-4 space-y-1">
+              <a
+                href={TELEGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 mb-2 rounded-xl border border-[#2AABEE]/30 bg-gradient-to-r from-[#2AABEE]/15 to-[#229ED9]/10 hover:from-[#2AABEE]/25 hover:to-[#229ED9]/15 transition-all"
+              >
+                <span className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2AABEE] to-[#229ED9] flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(42,171,238,0.5)]">
+                  <TelegramIcon className="w-4 h-4 text-white" />
+                </span>
+                <span className="font-semibold text-sm text-white">Telegram Support</span>
+                <span className="ml-auto inline-flex items-center gap-1 text-[10px] bg-[#00FF84]/10 text-[#00FF84] px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] live-pulse" />
+                  LIVE
+                </span>
+              </a>
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
