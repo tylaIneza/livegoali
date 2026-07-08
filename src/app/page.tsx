@@ -454,8 +454,8 @@ export default async function HomePage() {
                               </div>
                             )}
 
-                            {/* Match rows */}
-                            <div className="divide-y divide-white/4">
+                            {/* Match cards */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
                               {leagueMatches.map((match) => {
                                 const mSportSlug = match.sport?.slug ?? null;
                                 const SOLO_U = ["formula1"];
@@ -463,49 +463,57 @@ export default async function HomePage() {
                                 const mIsSolo = SOLO_U.includes(mSportSlug ?? "");
                                 const mHasTwoSides = !mIsSolo && (mIsFootball || (!!match.participant1 && !!match.participant2));
                                 return (
-                                  <Link key={match.id} href={`/match/${match.slug}`} className="block group/match">
-                                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-white/3 transition-colors">
-                                      {/* Time */}
-                                      <div className="w-11 shrink-0 text-center">
-                                        <LocalTime iso={String(match.scheduledAt)} format="time" className="text-sm font-black text-white/70 group-hover/match:text-white transition-colors tabular-nums" />
-                                      </div>
+                                  <Link
+                                    key={match.id}
+                                    href={`/match/${match.slug}`}
+                                    className="group/match block rounded-2xl border border-white/12 bg-[#11151c] hover:border-white/25 hover:bg-[#141920] transition-colors duration-200"
+                                  >
+                                    {/* Date + countdown */}
+                                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/8">
+                                      <LocalTime
+                                        iso={String(match.scheduledAt)}
+                                        format="full"
+                                        className="text-xs font-semibold text-white/60"
+                                      />
+                                      <CountdownTimer
+                                        scheduledAt={match.scheduledAt}
+                                        className="text-xs font-bold text-[#00FF84] tabular-nums whitespace-nowrap"
+                                      />
+                                    </div>
 
+                                    <div className="px-4 py-4">
                                       {mHasTwoSides ? (
-                                        /* Two-sided match: two-column with VS, logos for any sport with teams */
-                                        <>
-                                          <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                                            <span className="text-sm font-semibold text-gray-200 truncate text-right group-hover/match:text-white transition-colors">
+                                        /* Two-sided match: side-by-side, logo above name, "vs" centered */
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                                            {!!match.homeTeam && <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? ""} size={32} />}
+                                            <span className="text-xs font-bold text-white text-center leading-tight truncate w-full">
                                               {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
                                             </span>
-                                            {!!match.homeTeam && <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? ""} size={26} />}
                                           </div>
-                                          <div className="shrink-0 w-8 text-center">
-                                            <span className="text-[10px] font-black text-white/30">VS</span>
-                                          </div>
-                                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                                            {!!match.awayTeam && <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? ""} size={26} />}
-                                            <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
+                                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest shrink-0">vs</span>
+                                          <div className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                                            {!!match.awayTeam && <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? ""} size={32} />}
+                                            <span className="text-xs font-bold text-white text-center leading-tight truncate w-full">
                                               {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
                                             </span>
                                           </div>
-                                        </>
+                                        </div>
                                       ) : (
                                         /* Solo event: F1 — show sport icon + title */
-                                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                                          {match.sport?.icon && <span className="text-base leading-none shrink-0">{match.sport.icon}</span>}
-                                          <span className="text-sm font-semibold text-gray-200 truncate group-hover/match:text-white transition-colors">
+                                        <div className="flex items-center gap-2.5 min-w-0">
+                                          {match.sport?.icon && <span className="text-2xl leading-none shrink-0">{match.sport.icon}</span>}
+                                          <span className="text-sm font-bold text-white truncate">
                                             {match.title ?? match.participant1 ?? "Event"}
                                           </span>
                                         </div>
                                       )}
+                                    </div>
 
-                                      {/* Countdown */}
-                                      <div className="shrink-0">
-                                        <CountdownTimer
-                                          scheduledAt={match.scheduledAt}
-                                          className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
-                                        />
-                                      </div>
+                                    <div className="px-4 py-3 border-t border-white/8">
+                                      <span className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg border border-white/15 text-xs font-bold text-white/80 group-hover/match:border-[#00FF84]/50 group-hover/match:text-[#00FF84] transition-colors">
+                                        Match Details <ChevronRight className="w-3.5 h-3.5" />
+                                      </span>
                                     </div>
                                   </Link>
                                 );

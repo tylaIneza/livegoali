@@ -73,18 +73,18 @@ async function main() {
 
   // Premier League teams
   const plTeams = await Promise.all([
-    { name: "Arsenal", slug: "arsenal", shortName: "ARS" },
-    { name: "Manchester City", slug: "manchester-city", shortName: "MCI" },
-    { name: "Liverpool", slug: "liverpool", shortName: "LIV" },
-    { name: "Chelsea", slug: "chelsea", shortName: "CHE" },
-    { name: "Manchester United", slug: "manchester-united", shortName: "MNU" },
-    { name: "Tottenham Hotspur", slug: "tottenham-hotspur", shortName: "TOT" },
-    { name: "Newcastle United", slug: "newcastle-united", shortName: "NEW" },
-    { name: "Aston Villa", slug: "aston-villa", shortName: "AVL" },
+    { name: "Arsenal", slug: "arsenal", shortName: "ARS", logo: "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg" },
+    { name: "Manchester City", slug: "manchester-city", shortName: "MCI", logo: "https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_badge.svg" },
+    { name: "Liverpool", slug: "liverpool", shortName: "LIV", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
+    { name: "Chelsea", slug: "chelsea", shortName: "CHE", logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" },
+    { name: "Manchester United", slug: "manchester-united", shortName: "MNU", logo: "https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg" },
+    { name: "Tottenham Hotspur", slug: "tottenham-hotspur", shortName: "TOT", logo: "https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg" },
+    { name: "Newcastle United", slug: "newcastle-united", shortName: "NEW", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Newcastle_United_Logo.svg" },
+    { name: "Aston Villa", slug: "aston-villa", shortName: "AVL", logo: "https://upload.wikimedia.org/wikipedia/en/9/9a/Aston_Villa_FC_new_crest.svg" },
   ].map((t) =>
     prisma.team.upsert({
       where: { slug: t.slug },
-      update: {},
+      update: { logo: t.logo },
       create: { ...t, country: "England", leagueId: leagues[0].id },
     })
   ));

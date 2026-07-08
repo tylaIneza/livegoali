@@ -18,18 +18,18 @@ async function main() {
 
   // ── Extra PL teams ──────────────────────────────────────────────
   const extraTeams = await Promise.all([
-    { name: "Liverpool", slug: "liverpool", shortName: "LIV" },
-    { name: "Chelsea", slug: "chelsea", shortName: "CHE" },
-    { name: "Real Madrid", slug: "real-madrid", shortName: "RMA" },
-    { name: "Barcelona", slug: "barcelona", shortName: "BAR" },
-    { name: "Bayern Munich", slug: "bayern-munich", shortName: "BAY" },
-    { name: "Borussia Dortmund", slug: "borussia-dortmund", shortName: "BVB" },
-    { name: "Inter Milan", slug: "inter-milan", shortName: "INT" },
-    { name: "AC Milan", slug: "ac-milan", shortName: "MIL" },
-    { name: "Paris Saint-Germain", slug: "paris-saint-germain", shortName: "PSG" },
-    { name: "Atletico Madrid", slug: "atletico-madrid", shortName: "ATM" },
-    { name: "Juventus", slug: "juventus", shortName: "JUV" },
-    { name: "Napoli", slug: "napoli", shortName: "NAP" },
+    { name: "Liverpool", slug: "liverpool", shortName: "LIV", logo: "https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg" },
+    { name: "Chelsea", slug: "chelsea", shortName: "CHE", logo: "https://upload.wikimedia.org/wikipedia/en/c/cc/Chelsea_FC.svg" },
+    { name: "Real Madrid", slug: "real-madrid", shortName: "RMA", logo: "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" },
+    { name: "Barcelona", slug: "barcelona", shortName: "BAR", logo: "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg" },
+    { name: "Bayern Munich", slug: "bayern-munich", shortName: "BAY", logo: "https://upload.wikimedia.org/wikipedia/commons/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg" },
+    { name: "Borussia Dortmund", slug: "borussia-dortmund", shortName: "BVB", logo: "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg" },
+    { name: "Inter Milan", slug: "inter-milan", shortName: "INT", logo: "https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg" },
+    { name: "AC Milan", slug: "ac-milan", shortName: "MIL", logo: "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg" },
+    { name: "Paris Saint-Germain", slug: "paris-saint-germain", shortName: "PSG", logo: "https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg" },
+    { name: "Atletico Madrid", slug: "atletico-madrid", shortName: "ATM", logo: "https://upload.wikimedia.org/wikipedia/en/f/f9/Atletico_Madrid_Logo_2024.svg" },
+    { name: "Juventus", slug: "juventus", shortName: "JUV", logo: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Juventus_FC_-_logo_black_%28Italy%2C_2020%29.svg" },
+    { name: "Napoli", slug: "napoli", shortName: "NAP", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4d/SSC_Napoli_2025_%28white_and_azure%29.svg" },
   ].map(async (t) => {
     const leagueId =
       ["real-madrid","barcelona","atletico-madrid"].includes(t.slug) ? laliga?.id :
@@ -40,7 +40,7 @@ async function main() {
 
     return prisma.team.upsert({
       where: { slug: t.slug },
-      update: {},
+      update: { logo: t.logo },
       create: { ...t, country: "World", leagueId: leagueId ?? null },
     });
   }));
