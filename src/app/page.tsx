@@ -384,7 +384,7 @@ export default async function HomePage() {
                                   <Star className="w-2.5 h-2.5 fill-yellow-400" /> FEATURED
                                 </span>
                                 {match.league?.logo ? (
-                                  <Image src={match.league.logo} alt={match.league.name} width={14} height={14} className="object-contain" />
+                                  <Image src={match.league.logo} alt={match.league.name} width={14} height={14} style={{ width: 14, height: 14 }} className="object-contain" />
                                 ) : match.sport?.icon ? (
                                   <span className="text-xs">{match.sport.icon}</span>
                                 ) : null}
@@ -438,7 +438,7 @@ export default async function HomePage() {
                               <Link href={`/league/${league.slug}`} className="block group/league">
                                 <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-white/5 bg-[#121821]/60 hover:bg-[#1a2235]/60 transition-colors">
                                   {league.logo ? (
-                                    <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
+                                    <Image src={league.logo} alt={league.name} width={18} height={18} style={{ width: 18, height: 18 }} className="object-contain shrink-0" />
                                   ) : (
                                     <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
                                   )}

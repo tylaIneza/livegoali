@@ -220,7 +220,7 @@ export default async function LivePage() {
                               </span>
                             )}
                             {match.league?.logo ? (
-                              <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain shrink-0" />
+                              <Image src={match.league.logo} alt={match.league.name} width={16} height={16} style={{ width: 16, height: 16 }} className="object-contain shrink-0" />
                             ) : match.sport?.icon ? (
                               <span className="text-sm leading-none shrink-0">{match.sport.icon}</span>
                             ) : null}
@@ -383,7 +383,7 @@ export default async function LivePage() {
                         {/* League icon */}
                         <div className="shrink-0 w-5 flex items-center justify-center">
                           {match.league?.logo ? (
-                            <Image src={match.league.logo} alt={match.league.name} width={18} height={18} className="object-contain" />
+                            <Image src={match.league.logo} alt={match.league.name} width={18} height={18} style={{ width: 18, height: 18 }} className="object-contain" />
                           ) : match.sport?.icon ? (
                             <span className="text-base leading-none">{match.sport.icon}</span>
                           ) : (
