@@ -59,7 +59,7 @@ export default function ContactPage() {
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">General Support</p>
                 <p className="text-white/70 text-xs mb-1">For general questions, account assistance, or website support</p>
-                <a href="mailto:support@livegoali.com" className="text-[#00FF84] text-sm hover:underline">support@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
 
@@ -72,7 +72,7 @@ export default function ContactPage() {
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">Business &amp; Partnerships</p>
                 <p className="text-white/70 text-xs mb-1">For advertising opportunities, sponsorships, partnerships, or business-related inquiries</p>
-                <a href="mailto:business@livegoali.com" className="text-[#00FF84] text-sm hover:underline">business@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
 
@@ -85,7 +85,7 @@ export default function ContactPage() {
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">Copyright &amp; Legal Requests</p>
                 <p className="text-white/70 text-xs mb-1">For copyright concerns, intellectual property issues, or legal inquiries</p>
-                <a href="mailto:legal@livegoali.com" className="text-[#00FF84] text-sm hover:underline">legal@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
           </div>

@@ -215,7 +215,7 @@ export default function PrivacyPage() {
           <div className="space-y-1.5 text-sm">
             <p className="font-semibold text-white">LiveGoali</p>
             <p className="text-white/75">Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
-            <p className="text-white/75">Email: <a href="mailto:support@livegoali.com" className="text-[#00FF84] hover:underline">support@livegoali.com</a></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
             <p className="text-white/75">Contact Page: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
           </div>
         </div>

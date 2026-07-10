@@ -62,12 +62,12 @@ export default function CareersPage() {
             Send us your CV and a short note about yourself and what you&apos;d like to work on.
           </p>
           <a
-            href="mailto:support@livegoali.com?subject=Career%20Enquiry"
+            href="mailto:hello@livegoali.com?subject=Career%20Enquiry"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00FF84]/90 transition-colors"
           >
             Send Your CV
           </a>
-          <p className="text-white/60 text-xs mt-3">support@livegoali.com</p>
+          <p className="text-white/60 text-xs mt-3">hello@livegoali.com</p>
         </div>
       </div>
 

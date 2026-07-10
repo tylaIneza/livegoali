@@ -51,6 +51,12 @@ export function Footer() {
             <p className="text-white/75 text-sm leading-relaxed mb-6 max-w-xs">
               Watch Football Live. Anytime. Anywhere. Your ultimate destination for live football streaming, predictions, and statistics.
             </p>
+            <a
+              href="mailto:hello@livegoali.com"
+              className="text-sm text-white/75 hover:text-[#00FF84] transition-colors duration-150 mb-6 inline-block"
+            >
+              hello@livegoali.com
+            </a>
             <div className="flex items-center gap-3">
               <a
                 href={TELEGRAM_URL}

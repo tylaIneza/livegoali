@@ -190,7 +190,7 @@ export default function TermsPage() {
               <div className="space-y-1">
                 <p className="font-semibold text-white">LiveGoali</p>
                 <p>Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
-                <p>Email: <a href="mailto:support@livegoali.com" className="text-[#00FF84] hover:underline">support@livegoali.com</a></p>
+                <p>Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
                 <p>Contact Page: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
               </div>
             ),

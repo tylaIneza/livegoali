@@ -70,12 +70,12 @@ export default function AdvertisePage() {
         <h2 className="text-xl font-black text-white mb-2">Ready to advertise?</h2>
         <p className="text-white/75 text-sm mb-5">Contact our partnerships team to discuss rates, formats, and campaign options.</p>
         <a
-          href="mailto:business@livegoali.com"
+          href="mailto:hello@livegoali.com"
           className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00FF84]/90 transition-colors"
         >
           Get in Touch
         </a>
-        <p className="text-white/60 text-xs mt-3">business@livegoali.com</p>
+        <p className="text-white/60 text-xs mt-3">hello@livegoali.com</p>
       </div>
 
       <div className="mt-8 text-center">

@@ -53,7 +53,7 @@ export default function DmcaPage() {
           <p className="text-white/75 text-sm mb-4">Send your completed DMCA notice to our legal team:</p>
           <div className="space-y-1.5 text-sm">
             <p className="font-semibold text-white">LiveGoali — Legal Department</p>
-            <p className="text-white/75">Email: <a href="mailto:legal@livegoali.com" className="text-[#00FF84] hover:underline">legal@livegoali.com</a></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
             <p className="text-white/75">Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function DmcaPage() {
             <li>A statement that you consent to the jurisdiction of the relevant courts.</li>
             <li>Your physical or electronic signature.</li>
           </ul>
-          <p className="text-white/75 text-sm">Send counter-notices to: <a href="mailto:legal@livegoali.com" className="text-[#00FF84] hover:underline">legal@livegoali.com</a></p>
+          <p className="text-white/75 text-sm">Send counter-notices to: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
         </div>
 
         <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">

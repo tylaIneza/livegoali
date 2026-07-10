@@ -115,7 +115,7 @@ export default function CookiesPage() {
           <h2 className="text-white font-bold mb-3">Contact Us</h2>
           <p className="text-white/75 text-sm mb-3">If you have questions about our use of cookies, please contact us:</p>
           <div className="space-y-1 text-sm">
-            <p className="text-white/75">Email: <a href="mailto:support@livegoali.com" className="text-[#00FF84] hover:underline">support@livegoali.com</a></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
             <p className="text-white/75">Contact: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
           </div>
         </div>
