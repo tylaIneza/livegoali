@@ -7,6 +7,7 @@ import { Play, TrendingUp, Clock } from "lucide-react";
 import { LiveBadge } from "./LiveBadge";
 import { Button } from "@/components/ui/button";
 import { formatMatchDate } from "@/lib/utils";
+import { prefetchStreamForMatch } from "@/lib/prefetchStream";
 import type { MatchWithTeams } from "@/types";
 
 interface MatchCardProps {
@@ -22,7 +23,11 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
 
   if (variant === "compact") {
     return (
-      <Link href={isLive ? `/live/${match.id}` : `/match/${match.slug}`}>
+      <Link
+        href={isLive ? `/live/${match.id}` : `/match/${match.slug}`}
+        onMouseEnter={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
+        onTouchStart={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
+      >
         <motion.div
           whileHover={{ scale: 1.01 }}
           className="flex items-center gap-4 p-3 rounded-xl border border-white/8 bg-[#121821]/60 backdrop-blur-md hover:border-[#00FF84]/30 hover:bg-[#1a2235]/70 transition-all duration-200 cursor-pointer"
@@ -175,7 +180,11 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
         <div className="flex gap-2 mt-4">
           {isLive ? (
             <Button size="sm" className="flex-1 text-xs" asChild>
-              <Link href={`/live/${match.id}`}>
+              <Link
+                href={`/live/${match.id}`}
+                onMouseEnter={() => prefetchStreamForMatch(match.id)}
+                onTouchStart={() => prefetchStreamForMatch(match.id)}
+              >
                 <Play className="w-3 h-3" />
                 Watch Live
               </Link>

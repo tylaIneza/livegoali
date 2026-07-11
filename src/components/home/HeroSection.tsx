@@ -7,6 +7,7 @@ import { Play, Clock, ArrowRight, Zap, Calendar, TrendingUp } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { formatMatchDate } from "@/lib/utils";
+import { prefetchStreamForMatch } from "@/lib/prefetchStream";
 
 interface Match {
   id: string;
@@ -240,7 +241,11 @@ function FeaturedLiveCard({ match }: { match: Match }) {
         {/* Actions */}
         <div className="flex gap-3">
           <Button size="lg" className="flex-1" asChild>
-            <Link href={`/live/${match.id}`}><Play className="w-4 h-4" />Watch Live</Link>
+            <Link
+              href={`/live/${match.id}`}
+              onMouseEnter={() => prefetchStreamForMatch(match.id)}
+              onTouchStart={() => prefetchStreamForMatch(match.id)}
+            ><Play className="w-4 h-4" />Watch Live</Link>
           </Button>
           <Button variant="outline" size="lg" asChild>
             <Link href={`/match/${match.slug}`}>Stats</Link>
@@ -308,7 +313,11 @@ function FeaturedUpcomingCard({ match }: { match: Match }) {
 function SideMatchCard({ match, isLive }: { match: Match; isLive: boolean }) {
   const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
   return (
-    <Link href={href}>
+    <Link
+      href={href}
+      onMouseEnter={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
+      onTouchStart={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
+    >
       <div className={`p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${
         isLive
           ? "border-red-500/20 bg-red-500/5 hover:border-red-500/35 hover:bg-red-500/8"

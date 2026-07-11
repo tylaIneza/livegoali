@@ -102,6 +102,21 @@ export function LiveGoaliPlayer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawUrl]);
 
+  // Warm the DNS/TCP/TLS connection to the CDN as soon as we know its origin,
+  // so hls.js's manifest request doesn't pay for a cold handshake.
+  useEffect(() => {
+    if (!effectiveUrl) return;
+    let origin: string;
+    try { origin = new URL(effectiveUrl).origin; } catch { return; }
+
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = origin;
+    link.crossOrigin = "anonymous";
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, [effectiveUrl]);
+
   const switchToNextStream = useCallback((currentIndex: number) => {
     if (!isMounted()) return;
     const next = currentIndex + 1;
