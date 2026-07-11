@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   robots: { index: true, follow: true },
+  other: adsenseClientId ? { "google-adsense-account": adsenseClientId } : undefined,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
