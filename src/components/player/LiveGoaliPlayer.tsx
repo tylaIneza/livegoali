@@ -525,7 +525,7 @@ export function LiveGoaliPlayer({
               <div className="absolute inset-2 rounded-full border border-transparent border-t-[#00FF84]/30 animate-spin" style={{ animationDuration: "1.5s", animationDirection: "reverse" }} />
             </div>
             <div className="text-center">
-              <p className="text-white font-semibold text-sm">{isLoading ? "Loading stream…" : "Buffering…"}</p>
+              <p className="text-white font-semibold text-sm">{isLoading ? "Loading from LiveGoali…" : "Buffering…"}</p>
               {hasMatchInfo && (
                 <p className="text-white/40 text-xs mt-1 truncate max-w-xs">{displayTitle}</p>
               )}
