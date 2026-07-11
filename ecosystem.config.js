@@ -11,6 +11,10 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
+        // Raise libuv's threadpool above the default of 4 so concurrent
+        // blocking work (bcrypt hashing, DNS, some fs calls) doesn't queue
+        // up under higher connection counts.
+        UV_THREADPOOL_SIZE: "16",
       },
       error_file: "logs/web-error.log",
       out_file: "logs/web-out.log",
@@ -28,6 +32,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         SOCKET_PORT: 3001,
+        UV_THREADPOOL_SIZE: "16",
       },
       error_file: "logs/socket-error.log",
       out_file: "logs/socket-out.log",
