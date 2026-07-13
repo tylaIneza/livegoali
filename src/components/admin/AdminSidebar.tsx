@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Trophy, Radio, Users, Newspaper,
   TrendingUp, Megaphone, Settings, ChevronLeft, Menu,
   Shield, BarChart3, Star, Bell, RefreshCw, Dumbbell,
-  LogOut, ExternalLink, Globe, MonitorPlay,
+  LogOut, ExternalLink, Globe, MonitorPlay, Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types";
@@ -30,6 +30,7 @@ const navItems = [
   { href: "/admin/users",         label: "Users",          icon: Users,           color: "#06B6D4", group: "manage", adminOnly: true },
   { href: "/admin/ads",           label: "Advertisements", icon: Megaphone,       color: "#A855F7", group: "manage", adminOnly: true },
   { href: "/admin/sync",          label: "Data Sync",      icon: RefreshCw,       color: "#14B8A6", group: "manage", adminOnly: true },
+  { href: "/admin/team-mappings", label: "Team Mappings",  icon: Link2,           color: "#F472B6", group: "manage", adminOnly: true },
   { href: "/admin/analytics",     label: "Analytics",      icon: BarChart3,       color: "#00FF84", group: "system" },
   { href: "/admin/notifications", label: "Notifications",  icon: Bell,            color: "#F59E0B", group: "system" },
   { href: "/admin/settings",      label: "Settings",       icon: Settings,        color: "#94A3B8", group: "system", adminOnly: true },

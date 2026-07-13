@@ -4,6 +4,7 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import Redis from "ioredis";
 import { randomBytes } from "crypto";
 import { prisma } from "../lib/prisma";
+import { runLiveScoreSync } from "../lib/sync-livescore";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -421,15 +422,26 @@ async function autoLiveMatches() {
   }
 }
 
+// ── Livescore live-score polling (unofficial API — see livescoreService.ts) ──
+async function livescoreTick() {
+  try {
+    await runLiveScoreSync(io);
+  } catch (err) {
+    console.error("[livescore] sync error:", err);
+  }
+}
+
 resetViewerCounts().then(() => {
   autoLiveMatches();
   flushVisitCounters();
   flushAdViews();
   flushMatchViews();
+  livescoreTick();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
   setInterval(flushAdViews, 60_000);
   setInterval(flushMatchViews, 60_000);
+  setInterval(livescoreTick, 60_000);
 });
 
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;

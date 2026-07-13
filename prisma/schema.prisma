@@ -186,12 +186,13 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  league      League?    @relation(fields: [leagueId], references: [id])
-  homeMatches Match[]    @relation("HomeTeam")
-  awayMatches Match[]    @relation("AwayTeam")
+  league      League?      @relation(fields: [leagueId], references: [id])
+  homeMatches Match[]      @relation("HomeTeam")
+  awayMatches Match[]      @relation("AwayTeam")
   players     Player[]
   standings   Standing[]
   favorites   Favorite[]
+  teamMapping TeamMapping?
 
   @@index([slug])
   @@index([leagueId])
@@ -270,6 +271,7 @@ model Match {
   chatMessages      LiveChatMessage[]
   prediction        Prediction?
   predictionEntries PredictionEntry[]
+  scoreSnapshot     MatchScoreSnapshot?
 
   @@index([slug])
   @@index([sportId])
@@ -654,4 +656,38 @@ model Settings {
   key       String   @unique
   value     String   @db.Text
   updatedAt DateTime @updatedAt
+}
+
+// ── Livescore integration ──────────────────────────────────────────────────
+// Maps our internal Team records to Livescore's (unofficial, reverse-engineered
+// prod-public-api.livescore.com) team IDs, so live scores can be matched reliably.
+// Seeded manually via /admin/team-mappings — never auto-generated with guessed IDs.
+model TeamMapping {
+  id            String   @id @default(cuid())
+  teamId        String   @unique
+  livescoreId   String   @unique
+  livescoreName String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@index([livescoreId])
+}
+
+// Persists the last known score per Livescore match ID so the polling job can
+// detect goals across restarts instead of relying on in-memory state.
+model MatchScoreSnapshot {
+  id          String   @id @default(cuid())
+  livescoreId String   @unique
+  matchId     String?  @unique
+  homeScore   Int      @default(0)
+  awayScore   Int      @default(0)
+  status      String // raw Livescore status string (e.g. "1H", "HT", "FT") — kept unmapped for debugging
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  match Match? @relation(fields: [matchId], references: [id], onDelete: SetNull)
+
+  @@index([matchId])
 }
