@@ -34,15 +34,13 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-[#0B0F14]/60 backdrop-blur-md border-t border-white/8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="bg-background/60 backdrop-blur-md border-t border-white/8">
+      <div className="max-w-content mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center font-black text-[#0B0F14] text-sm">
-                LG
-              </div>
+              <img src="/livegoali.png" alt="LiveGoali" className="w-10 h-10 object-contain" />
               <span className="text-xl font-black">
                 <span className="text-gradient">Live</span>
                 <span className="text-white">Goali</span>
@@ -53,7 +51,7 @@ export function Footer() {
             </p>
             <a
               href="mailto:hello@livegoali.com"
-              className="text-sm text-white/75 hover:text-[#00FF84] transition-colors duration-150 mb-6 inline-block"
+              className="text-sm text-white/75 hover:text-primary transition-colors duration-150 mb-6 inline-block"
             >
               hello@livegoali.com
             </a>
@@ -76,7 +74,7 @@ export function Footer() {
                 <a
                   key={i}
                   href={href}
-                  className="w-9 h-9 rounded-lg bg-[#1F2937] flex items-center justify-center text-white/75 hover:text-[#00FF84] hover:bg-[#00FF84]/10 transition-all duration-200"
+                  className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-white/75 hover:text-primary hover:bg-primary/10 transition-all duration-200"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -93,7 +91,7 @@ export function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-sm text-white/75 hover:text-[#00FF84] transition-colors duration-150"
+                      className="text-sm text-white/75 hover:text-primary transition-colors duration-150"
                     >
                       {link.label}
                     </Link>
@@ -109,7 +107,7 @@ export function Footer() {
             © {new Date().getFullYear()} LiveGoali. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-white/70 text-sm">
-            <Tv className="w-4 h-4 text-[#00FF84]" />
+            <Tv className="w-4 h-4 text-primary" />
             <span>Watch Football Live. Anytime. Anywhere.</span>
           </div>
         </div>

@@ -1,35 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Menu, X, Search, Bell, User, ChevronDown,
-  Shield, LogOut, Settings, Star, Tv, Trophy,
-  Newspaper, BarChart3, Zap, MonitorPlay
+  Menu, X, Bell, User, ChevronDown,
+  Shield, LogOut, Settings, Star,
+  Trophy, Newspaper, BarChart3, MonitorPlay,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { SearchBar } from "@/components/search/SearchBar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { TelegramIcon, TELEGRAM_URL } from "@/components/icons/TelegramIcon";
 
-type SearchResults = {
-  matches: Array<{
-    id: string; slug: string; status: string;
-    homeTeam: { name: string; logo: string | null; shortName: string | null };
-    awayTeam: { name: string; logo: string | null; shortName: string | null };
-    league: { name: string };
-  }>;
-  teams: Array<{ id: string; name: string; slug: string; logo: string | null; country: string | null }>;
-  leagues: Array<{ id: string; name: string; slug: string; logo: string | null; country: string }>;
-};
-
 const navLinks = [
-  { href: "/live", label: "Live", icon: Zap, badge: "LIVE" },
-  { href: "/live-tv", label: "Live TV", icon: MonitorPlay, badge: "24/7" },
-  { href: "/fixtures", label: "Fixtures", icon: Tv },
+  { href: "/", label: "Home" },
+  { href: "/live", label: "Live Matches" },
+  { href: "/fixtures", label: "Schedule" },
+  { href: "/fixtures?sport=football", label: "Football" },
+  { href: "/fixtures?sport=basketball", label: "Basketball" },
+  { href: "/fixtures?sport=formula1", label: "Formula 1" },
+  { href: "/fixtures?sport=ufc", label: "UFC" },
+];
+
+const moreLinks = [
+  { href: "/live-tv", label: "Live TV", icon: MonitorPlay },
   { href: "/predictions", label: "Predictions", icon: Trophy },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/leagues", label: "Leagues", icon: BarChart3 },
@@ -37,216 +36,127 @@ const navLinks = [
 
 export function Navbar() {
   const { data: session } = useSession();
+  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResults | null>(null);
-  const [searching, setSearching] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
 
-  const doSearch = useCallback(async (q: string) => {
-    if (q.length < 2) { setResults(null); return; }
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      if (!res.ok) { setResults(null); return; }
-      const data = await res.json();
-      setResults(data);
-    } catch {
-      setResults(null);
-    } finally {
-      setSearching(false);
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 30);
     }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const t = setTimeout(() => doSearch(query), 300);
-    return () => clearTimeout(t);
-  }, [query, doSearch]);
-
-  useEffect(() => {
-    if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
-  }, [searchOpen]);
-
-  useEffect(() => {
     function onClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-        setQuery("");
-        setResults(null);
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
       }
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  const hasResults = results && (results.matches.length + results.teams.length + results.leagues.length) > 0;
-  const noResults = results && !hasResults && query.length >= 2 && !searching;
+  const isActive = (href: string) => {
+    const path = href.split("?")[0];
+    if (path === "/") return pathname === "/";
+    return pathname === path && !href.includes("?");
+  };
 
   return (
-    <nav className="sticky top-0 z-50 glass-dark border-b border-white/8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <nav
+      className={`sticky top-0 z-50 navbar-transition border-b ${
+        scrolled ? "glass-dark border-white/8" : "bg-transparent border-transparent"
+      }`}
+    >
+      <div className="max-w-content mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group shrink-0">
-            <img src="/livegoali.png" alt="LiveGoali" className="w-7 h-7 sm:w-9 sm:h-9 object-contain group-hover:scale-105 transition-transform duration-200" />
-            <span className="text-base sm:text-xl font-black tracking-tight">
-              <span className="text-gradient">Live</span>
-              <span className="text-white">Goali</span>
-            </span>
+            <img src="/livegoali.png" alt="LiveGoali" className="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-105 transition-transform duration-200" />
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1 shrink-0">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-150 group"
+                className={`relative px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+                  isActive(link.href) ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
               >
-                <link.icon className="w-4 h-4 group-hover:text-[#00FF84] transition-colors" />
                 {link.label}
-                {link.badge && (
-                  <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold live-pulse">
-                    {link.badge}
-                  </span>
+                {isActive(link.href) && (
+                  <motion.span
+                    layoutId="navbar-active-indicator"
+                    className="absolute left-3 right-3 -bottom-[1px] h-0.5 rounded-full bg-primary"
+                  />
                 )}
               </Link>
             ))}
+
+            {/* More dropdown */}
+            <div ref={moreRef} className="relative">
+              <button
+                onClick={() => setMoreOpen((p) => !p)}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-all duration-150"
+              >
+                More <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+              </button>
+              <AnimatePresence>
+                {moreOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-0 top-full mt-2 w-48 glass rounded-xl shadow-xl border border-white/10 overflow-hidden p-1"
+                  >
+                    {moreLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMoreOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        <link.icon className="w-4 h-4" />
+                        {link.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Centered Search (desktop) */}
+          <div className="hidden md:flex flex-1 justify-center max-w-xs mx-auto">
+            <SearchBar variant="desktop" />
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Telegram Support */}
             <a
               href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Join our Telegram support group"
-              className="group relative flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2AABEE] to-[#229ED9] pl-2 pr-2 md:pr-3 py-2 text-white shadow-[0_0_14px_rgba(42,171,238,0.4)] transition-all duration-200 hover:shadow-[0_0_22px_rgba(42,171,238,0.65)] hover:scale-105 active:scale-95"
+              className="hidden lg:flex group relative items-center gap-1.5 rounded-full bg-gradient-to-r from-[#2AABEE] to-[#229ED9] pl-2 pr-3 py-2 text-white shadow-[0_0_14px_rgba(42,171,238,0.4)] transition-all duration-200 hover:shadow-[0_0_22px_rgba(42,171,238,0.65)] hover:scale-105 active:scale-95"
             >
               <span className="absolute inset-0 rounded-full bg-[#2AABEE]/40 animate-ping [animation-duration:2.4s] group-hover:hidden" />
               <TelegramIcon className="relative w-4 h-4 shrink-0" />
-              <span className="relative hidden md:inline text-xs font-bold tracking-wide">Talk to Us</span>
+              <span className="relative text-xs font-bold tracking-wide">Talk to Us</span>
             </a>
 
-            {/* Search */}
-            <div ref={searchRef} className="relative hidden md:block">
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-lg text-white/75 hover:text-white hover:bg-white/5 transition-all"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-
-              <AnimatePresence>
-                {searchOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-80 glass rounded-xl shadow-xl border border-white/10 overflow-hidden z-50"
-                  >
-                    <div className="flex items-center gap-2 px-3 py-2.5 border-b border-white/8">
-                      <Search className="w-4 h-4 text-white/60 shrink-0" />
-                      <input
-                        ref={inputRef}
-                        value={query}
-                        onChange={e => setQuery(e.target.value)}
-                        placeholder="Search matches, teams, leagues…"
-                        className="flex-1 bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
-                      />
-                      {query && (
-                        <button onClick={() => { setQuery(""); setResults(null); }} className="text-white/40 hover:text-white">
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-
-                    {searching && (
-                      <div className="px-4 py-6 text-center text-sm text-white/50">Searching…</div>
-                    )}
-
-                    {noResults && (
-                      <div className="px-4 py-6 text-center text-sm text-white/50">No results for "{query}"</div>
-                    )}
-
-                    {hasResults && (
-                      <div className="py-1 max-h-96 overflow-y-auto">
-                        {results!.matches.length > 0 && (
-                          <>
-                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Matches</p>
-                            {results!.matches.map(m => (
-                              <Link
-                                key={m.id}
-                                href={m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.id}` : `/match/${m.slug}`}
-                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
-                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
-                              >
-                                <span className="text-xs text-white/60 w-8 shrink-0">{m.status === "LIVE" || m.status === "HALFTIME" ? <span className="text-[#00FF84] font-bold">LIVE</span> : "vs"}</span>
-                                <span className="text-sm text-white truncate">{m.homeTeam.shortName || m.homeTeam.name} vs {m.awayTeam.shortName || m.awayTeam.name}</span>
-                                <span className="ml-auto text-xs text-white/40 shrink-0 truncate max-w-[80px]">{m.league.name}</span>
-                              </Link>
-                            ))}
-                          </>
-                        )}
-
-                        {results!.teams.length > 0 && (
-                          <>
-                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Teams</p>
-                            {results!.teams.map(t => (
-                              <Link
-                                key={t.id}
-                                href={`/team/${t.slug}`}
-                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
-                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
-                              >
-                                {t.logo ? (
-                                  <Image src={t.logo} alt={t.name} width={20} height={20} className="object-contain rounded-sm shrink-0" />
-                                ) : (
-                                  <div className="w-5 h-5 rounded-full bg-[#1F2937] flex items-center justify-center text-[10px] text-[#00FF84] font-bold shrink-0">{t.name[0]}</div>
-                                )}
-                                <span className="text-sm text-white truncate">{t.name}</span>
-                                {t.country && <span className="ml-auto text-xs text-white/40 shrink-0">{t.country}</span>}
-                              </Link>
-                            ))}
-                          </>
-                        )}
-
-                        {results!.leagues.length > 0 && (
-                          <>
-                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Leagues</p>
-                            {results!.leagues.map(l => (
-                              <Link
-                                key={l.id}
-                                href={`/league/${l.slug}`}
-                                onClick={() => { setSearchOpen(false); setQuery(""); setResults(null); }}
-                                className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors"
-                              >
-                                {l.logo ? (
-                                  <Image src={l.logo} alt={l.name} width={20} height={20} className="object-contain rounded-sm shrink-0" />
-                                ) : (
-                                  <Trophy className="w-4 h-4 text-yellow-400 shrink-0" />
-                                )}
-                                <span className="text-sm text-white truncate">{l.name}</span>
-                                <span className="ml-auto text-xs text-white/40 shrink-0">{l.country}</span>
-                              </Link>
-                            ))}
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {!query && !results && (
-                      <div className="px-4 py-5 text-center text-sm text-white/40">Type to search matches, teams or leagues</div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Notifications */}
+            <NotificationBell />
 
             {session ? (
               <div className="relative">
@@ -254,7 +164,7 @@ export function Navbar() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-white/5 transition-all duration-150"
                 >
-                  <Avatar className="w-8 h-8 ring-2 ring-[#00FF84]/30">
+                  <Avatar className="w-8 h-8 ring-2 ring-primary/30">
                     <AvatarImage src={session.user.image || ""} />
                     <AvatarFallback>
                       {session.user.name?.charAt(0).toUpperCase() || "U"}
@@ -315,7 +225,7 @@ export function Navbar() {
             )}
 
             <button
-              className="md:hidden p-2 rounded-lg text-white/75 hover:text-white hover:bg-white/5"
+              className="lg:hidden p-2 rounded-lg text-white/75 hover:text-white hover:bg-white/5"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -331,9 +241,11 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-white/8 bg-[#0B0F14]"
+            className="lg:hidden border-t border-white/8 bg-background"
           >
             <div className="px-4 py-4 space-y-1">
+              <SearchBar variant="mobile" onNavigate={() => setMobileOpen(false)} className="mb-2" />
+
               <a
                 href={TELEGRAM_URL}
                 target="_blank"
@@ -345,8 +257,8 @@ export function Navbar() {
                   <TelegramIcon className="w-4 h-4 text-white" />
                 </span>
                 <span className="font-semibold text-sm text-white">Telegram Support</span>
-                <span className="ml-auto inline-flex items-center gap-1 text-[10px] bg-[#00FF84]/10 text-[#00FF84] px-1.5 py-0.5 rounded-full font-bold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] live-pulse" />
+                <span className="ml-auto inline-flex items-center gap-1 text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-full font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent live-pulse" />
                   LIVE
                 </span>
               </a>
@@ -357,15 +269,22 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all"
                 >
-                  <link.icon className="w-5 h-5 text-[#00FF84]" />
                   <span className="font-medium">{link.label}</span>
-                  {link.badge && (
-                    <span className="ml-auto text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">
-                      {link.badge}
-                    </span>
-                  )}
                 </Link>
               ))}
+              <div className="border-t border-white/8 mt-1 pt-1">
+                {moreLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+                  >
+                    <link.icon className="w-5 h-5 text-primary" />
+                    <span className="font-medium">{link.label}</span>
+                  </Link>
+                ))}
+              </div>
               {!session && (
                 <div className="flex gap-2 pt-2 border-t border-white/8">
                   <Button variant="outline" size="sm" className="flex-1" asChild>
@@ -400,7 +319,7 @@ function MenuItem({
       href={href}
       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
         highlight
-          ? "text-[#00FF84] hover:bg-[#00FF84]/10"
+          ? "text-primary hover:bg-primary/10"
           : "text-gray-300 hover:text-white hover:bg-white/5"
       }`}
     >

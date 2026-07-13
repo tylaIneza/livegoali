@@ -14,27 +14,30 @@ export interface MatchWithTeams {
   isFeatured: boolean;
   round?: string | null;
   venue?: string | null;
+  participant1?: string | null;
+  participant2?: string | null;
+  title?: string | null;
   homeTeam: {
     id: string;
     name: string;
     slug: string;
     logo: string | null;
     shortName: string | null;
-  };
+  } | null;
   awayTeam: {
     id: string;
     name: string;
     slug: string;
     logo: string | null;
     shortName: string | null;
-  };
+  } | null;
   league: {
     id: string;
     name: string;
     slug: string;
     logo: string | null;
     country: string;
-  };
+  } | null;
   sport?: { slug: string | null } | null;
   streams?: StreamSourceData[];
   prediction?: PredictionData | null;
@@ -144,6 +147,36 @@ export interface CommentData {
   };
   replies?: CommentData[];
   _count?: { replies: number };
+}
+
+// Minimal shape covering every field accessed on homepage match objects.
+// Non-nested so Redis-deserialized JSON (dates as strings) satisfies it.
+export interface HomeMatchItem {
+  id: string; slug: string; title: string | null; status: string;
+  scheduledAt: Date | string; startedAt: Date | string | null;
+  homeScore: number | null; awayScore: number | null;
+  matchMinute: number | null; round: string | null;
+  participant1: string | null; participant2: string | null;
+  isFeatured: boolean; streamUrl: string | null; homeTeamId: string | null;
+  venue?: string | null;
+  streams: { id: string }[];
+  homeTeam: { id: string; name: string; slug: string; logo: string | null; shortName: string | null } | null;
+  awayTeam: { id: string; name: string; slug: string; logo: string | null; shortName: string | null } | null;
+  league: { id: string; name: string; slug: string; logo: string | null; country: string | null } | null;
+  sport: { slug: string; name: string; icon: string | null } | null;
+}
+
+export interface SearchResults {
+  matches: Array<{
+    id: string;
+    slug: string;
+    status: string;
+    homeTeam: { name: string; logo: string | null; shortName: string | null };
+    awayTeam: { name: string; logo: string | null; shortName: string | null };
+    league: { name: string };
+  }>;
+  teams: Array<{ id: string; name: string; slug: string; logo: string | null; country: string | null }>;
+  leagues: Array<{ id: string; name: string; slug: string; logo: string | null; country: string }>;
 }
 
 declare module "next-auth" {
