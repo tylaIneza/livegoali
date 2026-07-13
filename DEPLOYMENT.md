@@ -69,39 +69,54 @@ npm install -g pm2
 apt install nginx certbot python3-certbot-nginx -y
 ```
 
-### 2. Deploy App
+### 2. Deploy App (PM2 path — recommended)
 
 ```bash
 # Clone project
 git clone your-repo /var/www/livegoali
 cd /var/www/livegoali
+npm install
 
-# Create production env
-cp .env.example .env.production
-nano .env.production  # Fill all values
+# Create env file — MUST be named .env (not .env.production):
+# ecosystem.config.js runs the socket server with `--env-file=.env`
+# literally, and Next.js also loads .env automatically, so this one
+# file is what both processes read.
+cp .env.example .env
+nano .env  # Fill all values — see Environment Variables Reference below
 
-# Build & deploy with Docker
-docker-compose --env-file .env.production up -d --build
+# MySQL + Redis only (do NOT run `docker-compose up -d --build`,
+# which would also start the app/socket/nginx containers on the same
+# ports 3000/3001/80 that PM2 + system nginx use below — pick one path)
+docker compose up -d mysql redis
 
-# OR use PM2 directly
+npm run prisma:push
+npm run prisma:seed   # creates admin@livegoali.com / Admin@123! — CHANGE THIS PASSWORD immediately after first login
+
 npm run build
 pm2 start ecosystem.config.js
 pm2 save
-pm2 startup
+pm2 startup   # follow the printed command to enable PM2 on boot
 ```
 
-### 3. SSL with Certbot
+### 3. Nginx
+
+`nginx.conf`'s upstreams (`server app:3000` / `server socket:3001`) are Docker Compose service hostnames — they only resolve inside that network. Since PM2 runs the app/socket processes directly on the host (not in containers), point nginx at localhost instead:
+
+```bash
+cp nginx.conf /etc/nginx/nginx.conf
+sed -i 's/server app:3000;/server 127.0.0.1:3000;/' /etc/nginx/nginx.conf
+sed -i 's/server socket:3001;/server 127.0.0.1:3001;/' /etc/nginx/nginx.conf
+nginx -t && nginx -s reload
+```
+
+Do not open port 3001 to the public internet — only nginx (on `127.0.0.1`) needs to reach it. Set `NEXT_PUBLIC_SOCKET_URL` to your public domain (e.g. `https://livegoali.com`), not `http://<ip>:3001` — the browser connects over the same origin/port as the app, and nginx's `/socket.io/` location proxies it internally.
+
+### 4. SSL with Certbot
 
 ```bash
 certbot --nginx -d livegoali.com -d www.livegoali.com
 ```
-
-### 4. Nginx
-
-```bash
-cp nginx.conf /etc/nginx/nginx.conf
-nginx -t && nginx -s reload
-```
+Certbot edits `/etc/nginx/nginx.conf` in place to add the HTTPS server block and redirect — review the diff it makes before reloading if you're unsure.
 
 ---
 
