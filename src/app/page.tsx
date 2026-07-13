@@ -117,11 +117,15 @@ export default async function HomePage({
       orderBy: { publishedAt: "desc" },
       take: 5,
     }).then((d) => { cacheSet("home:news", d, 120); return d; })),
+    // Prefers an explicitly Featured match but falls back to whichever
+    // SCHEDULED match kicks off soonest — used as-is by the sidebar's
+    // "Upcoming Big Match" card (always wants to show something), and
+    // filtered stricter below for the hero (which never guesses).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cacheGet<any>("home:upcoming-featured").then((c: any) => c ?? prisma.match.findMany({
-      where: { status: "SCHEDULED", isFeatured: true },
+      where: { status: "SCHEDULED" },
       include: matchInclude,
-      orderBy: { scheduledAt: "asc" },
+      orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
       take: 1,
     }).then((d) => { cacheSet("home:upcoming-featured", d, 60); return d; })),
   ]).catch(() => [[], [], [], []])) as [
@@ -131,11 +135,14 @@ export default async function HomePage({
     HomeMatchItem[],
   ];
 
-  // Only ever shows a match an admin explicitly marked Featured — no
+  // Hero only ever shows a match an admin explicitly marked Featured — no
   // "just pick the first live/upcoming match" guessing, which used to let
-  // stale matches keep winning the hero slot by sort order alone.
+  // stale matches keep winning the hero slot by sort order alone. The
+  // sidebar's Upcoming Big Match card is less prominent and fine falling
+  // back to the soonest scheduled match, so it uses upcomingFeatured as-is.
+  const upcomingFeaturedStrict = upcomingFeatured[0]?.isFeatured ? upcomingFeatured[0] : null;
   const featuredMatch: HomeMatchItem | null =
-    liveMatches.find((m) => m.isFeatured) ?? upcomingFeatured[0] ?? null;
+    liveMatches.find((m) => m.isFeatured) ?? upcomingFeaturedStrict ?? null;
   const heroIsLive = !!featuredMatch && (featuredMatch.status === "LIVE" || featuredMatch.status === "HALFTIME");
 
   return (
