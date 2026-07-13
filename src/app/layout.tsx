@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "react-hot-toast";
 import { WatchtimeTracker } from "@/components/WatchtimeTracker";
+import { NotificationEngine } from "@/components/NotificationEngine";
 
 const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         <Providers>
           <WatchtimeTracker />
+          <NotificationEngine />
           {children}
           <Toaster
             position="top-right"
