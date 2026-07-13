@@ -35,14 +35,14 @@ interface SidebarProps {
 type Tab = "chat" | "commentary" | "prediction";
 
 const EVENT_CONFIG: Record<string, { icon: string; color: string; bg: string; border: string }> = {
-  GOAL:         { icon: "⚽", color: "#00FF84", bg: "rgba(0,255,132,0.10)", border: "rgba(0,255,132,0.25)" },
-  YELLOW_CARD:  { icon: "🟨", color: "#EAB308", bg: "rgba(234,179,8,0.10)",  border: "rgba(234,179,8,0.25)" },
-  RED_CARD:     { icon: "🟥", color: "#EF4444", bg: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.25)" },
+  GOAL:         { icon: "⚽", color: "var(--accent)", bg: "rgba(16,185,129,0.10)", border: "rgba(16,185,129,0.25)" },
+  YELLOW_CARD:  { icon: "🟨", color: "var(--warning)", bg: "rgba(245,158,11,0.10)",  border: "rgba(245,158,11,0.25)" },
+  RED_CARD:     { icon: "🟥", color: "var(--danger)", bg: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.25)" },
   SUBSTITUTION: { icon: "🔄", color: "#A855F7", bg: "rgba(168,85,247,0.10)", border: "rgba(168,85,247,0.20)" },
-  VAR:          { icon: "📺", color: "#3B82F6", bg: "rgba(59,130,246,0.10)", border: "rgba(59,130,246,0.20)" },
+  VAR:          { icon: "📺", color: "var(--primary)", bg: "rgba(37,99,235,0.10)", border: "rgba(37,99,235,0.20)" },
   PENALTY:      { icon: "🥅", color: "#F97316", bg: "rgba(249,115,22,0.10)", border: "rgba(249,115,22,0.20)" },
-  KICKOFF:      { icon: "▶️", color: "#00FF84", bg: "rgba(0,255,132,0.06)",  border: "rgba(0,255,132,0.15)" },
-  HALFTIME:     { icon: "⏸️", color: "#EAB308", bg: "rgba(234,179,8,0.08)",  border: "rgba(234,179,8,0.15)" },
+  KICKOFF:      { icon: "▶️", color: "var(--accent)", bg: "rgba(16,185,129,0.06)",  border: "rgba(16,185,129,0.15)" },
+  HALFTIME:     { icon: "⏸️", color: "var(--warning)", bg: "rgba(245,158,11,0.08)",  border: "rgba(245,158,11,0.15)" },
   FULLTIME:     { icon: "⏹️", color: "#94A3B8", bg: "rgba(148,163,184,0.08)", border: "rgba(148,163,184,0.15)" },
 };
 const DEFAULT_EVENT = { icon: "📌", color: "#94A3B8", bg: "rgba(148,163,184,0.06)", border: "rgba(148,163,184,0.12)" };
@@ -93,7 +93,7 @@ export function LiveMatchSidebar({
   return (
     <div className="flex flex-col gap-4">
       {/* ── Tabs ── */}
-      <div className="flex gap-1 p-1 rounded-2xl bg-[#121821] border border-white/8">
+      <div className="flex gap-1 p-1 rounded-2xl bg-card border border-white/8">
         {tabs.map((t) => {
           const active = tab === t.id;
           return (
@@ -103,7 +103,7 @@ export function LiveMatchSidebar({
               className={cn(
                 "flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-200",
                 active
-                  ? "bg-[#00FF84] text-[#0B0F14] shadow-[0_2px_12px_rgba(0,255,132,0.30)]"
+                  ? "gradient-primary text-primary-foreground shadow-[0_2px_12px_rgba(37,99,235,0.30)]"
                   : "text-white/50 hover:text-white hover:bg-white/5"
               )}
             >
@@ -121,10 +121,10 @@ export function LiveMatchSidebar({
 
         {/* Commentary */}
         {tab === "commentary" && (
-          <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+          <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
             <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[#00FF84]/10 flex items-center justify-center">
-                <Clock className="w-3.5 h-3.5 text-[#00FF84]" />
+              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Clock className="w-3.5 h-3.5 text-primary" />
               </div>
               <h3 className="text-sm font-bold text-white">Live Commentary</h3>
               {events.length > 0 && (
@@ -149,7 +149,7 @@ export function LiveMatchSidebar({
                       key={event.id}
                       className={cn(
                         "flex gap-3 p-3 rounded-xl border transition-all",
-                        isGoal && "shadow-[0_0_16px_rgba(0,255,132,0.12)]"
+                        isGoal && "shadow-[0_0_16px_rgba(16,185,129,0.12)]"
                       )}
                       style={{ background: cfg.bg, borderColor: cfg.border }}
                     >
@@ -183,7 +183,7 @@ export function LiveMatchSidebar({
 
         {/* AI Prediction */}
         {tab === "prediction" && (
-          <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+          <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
             <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-purple-500/12 flex items-center justify-center">
                 <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
@@ -196,16 +196,16 @@ export function LiveMatchSidebar({
                 <div className="space-y-5">
                   {/* Win probability boxes */}
                   <div className="grid grid-cols-3 gap-2">
-                    <PredBox label={homeTeam.split(" ").pop() ?? homeTeam} value={prediction.homeWinProb} color="#00FF84" bg="rgba(0,255,132,0.10)" border="rgba(0,255,132,0.20)" />
-                    <PredBox label="Draw" value={prediction.drawProb} color="#EAB308" bg="rgba(234,179,8,0.10)" border="rgba(234,179,8,0.20)" />
-                    <PredBox label={awayTeam.split(" ").pop() ?? awayTeam} value={prediction.awayWinProb} color="#3B82F6" bg="rgba(59,130,246,0.10)" border="rgba(59,130,246,0.20)" />
+                    <PredBox label={homeTeam.split(" ").pop() ?? homeTeam} value={prediction.homeWinProb} color="var(--accent)" bg="rgba(16,185,129,0.10)" border="rgba(16,185,129,0.20)" />
+                    <PredBox label="Draw" value={prediction.drawProb} color="var(--warning)" bg="rgba(245,158,11,0.10)" border="rgba(245,158,11,0.20)" />
+                    <PredBox label={awayTeam.split(" ").pop() ?? awayTeam} value={prediction.awayWinProb} color="var(--primary)" bg="rgba(37,99,235,0.10)" border="rgba(37,99,235,0.20)" />
                   </div>
 
                   {/* Stacked bar */}
                   <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-                    <div className="h-full rounded-l-full" style={{ width: `${prediction.homeWinProb}%`, background: "#00FF84" }} />
-                    <div className="h-full" style={{ width: `${prediction.drawProb}%`, background: "#EAB308" }} />
-                    <div className="h-full rounded-r-full flex-1" style={{ background: "#3B82F6" }} />
+                    <div className="h-full rounded-l-full" style={{ width: `${prediction.homeWinProb}%`, background: "var(--accent)" }} />
+                    <div className="h-full" style={{ width: `${prediction.drawProb}%`, background: "var(--warning)" }} />
+                    <div className="h-full rounded-r-full flex-1" style={{ background: "var(--primary)" }} />
                   </div>
 
                   {/* Confidence + xG */}
@@ -216,9 +216,9 @@ export function LiveMatchSidebar({
                       </span>
                       <div className="flex items-center gap-2">
                         <div className="w-20 h-1.5 rounded-full bg-white/8 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#00FF84]" style={{ width: `${prediction.confidence}%` }} />
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${prediction.confidence}%` }} />
                         </div>
-                        <span className="text-sm font-black text-[#00FF84] w-10 text-right">{prediction.confidence.toFixed(0)}%</span>
+                        <span className="text-sm font-black text-primary w-10 text-right">{prediction.confidence.toFixed(0)}%</span>
                       </div>
                     </div>
 
@@ -257,10 +257,10 @@ export function LiveMatchSidebar({
 
       {/* Comments section */}
       {enableComments && (
-        <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+        <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
           <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <MessageSquare className="w-3.5 h-3.5 text-primary" />
             </div>
             <h3 className="text-sm font-bold text-white">Fan Comments</h3>
           </div>

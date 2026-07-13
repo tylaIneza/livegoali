@@ -33,7 +33,7 @@ export function MatchWatcher({ matchId }: { matchId: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
       <div className="text-center px-6 max-w-sm">
-        <div className="w-16 h-16 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center mx-auto mb-5">
+        <div className="w-16 h-16 rounded-full bg-danger/15 border border-danger/30 flex items-center justify-center mx-auto mb-5">
           <span className="text-3xl">📺</span>
         </div>
         <h2 className="text-xl font-black text-white mb-2">Stream Ended</h2>
@@ -43,7 +43,7 @@ export function MatchWatcher({ matchId }: { matchId: string }) {
         </p>
         <button
           onClick={() => router.replace("/")}
-          className="px-6 py-2.5 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00C864] transition-colors"
+          className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors"
         >
           Go to Homepage
         </button>

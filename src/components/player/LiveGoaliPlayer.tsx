@@ -352,7 +352,7 @@ export function LiveGoaliPlayer({
           >
             LiveGoali
           </span>
-          <span className="text-[#00FF84]/70 text-[9px] font-bold tracking-[0.2em] uppercase mt-0.5">
+          <span className="text-accent/70 text-[9px] font-bold tracking-[0.2em] uppercase mt-0.5">
             Live Streaming
           </span>
         </div>
@@ -368,7 +368,7 @@ export function LiveGoaliPlayer({
       <div ref={containerRef} className="relative rounded-2xl overflow-hidden aspect-video bg-[#080C10] flex flex-col items-center justify-center gap-5">
         <div className="relative w-14 h-14">
           <div className="absolute inset-0 rounded-full border-2 border-white/8" />
-          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#00FF84] animate-spin" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
         </div>
         <p className="text-white/40 text-xs">Connecting to stream…</p>
         <Watermark />
@@ -411,7 +411,7 @@ export function LiveGoaliPlayer({
                   onClick={() => switchStream(i)}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                     i === currentStreamIndex
-                      ? "bg-[#00FF84] text-black shadow-[0_0_12px_rgba(0,255,132,0.4)]"
+                      ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(37,99,235,0.4)]"
                       : "bg-white/10 text-white/80 hover:bg-white/20"
                   }`}
                 >
@@ -475,7 +475,7 @@ export function LiveGoaliPlayer({
               {showScore ? (
                 <>
                   <span className="text-white/90 font-bold text-sm leading-none truncate max-w-[100px]">{homeTeam}</span>
-                  <span className="text-[#00FF84] font-black text-xl tabular-nums leading-none shrink-0">
+                  <span className="text-accent font-black text-xl tabular-nums leading-none shrink-0">
                     {homeScore} <span className="text-white/30 mx-0.5">–</span> {awayScore}
                   </span>
                   <span className="text-white/90 font-bold text-sm leading-none truncate max-w-[100px]">{awayTeam}</span>
@@ -511,7 +511,7 @@ export function LiveGoaliPlayer({
         {isMuted && isPlaying && !isLoading && !error && (
           <motion.button
             initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-white text-xs font-semibold hover:bg-black/95 hover:border-[#00FF84]/40 transition-all shadow-xl"
+            className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-white text-xs font-semibold hover:bg-black/95 hover:border-primary/40 transition-all shadow-xl"
             onClick={(e) => {
               e.stopPropagation();
               const video = videoRef.current;
@@ -536,8 +536,8 @@ export function LiveGoaliPlayer({
             {/* Spinner */}
             <div className="relative w-14 h-14">
               <div className="absolute inset-0 rounded-full border-2 border-white/8" />
-              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#00FF84] animate-spin" />
-              <div className="absolute inset-2 rounded-full border border-transparent border-t-[#00FF84]/30 animate-spin" style={{ animationDuration: "1.5s", animationDirection: "reverse" }} />
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
+              <div className="absolute inset-2 rounded-full border border-transparent border-t-primary/30 animate-spin" style={{ animationDuration: "1.5s", animationDirection: "reverse" }} />
             </div>
             <div className="text-center">
               <p className="text-white font-semibold text-sm">{isLoading ? "Loading from LiveGoali…" : "Buffering…"}</p>
@@ -557,8 +557,8 @@ export function LiveGoaliPlayer({
             className="absolute inset-0 flex flex-col items-center justify-center bg-[#080C10]/95 z-20 gap-4 p-6 text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-              <AlertCircle className="w-7 h-7 text-red-400" />
+            <div className="w-14 h-14 rounded-full bg-danger/10 border border-danger/20 flex items-center justify-center">
+              <AlertCircle className="w-7 h-7 text-danger" />
             </div>
             <div>
               <p className="text-white font-semibold text-sm mb-1">{error}</p>
@@ -566,7 +566,7 @@ export function LiveGoaliPlayer({
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); retry(); }}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#00FF84] text-black font-bold text-sm hover:bg-[#00E876] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,255,132,0.3)]"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 active:scale-95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)]"
             >
               <RefreshCw className="w-4 h-4" /> Retry
             </button>
@@ -583,10 +583,10 @@ export function LiveGoaliPlayer({
           }} />
           <div className="relative flex flex-col items-center gap-4">
             <div className="relative">
-              <div className="w-20 h-20 rounded-3xl bg-[#00FF84]/8 border border-[#00FF84]/15 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-3xl bg-primary/8 border border-primary/15 flex items-center justify-center">
                 <img src="/livegoali.png" alt="LiveGoali" className="w-11 h-11 object-contain opacity-70" />
               </div>
-              <div className="absolute -inset-3 rounded-full bg-[#00FF84]/5 animate-ping" style={{ animationDuration: "3s" }} />
+              <div className="absolute -inset-3 rounded-full bg-primary/5 animate-ping" style={{ animationDuration: "3s" }} />
             </div>
             <div className="text-center">
               <p className="text-white font-bold text-base mb-1">
@@ -622,7 +622,7 @@ export function LiveGoaliPlayer({
                 {/* Play / Pause */}
                 <button
                   onClick={(e) => { e.stopPropagation(); togglePlay(); }}
-                  className="w-10 h-10 flex items-center justify-center text-white hover:text-[#00FF84] transition-colors shrink-0"
+                  className="w-10 h-10 flex items-center justify-center text-white hover:text-primary transition-colors shrink-0"
                 >
                   {isPlaying
                     ? <Pause className="w-5 h-5 fill-current" />
@@ -633,7 +633,7 @@ export function LiveGoaliPlayer({
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                    className="text-white/80 hover:text-[#00FF84] transition-colors"
+                    className="text-white/80 hover:text-primary transition-colors"
                   >
                     {isMuted || volume === 0
                       ? <VolumeX className="w-4 h-4" />
@@ -644,7 +644,7 @@ export function LiveGoaliPlayer({
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChange}
                     onClick={(e) => e.stopPropagation()}
-                    className="hidden sm:block w-20 h-1 rounded-full cursor-pointer accent-[#00FF84] opacity-80 hover:opacity-100 transition-opacity"
+                    className="hidden sm:block w-20 h-1 rounded-full cursor-pointer accent-primary opacity-80 hover:opacity-100 transition-opacity"
                   />
                 </div>
 
@@ -652,10 +652,10 @@ export function LiveGoaliPlayer({
                 {/* Stream health */}
                 <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                   {streamHealth === "good"
-                    ? <Wifi className="w-3.5 h-3.5 text-[#00FF84]" />
+                    ? <Wifi className="w-3.5 h-3.5 text-accent" />
                     : streamHealth === "poor"
-                    ? <Wifi className="w-3.5 h-3.5 text-yellow-400 animate-pulse" />
-                    : <WifiOff className="w-3.5 h-3.5 text-red-400" />}
+                    ? <Wifi className="w-3.5 h-3.5 text-warning animate-pulse" />
+                    : <WifiOff className="w-3.5 h-3.5 text-danger" />}
                   <span className="text-[10px] text-white/50 font-medium">
                     {streamHealth === "good" ? "HD" : streamHealth === "poor" ? "Weak" : "No signal"}
                   </span>
@@ -681,7 +681,7 @@ export function LiveGoaliPlayer({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 6, scale: 0.95 }}
                           transition={{ duration: 0.12 }}
-                          className="absolute bottom-full right-0 mb-2 w-40 bg-[#0D1117]/95 backdrop-blur-xl border border-white/12 rounded-xl overflow-hidden shadow-2xl"
+                          className="absolute bottom-full right-0 mb-2 w-40 bg-card/95 backdrop-blur-xl border border-white/12 rounded-xl overflow-hidden shadow-2xl"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="px-3 py-2 border-b border-white/8">
@@ -689,7 +689,7 @@ export function LiveGoaliPlayer({
                           </div>
                           {activeStreams.map((s, i) => (
                             <button key={s.id} onClick={() => switchStream(i)}
-                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs hover:bg-white/8 transition-colors ${i === currentStreamIndex ? "text-[#00FF84]" : "text-white/80"}`}>
+                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs hover:bg-white/8 transition-colors ${i === currentStreamIndex ? "text-primary" : "text-white/80"}`}>
                               <span>{s.label || `Stream ${i + 1}`}</span>
                               {i === currentStreamIndex && <Check className="w-3 h-3" />}
                             </button>
@@ -717,7 +717,7 @@ export function LiveGoaliPlayer({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 6, scale: 0.95 }}
                           transition={{ duration: 0.12 }}
-                          className="absolute bottom-full right-0 mb-2 w-32 bg-[#0D1117]/95 backdrop-blur-xl border border-white/12 rounded-xl overflow-hidden shadow-2xl"
+                          className="absolute bottom-full right-0 mb-2 w-32 bg-card/95 backdrop-blur-xl border border-white/12 rounded-xl overflow-hidden shadow-2xl"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="px-3 py-2 border-b border-white/8">
@@ -725,7 +725,7 @@ export function LiveGoaliPlayer({
                           </div>
                           {[{ label: "Auto", level: -1 }, ...qualityLevels.map((q, i) => ({ label: `${q.height}p`, level: i }))].map(({ label, level }) => (
                             <button key={level} onClick={() => setQuality(level)}
-                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs hover:bg-white/8 transition-colors ${currentQuality === level ? "text-[#00FF84]" : "text-white/80"}`}>
+                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs hover:bg-white/8 transition-colors ${currentQuality === level ? "text-primary" : "text-white/80"}`}>
                               <span>{label}</span>
                               {currentQuality === level && <Check className="w-3 h-3" />}
                             </button>

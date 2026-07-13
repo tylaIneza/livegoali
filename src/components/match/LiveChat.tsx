@@ -97,12 +97,12 @@ export function LiveChat({ matchId }: { matchId: string }) {
   };
 
   return (
-    <div className="flex flex-col h-full rounded-xl border border-white/8 bg-[#121821] overflow-hidden">
+    <div className="flex flex-col h-full rounded-xl border border-white/8 bg-card overflow-hidden">
       <div className="flex items-center justify-between p-3 border-b border-white/8">
         <h3 className="text-sm font-bold text-white">Live Chat</h3>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#00FF84] live-pulse" />
-          <span className="text-xs text-[#00FF84]">Live</span>
+          <div className="w-2 h-2 rounded-full bg-accent live-pulse" />
+          <span className="text-xs text-accent">Live</span>
         </div>
       </div>
 
@@ -122,9 +122,9 @@ export function LiveChat({ matchId }: { matchId: string }) {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className={`text-xs font-bold ${
                     msg.user.role === "ADMIN" || msg.user.role === "SUPER_ADMIN"
-                      ? "text-[#00FF84]"
+                      ? "text-primary"
                       : msg.user.isVIP
-                      ? "text-yellow-400"
+                      ? "text-warning"
                       : "text-gray-300"
                   }`}>
                     {msg.user.name || "User"}
@@ -156,12 +156,12 @@ export function LiveChat({ matchId }: { matchId: string }) {
               placeholder="Send a message..."
               maxLength={200}
               disabled={sending}
-              className="flex-1 bg-[#0B0F14] border border-white/8 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/60 focus:outline-none focus:border-[#00FF84]/40 transition-colors disabled:opacity-50"
+              className="flex-1 bg-background border border-white/8 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/60 focus:outline-none focus:border-primary/40 transition-colors disabled:opacity-50"
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="p-2 rounded-lg bg-[#00FF84]/10 text-[#00FF84] hover:bg-[#00FF84]/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -171,7 +171,7 @@ export function LiveChat({ matchId }: { matchId: string }) {
         <div className="p-3 border-t border-white/8">
           <Link
             href="/login"
-            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-[#00FF84]/10 text-[#00FF84] text-xs font-medium hover:bg-[#00FF84]/20 transition-all"
+            className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-all"
           >
             <Lock className="w-3.5 h-3.5" />
             Sign in to chat

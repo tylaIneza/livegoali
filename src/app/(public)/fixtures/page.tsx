@@ -8,6 +8,7 @@ import { LiveBadge } from "@/components/match/LiveBadge";
 import { CountdownTimer } from "@/components/match/CountdownTimer";
 import { LocalTime } from "@/components/LocalTime";
 import { addDays, subDays, isToday, isTomorrow, isYesterday, format } from "date-fns";
+import { statusFilterToWhere, parseDateParam } from "@/lib/matchFilters";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -43,7 +44,7 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
   }
   return (
     <div
-      className="rounded-full bg-white/8 flex items-center justify-center font-black text-[#00FF84]"
+      className="rounded-full bg-white/8 flex items-center justify-center font-black text-primary"
       style={{ width: size, height: size, fontSize: size * 0.4 }}
     >
       {name.charAt(0)}
@@ -54,12 +55,10 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
 export default async function FixturesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; status?: string; sport?: string }>;
 }) {
   const params = await searchParams;
-  const dateStr = params.date;
-  const activeDate = dateStr ? new Date(dateStr) : new Date();
-  activeDate.setHours(0, 0, 0, 0);
+  const activeDate = parseDateParam(params.date);
 
   const dayStart = new Date(activeDate);
   const dayEnd = new Date(activeDate);
@@ -68,8 +67,20 @@ export default async function FixturesPage({
   const prevDate = subDays(activeDate, 1);
   const nextDate = addDays(activeDate, 1);
 
+  const sports = await prisma.sport.findMany({
+    where: { enabled: true },
+    orderBy: { displayOrder: "asc" },
+  }).catch(() => []);
+  const activeSport = sports.find((s) => s.slug === params.sport);
+  const statusWhere = statusFilterToWhere(params.status);
+  const activeStatus = ["live", "upcoming", "finished"].includes(params.status ?? "") ? params.status : undefined;
+
   const matches = await prisma.match.findMany({
-    where: { scheduledAt: { gte: dayStart, lte: dayEnd } },
+    where: {
+      scheduledAt: { gte: dayStart, lte: dayEnd },
+      ...(statusWhere ? { status: statusWhere } : {}),
+      ...(activeSport ? { sport: { slug: activeSport.slug } } : {}),
+    },
     include: {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -81,6 +92,19 @@ export default async function FixturesPage({
   }).catch(() => []);
 
   type MatchItem = (typeof matches)[number];
+
+  function buildHref(overrides: Partial<{ date: string; status: string; sport: string }>) {
+    const merged = {
+      date: format(activeDate, "yyyy-MM-dd"),
+      status: activeStatus,
+      sport: activeSport?.slug,
+      ...overrides,
+    };
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries(merged)) if (v) sp.set(k, v);
+    const qs = sp.toString();
+    return `/fixtures${qs ? `?${qs}` : ""}`;
+  }
 
   const byLeague = matches.reduce<Record<string, MatchItem[]>>((acc, m) => {
     const key = m.league?.id ?? "other";
@@ -100,8 +124,8 @@ export default async function FixturesPage({
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-blue-400" />
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-white tracking-tight">Fixtures</h1>
@@ -122,10 +146,10 @@ export default async function FixturesPage({
       </div>
 
       {/* Day strip */}
-      <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
         <Link
-          href={`/fixtures?date=${format(prevDate, "yyyy-MM-dd")}`}
-          className="p-2.5 rounded-xl border border-white/8 bg-[#0D1117] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#121821] transition-all shrink-0"
+          href={buildHref({ date: format(prevDate, "yyyy-MM-dd") })}
+          className="p-2.5 rounded-xl border border-white/8 bg-card text-white/50 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all shrink-0"
         >
           <ChevronLeft className="w-4 h-4" />
         </Link>
@@ -139,23 +163,23 @@ export default async function FixturesPage({
           return (
             <Link
               key={ds_str}
-              href={`/fixtures?date=${ds_str}`}
+              href={buildHref({ date: ds_str })}
               className={`relative flex flex-col items-center px-3.5 py-2.5 rounded-xl border text-center shrink-0 transition-all min-w-[64px] ${
                 isActive
-                  ? "border-[#00FF84]/40 bg-[#00FF84]/10 shadow-[0_0_20px_rgba(0,255,132,0.12)]"
-                  : "border-white/7 bg-[#0D1117] text-white/60 hover:border-white/15 hover:text-white hover:bg-[#121821]"
+                  ? "border-primary/40 bg-primary/10 shadow-[0_0_20px_rgba(37,99,235,0.12)]"
+                  : "border-white/7 bg-card text-white/60 hover:border-white/15 hover:text-white hover:bg-white/5"
               }`}
             >
               {_isToday && !isActive && (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#00FF84]/60" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary/60" />
               )}
-              <span className={`text-[10px] font-bold uppercase tracking-wide ${isActive ? "text-[#00FF84]/80" : ""}`}>
+              <span className={`text-[10px] font-bold uppercase tracking-wide ${isActive ? "text-primary/80" : ""}`}>
                 {format(ds, "EEE")}
               </span>
-              <span className={`text-xl font-black leading-tight ${isActive ? "text-[#00FF84]" : ""}`}>
+              <span className={`text-xl font-black leading-tight ${isActive ? "text-primary" : ""}`}>
                 {format(ds, "d")}
               </span>
-              <span className={`text-[10px] ${isActive ? "text-[#00FF84]/70" : "text-white/40"}`}>
+              <span className={`text-[10px] ${isActive ? "text-primary/70" : "text-white/40"}`}>
                 {format(ds, "MMM")}
               </span>
             </Link>
@@ -163,31 +187,91 @@ export default async function FixturesPage({
         })}
 
         <Link
-          href={`/fixtures?date=${format(nextDate, "yyyy-MM-dd")}`}
-          className="p-2.5 rounded-xl border border-white/8 bg-[#0D1117] text-white/50 hover:text-white hover:border-white/20 hover:bg-[#121821] transition-all shrink-0"
+          href={buildHref({ date: format(nextDate, "yyyy-MM-dd") })}
+          className="p-2.5 rounded-xl border border-white/8 bg-card text-white/50 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all shrink-0"
         >
           <ChevronRight className="w-4 h-4" />
         </Link>
       </div>
 
+      {/* Status filter chips */}
+      <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+        {([
+          { key: undefined, label: "All" },
+          { key: "live", label: "Live" },
+          { key: "upcoming", label: "Upcoming" },
+          { key: "finished", label: "Finished" },
+        ] as const).map((s) => {
+          const isActive = activeStatus === s.key;
+          const isLiveChip = s.key === "live";
+          return (
+            <Link
+              key={s.label}
+              href={buildHref({ status: s.key })}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all shrink-0 ${
+                isActive
+                  ? isLiveChip
+                    ? "border-danger/40 bg-danger/10 text-danger"
+                    : "border-primary/40 bg-primary/10 text-primary"
+                  : "border-white/7 bg-card text-white/60 hover:border-white/15 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {s.label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Sport filter chips */}
+      {sports.length > 0 && (
+        <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1 scrollbar-hide">
+          <Link
+            href={buildHref({ sport: undefined })}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all shrink-0 ${
+              !activeSport
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-white/7 bg-card text-white/60 hover:border-white/15 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            All Sports
+          </Link>
+          {sports.map((sport) => {
+            const isActive = activeSport?.slug === sport.slug;
+            return (
+              <Link
+                key={sport.slug}
+                href={buildHref({ sport: sport.slug })}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all shrink-0 ${
+                  isActive
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-white/7 bg-card text-white/60 hover:border-white/15 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span className="leading-none">{sport.icon}</span> {sport.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
       {/* Matches */}
       {matches.length === 0 ? (
-        <div className="rounded-2xl border border-white/7 bg-[#0D1117] p-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-blue-500/8 flex items-center justify-center mx-auto mb-4">
-            <Calendar className="w-7 h-7 text-blue-500/30" />
+        <div className="rounded-2xl border border-white/7 bg-card p-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/8 flex items-center justify-center mx-auto mb-4">
+            <Calendar className="w-7 h-7 text-primary/30" />
           </div>
           <p className="text-white font-bold mb-1">No matches on {dayLabel(activeDate)}</p>
           <p className="text-white/50 text-sm">Try a different date</p>
           <div className="flex items-center justify-center gap-3 mt-5">
             <Link
-              href={`/fixtures?date=${format(prevDate, "yyyy-MM-dd")}`}
-              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white border border-white/10 bg-[#121821] px-3 py-1.5 rounded-lg transition-colors font-medium"
+              href={buildHref({ date: format(prevDate, "yyyy-MM-dd") })}
+              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white border border-white/10 bg-card px-3 py-1.5 rounded-lg transition-colors font-medium"
             >
               <ChevronLeft className="w-3.5 h-3.5" /> {format(prevDate, "d MMM")}
             </Link>
             <Link
-              href={`/fixtures?date=${format(nextDate, "yyyy-MM-dd")}`}
-              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white border border-white/10 bg-[#121821] px-3 py-1.5 rounded-lg transition-colors font-medium"
+              href={buildHref({ date: format(nextDate, "yyyy-MM-dd") })}
+              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white border border-white/10 bg-card px-3 py-1.5 rounded-lg transition-colors font-medium"
             >
               {format(nextDate, "d MMM")} <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -198,28 +282,28 @@ export default async function FixturesPage({
           {Object.values(byLeague).map((leagueMatches) => {
             const league = leagueMatches[0].league ?? null;
             return (
-              <div key={league?.id ?? "other"} className="rounded-2xl border border-white/7 bg-[#0D1117] overflow-hidden">
+              <div key={league?.id ?? "other"} className="rounded-2xl border border-white/7 bg-card overflow-hidden">
                 {/* League / sport header */}
                 {league?.slug ? (
                   <Link href={`/league/${league.slug}`} className="block group/league">
-                    <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-[#121821]/50 hover:bg-[#1a2235]/50 transition-colors">
+                    <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-card/50 hover:bg-white/5 transition-colors">
                       {league.logo ? (
                         <Image src={league.logo} alt={league.name} width={18} height={18} className="object-contain shrink-0" />
                       ) : (
                         <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
                       )}
-                      <span className="text-sm font-bold text-white group-hover/league:text-[#00FF84] transition-colors">
+                      <span className="text-sm font-bold text-white group-hover/league:text-primary transition-colors">
                         {league.name}
                       </span>
                       <span className="text-xs text-white/40">· {league.country}</span>
                       <span className="ml-auto text-[10px] text-white/30 font-medium">
                         {leagueMatches.length} match{leagueMatches.length !== 1 ? "es" : ""}
                       </span>
-                      <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover/league:text-[#00FF84]/60 transition-colors" />
+                      <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover/league:text-primary/60 transition-colors" />
                     </div>
                   </Link>
                 ) : (
-                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-[#121821]/50">
+                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 bg-card/50">
                     <div className="w-4.5 h-4.5 rounded-sm bg-white/10 shrink-0" />
                     <span className="text-sm font-bold text-white">Other Events</span>
                     <span className="ml-auto text-[10px] text-white/30 font-medium">
@@ -265,7 +349,7 @@ export default async function FixturesPage({
                                 <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={26} />
                               </div>
                               <div className={`text-sm font-black tabular-nums w-16 text-center shrink-0 ${
-                                isLive ? "text-[#00FF84]" : isFinished ? "text-white" : "text-white/30"
+                                isLive || isFinished ? "text-white" : "text-white/30"
                               }`}>
                                 {(isFinished || isLive) && fHasScore
                                   ? `${match.homeScore ?? 0} – ${match.awayScore ?? 0}`
@@ -308,11 +392,11 @@ export default async function FixturesPage({
                           {/* Right indicator */}
                           <div className="shrink-0 w-8 flex justify-end">
                             {isLive && (match.streams.length > 0 || !!match.streamUrl) ? (
-                              <Wifi className="w-3.5 h-3.5 text-[#00FF84]" />
+                              <Wifi className="w-3.5 h-3.5 text-accent" />
                             ) : !isFinished && !isLive ? (
                               <CountdownTimer
                                 scheduledAt={match.scheduledAt}
-                                className="text-[9px] font-bold text-blue-400/70 whitespace-nowrap tabular-nums"
+                                className="text-[9px] font-bold text-primary/70 whitespace-nowrap tabular-nums"
                               />
                             ) : (
                               <ChevronRight className="w-3.5 h-3.5 text-white/15 group-hover/match:text-white/50 transition-colors" />

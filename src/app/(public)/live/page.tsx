@@ -37,7 +37,7 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
   }
   return (
     <div
-      className="rounded-full bg-white/8 flex items-center justify-center font-black text-[#00FF84]"
+      className="rounded-full bg-white/8 flex items-center justify-center font-black text-primary"
       style={{ width: size, height: size, fontSize: size * 0.38 }}
     >
       {name.charAt(0)}
@@ -101,31 +101,31 @@ export default async function LivePage() {
       <HomeRefresher />
       {/* ── Hero Banner ── */}
         <div className="relative overflow-hidden border-b border-white/6"
-          style={{ background: "linear-gradient(135deg, #110808 0%, #0B0F14 40%, #06040f 100%)" }}>
+          style={{ background: "linear-gradient(135deg, #110808 0%, #0F172A 40%, #06040f 100%)" }}>
           {/* Ambient glows */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/3 w-96 h-48 rounded-full opacity-20 blur-3xl"
-              style={{ background: "radial-gradient(circle, #EF4444, transparent)" }} />
+              style={{ background: "radial-gradient(circle, var(--danger), transparent)" }} />
             <div className="absolute bottom-0 right-1/4 w-64 h-32 rounded-full opacity-10 blur-3xl"
-              style={{ background: "radial-gradient(circle, #00FF84, transparent)" }} />
+              style={{ background: "radial-gradient(circle, var(--accent), transparent)" }} />
           </div>
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-danger to-transparent" />
 
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
               {/* Pulsing radio icon */}
               <div className="relative shrink-0">
-                <div className="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center"
+                <div className="w-16 h-16 rounded-2xl bg-danger/20 border border-danger/30 flex items-center justify-center"
                   style={{ boxShadow: "0 0 40px rgba(239,68,68,0.25)" }}>
-                  <Radio className="w-8 h-8 text-red-400" />
+                  <Radio className="w-8 h-8 text-danger" />
                 </div>
-                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 live-pulse" />
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-danger live-pulse" />
               </div>
 
               <div className="text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-                  <span className="flex items-center gap-1.5 text-xs font-black text-red-400 bg-red-500/12 border border-red-500/25 px-3 py-1 rounded-full">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
+                  <span className="flex items-center gap-1.5 text-xs font-black text-danger bg-danger/12 border border-danger/25 px-3 py-1 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-danger live-pulse" />
                     LIVE NOW
                   </span>
                   {liveMatches.length > 0 && (
@@ -147,7 +147,7 @@ export default async function LivePage() {
                   <Users className="w-4 h-4" />
                   <span className="font-semibold">Thousands watching</span>
                 </div>
-                <Link href="/" className="flex items-center gap-1.5 text-xs font-semibold text-[#00FF84]/80 hover:text-[#00FF84] transition-colors">
+                <Link href="/" className="flex items-center gap-1.5 text-xs font-semibold text-primary/80 hover:text-primary transition-colors">
                   <Calendar className="w-3.5 h-3.5" /> All Fixtures
                 </Link>
               </div>
@@ -160,13 +160,13 @@ export default async function LivePage() {
           {/* ── LIVE MATCHES GRID ── */}
           <section>
             {liveMatches.length === 0 ? (
-              <div className="rounded-2xl border border-white/6 bg-[#121821]/80 p-16 text-center">
-                <div className="w-20 h-20 rounded-full bg-red-500/8 border border-red-500/12 flex items-center justify-center mx-auto mb-5">
-                  <Radio className="w-9 h-9 text-red-500/40" />
+              <div className="rounded-2xl border border-white/6 bg-card/80 p-16 text-center">
+                <div className="w-20 h-20 rounded-full bg-danger/8 border border-danger/12 flex items-center justify-center mx-auto mb-5">
+                  <Radio className="w-9 h-9 text-danger/40" />
                 </div>
                 <p className="text-white font-black text-xl mb-2">No matches live right now</p>
                 <p className="text-white/50 text-sm mb-5">Check back soon or browse upcoming matches below</p>
-                <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-[#00FF84] font-semibold hover:underline">
+                <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-primary font-semibold hover:underline">
                   <Calendar className="w-4 h-4" /> Browse All Fixtures
                 </Link>
               </div>
@@ -193,21 +193,21 @@ export default async function LivePage() {
                   return (
                     <div
                       key={match.id}
-                      className={`relative rounded-2xl overflow-hidden border bg-[#0D1117] group transition-all duration-300 ${
+                      className={`relative rounded-2xl overflow-hidden border bg-card group transition-all duration-300 ${
                         match.isFeatured
-                          ? "md:col-span-2 border-yellow-500/30 hover:border-yellow-500/50"
-                          : "border-red-500/25 hover:border-red-500/40"
+                          ? "md:col-span-2 border-warning/30 hover:border-warning/50"
+                          : "border-danger/25 hover:border-danger/40"
                       }`}
                       style={match.isFeatured
-                        ? { boxShadow: "0 0 60px rgba(234,179,8,0.12)" }
+                        ? { boxShadow: "0 0 60px rgba(245,158,11,0.12)" }
                         : { boxShadow: "0 0 40px rgba(239,68,68,0.08)" }}
                     >
                       {/* Top accent */}
-                      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent to-transparent ${match.isFeatured ? "via-yellow-400/80" : "via-red-500/80"}`} />
+                      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent to-transparent ${match.isFeatured ? "via-warning/80" : "via-danger/80"}`} />
 
                       {/* Subtle bg glow */}
                       <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                        <div className={`absolute -top-8 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-8 ${match.isFeatured ? "bg-yellow-500" : "bg-red-500"}`} />
+                        <div className={`absolute -top-8 left-1/2 -translate-x-1/2 w-64 h-32 blur-3xl opacity-8 ${match.isFeatured ? "bg-warning" : "bg-danger"}`} />
                       </div>
 
                       <div className={`relative p-4 sm:p-5 ${match.isFeatured ? "lg:p-6" : ""}`}>
@@ -215,8 +215,8 @@ export default async function LivePage() {
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2 min-w-0">
                             {match.isFeatured && (
-                              <span className="flex items-center gap-1 text-[10px] font-black text-yellow-400 bg-yellow-500/12 border border-yellow-500/25 px-2 py-0.5 rounded-full shrink-0">
-                                <Star className="w-2.5 h-2.5 fill-yellow-400" /> FEATURED
+                              <span className="flex items-center gap-1 text-[10px] font-black text-warning bg-warning/12 border border-warning/25 px-2 py-0.5 rounded-full shrink-0">
+                                <Star className="w-2.5 h-2.5 fill-warning" /> FEATURED
                               </span>
                             )}
                             {match.league?.logo ? (
@@ -237,15 +237,15 @@ export default async function LivePage() {
                             {/* Home */}
                             <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
                               <div
-                                className={`rounded-xl p-2 border transition-all flex items-center justify-center ${homeWinning ? "border-[#00FF84]/30 bg-[#00FF84]/8" : "border-white/8 bg-white/4"}`}
+                                className={`rounded-xl p-2 border transition-all flex items-center justify-center ${homeWinning ? "border-accent/30 bg-accent/8" : "border-white/8 bg-white/4"}`}
                                 style={{
                                   width: boxSize, height: boxSize,
-                                  boxShadow: homeWinning ? "0 0 20px rgba(0,255,132,0.15)" : undefined,
+                                  boxShadow: homeWinning ? "0 0 20px rgba(16,185,129,0.15)" : undefined,
                                 }}
                               >
                                 <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={logoSize} />
                               </div>
-                              <span className={`text-xs sm:text-sm font-bold text-center leading-tight truncate w-full ${homeWinning ? "text-[#00FF84]" : "text-white"}`}>
+                              <span className={`text-xs sm:text-sm font-bold text-center leading-tight truncate w-full ${homeWinning ? "text-accent" : "text-white"}`}>
                                 {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
                               </span>
                             </div>
@@ -255,19 +255,19 @@ export default async function LivePage() {
                               {hasScore ? (
                                 <>
                                   <div className="flex items-center gap-1.5">
-                                    <span className={`font-black tabular-nums leading-none ${homeWinning ? "text-[#00FF84]" : "text-white"} ${match.isFeatured ? "text-3xl" : "text-2xl"}`}>{homeScore}</span>
+                                    <span className={`font-black tabular-nums leading-none ${homeWinning ? "text-accent" : "text-white"} ${match.isFeatured ? "text-3xl" : "text-2xl"}`}>{homeScore}</span>
                                     <span className={`text-white/25 font-black ${match.isFeatured ? "text-lg" : "text-base"}`}>—</span>
-                                    <span className={`font-black tabular-nums leading-none ${awayWinning ? "text-blue-400" : "text-white"} ${match.isFeatured ? "text-3xl" : "text-2xl"}`}>{awayScore}</span>
+                                    <span className={`font-black tabular-nums leading-none ${awayWinning ? "text-primary" : "text-white"} ${match.isFeatured ? "text-3xl" : "text-2xl"}`}>{awayScore}</span>
                                   </div>
                                   {match.status === "HALFTIME" && (
-                                    <span className="text-[10px] font-bold text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-0.5 rounded-full">HT</span>
+                                    <span className="text-[10px] font-bold text-warning bg-warning/10 border border-warning/20 px-2 py-0.5 rounded-full">HT</span>
                                   )}
                                 </>
                               ) : (
                                 <span className="text-xl font-black text-white/40">VS</span>
                               )}
                               {(match.streams.length > 0 || !!match.streamUrl) && (
-                                <span className="flex items-center gap-1 text-[10px] text-[#00FF84]/70 mt-0.5">
+                                <span className="flex items-center gap-1 text-[10px] text-accent/70 mt-0.5">
                                   <Wifi className="w-2.5 h-2.5" /> Streaming
                                 </span>
                               )}
@@ -276,15 +276,15 @@ export default async function LivePage() {
                             {/* Away */}
                             <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
                               <div
-                                className={`rounded-xl p-2 border transition-all flex items-center justify-center ${awayWinning ? "border-blue-500/30 bg-blue-500/8" : "border-white/8 bg-white/4"}`}
+                                className={`rounded-xl p-2 border transition-all flex items-center justify-center ${awayWinning ? "border-primary/30 bg-primary/8" : "border-white/8 bg-white/4"}`}
                                 style={{
                                   width: boxSize, height: boxSize,
-                                  boxShadow: awayWinning ? "0 0 20px rgba(59,130,246,0.15)" : undefined,
+                                  boxShadow: awayWinning ? "0 0 20px rgba(37,99,235,0.15)" : undefined,
                                 }}
                               >
                                 <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={logoSize} />
                               </div>
-                              <span className={`text-xs sm:text-sm font-bold text-center leading-tight truncate w-full ${awayWinning ? "text-blue-400" : "text-white"}`}>
+                              <span className={`text-xs sm:text-sm font-bold text-center leading-tight truncate w-full ${awayWinning ? "text-primary" : "text-white"}`}>
                                 {match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA"}
                               </span>
                             </div>
@@ -292,9 +292,9 @@ export default async function LivePage() {
                         ) : hasTwoSidesCard ? (
                           <div className="flex items-center gap-4 py-1">
                             <div className="flex-1 flex flex-col items-center gap-2.5 min-w-0">
-                              <div className="w-14 h-14 rounded-full bg-[#00FF84]/10 border-2 border-[#00FF84]/25 flex items-center justify-center"
-                                style={{ boxShadow: "0 0 16px rgba(0,255,132,0.12)" }}>
-                                <span className="text-xl font-black text-[#00FF84]">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
+                              <div className="w-14 h-14 rounded-full bg-accent/10 border-2 border-accent/25 flex items-center justify-center"
+                                style={{ boxShadow: "0 0 16px rgba(16,185,129,0.12)" }}>
+                                <span className="text-xl font-black text-accent">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
                               </div>
                               <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2">{match.participant1 ?? "TBA"}</span>
                             </div>
@@ -303,9 +303,9 @@ export default async function LivePage() {
                               <span className="text-base font-black text-white/40">VS</span>
                             </div>
                             <div className="flex-1 flex flex-col items-center gap-2.5 min-w-0">
-                              <div className="w-14 h-14 rounded-full bg-blue-500/10 border-2 border-blue-500/25 flex items-center justify-center"
-                                style={{ boxShadow: "0 0 16px rgba(59,130,246,0.12)" }}>
-                                <span className="text-xl font-black text-blue-400">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
+                              <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-primary/25 flex items-center justify-center"
+                                style={{ boxShadow: "0 0 16px rgba(37,99,235,0.12)" }}>
+                                <span className="text-xl font-black text-primary">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
                               </div>
                               <span className="text-sm font-bold text-white text-center leading-tight line-clamp-2">{match.participant2 ?? "TBA"}</span>
                             </div>
@@ -323,14 +323,14 @@ export default async function LivePage() {
                           href={`/live/${match.id}`}
                           className={`mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-black text-sm transition-all active:scale-[0.98] ${
                             match.isFeatured
-                              ? "bg-yellow-400 text-black hover:bg-yellow-300"
-                              : "bg-[#00FF84] text-black hover:bg-[#00FF84]/85"
+                              ? "bg-warning text-warning-foreground hover:bg-warning/90"
+                              : "bg-primary text-primary-foreground hover:bg-primary/90"
                           }`}
                           style={match.isFeatured
-                            ? { boxShadow: "0 0 20px rgba(234,179,8,0.35)" }
-                            : { boxShadow: "0 0 16px rgba(0,255,132,0.25)" }}
+                            ? { boxShadow: "0 0 20px rgba(245,158,11,0.35)" }
+                            : { boxShadow: "0 0 16px rgba(37,99,235,0.25)" }}
                         >
-                          <Play className="w-4 h-4 fill-black" />
+                          <Play className={`w-4 h-4 ${match.isFeatured ? "fill-warning-foreground" : "fill-white"}`} />
                           {watchLabel}
                         </Link>
                       </div>
@@ -346,20 +346,20 @@ export default async function LivePage() {
             <section>
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/15 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-blue-400" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-white tracking-tight">Up Next Today</h2>
                     <p className="text-sm text-white/50">{upcomingToday.length} match{upcomingToday.length !== 1 ? "es" : ""} in the next 24 hours</p>
                   </div>
                 </div>
-                <Link href="/" className="flex items-center gap-1 text-xs text-white/50 hover:text-[#00FF84] transition-colors font-semibold">
+                <Link href="/" className="flex items-center gap-1 text-xs text-white/50 hover:text-primary transition-colors font-semibold">
                   Full Schedule <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
-              <div className="rounded-2xl border border-white/7 bg-[#0D1117]/80 overflow-hidden divide-y divide-white/4">
+              <div className="rounded-2xl border border-white/7 bg-card/80 overflow-hidden divide-y divide-white/4">
                 {upcomingToday.map((match) => {
                   const mSportSlug = match.sport?.slug ?? null;
                   const mIsFootball = mSportSlug === "football" || !!match.homeTeamId;
@@ -394,7 +394,7 @@ export default async function LivePage() {
                         {mHasTwoSides ? (
                           <>
                             <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                              {match.isFeatured && <Star className="w-3 h-3 text-yellow-400 fill-yellow-400 shrink-0" />}
+                              {match.isFeatured && <Star className="w-3 h-3 text-warning fill-warning shrink-0" />}
                               <span className="text-sm font-semibold text-gray-200 truncate text-right group-hover/match:text-white transition-colors">
                                 {match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA"}
                               </span>
@@ -426,7 +426,7 @@ export default async function LivePage() {
                         <div className="shrink-0">
                           <CountdownTimer
                             scheduledAt={match.scheduledAt}
-                            className="text-[10px] font-bold text-blue-400/80 bg-blue-500/8 border border-blue-500/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
+                            className="text-[10px] font-bold text-primary/80 bg-primary/8 border border-primary/15 px-2 py-0.5 rounded-full whitespace-nowrap tabular-nums"
                           />
                         </div>
 
@@ -443,7 +443,7 @@ export default async function LivePage() {
           {liveMatches.length === 0 && upcomingToday.length === 0 && (
             <div className="text-center py-8">
               <p className="text-white/40 text-sm mb-4">Nothing live or scheduled for today</p>
-              <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00FF84] text-black font-bold text-sm hover:bg-[#00FF84]/85 transition-all">
+              <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-all">
                 <Calendar className="w-4 h-4" /> Browse All Fixtures
               </Link>
             </div>

@@ -129,7 +129,7 @@ export default async function LiveMatchPage({ params }: Props) {
   const awayWinning = hasScore && awayScore > homeScore;
 
   return (
-    <div className="min-h-screen bg-[#0B0F14]">
+    <div className="min-h-screen bg-background">
       <MatchWatcher matchId={match.id} />
       <ViewTracker type="match" matchId={match.id} />
       <LiveViewerTracker matchId={match.id} />
@@ -138,23 +138,23 @@ export default async function LiveMatchPage({ params }: Props) {
 
         {/* ── MATCH HEADER ── */}
         <div className="relative rounded-2xl overflow-hidden border border-white/8"
-          style={{ background: "linear-gradient(135deg, #0f1923 0%, #0B0F14 60%, #0f1923 100%)" }}>
+          style={{ background: "linear-gradient(135deg, #0f1923 0%, #0F172A 60%, #0f1923 100%)" }}>
           {/* Ambient glows */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full opacity-20 blur-3xl"
-              style={{ background: "radial-gradient(circle, #00FF84, transparent)" }} />
+              style={{ background: "radial-gradient(circle, var(--accent), transparent)" }} />
             <div className="absolute top-0 right-1/4 w-64 h-32 rounded-full opacity-15 blur-3xl"
-              style={{ background: "radial-gradient(circle, #3B82F6, transparent)" }} />
+              style={{ background: "radial-gradient(circle, var(--primary), transparent)" }} />
           </div>
           {/* Top accent line */}
-          <div className={`absolute inset-x-0 top-0 h-0.5 ${isLive ? "bg-gradient-to-r from-transparent via-red-500 to-transparent" : "bg-gradient-to-r from-transparent via-[#00FF84]/60 to-transparent"}`} />
+          <div className={`absolute inset-x-0 top-0 h-0.5 ${isLive ? "bg-gradient-to-r from-transparent via-danger to-transparent" : "bg-gradient-to-r from-transparent via-primary/60 to-transparent"}`} />
 
           <div className="relative p-3 sm:p-4">
             {/* League row */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2.5">
                 {match.league?.logo ? (
-                  <Image src={match.league.logo} alt={match.league.name} width={20} height={20} className="object-contain shrink-0" />
+                  <Image src={match.league.logo} alt={match.league.name} width={20} height={20} className="object-contain shrink-0" style={{ width: 20, height: 20 }} />
                 ) : match.sport?.icon ? (
                   <span className="text-lg leading-none">{match.sport.icon}</span>
                 ) : (
@@ -190,22 +190,22 @@ export default async function LiveMatchPage({ params }: Props) {
                 {/* Home team */}
                 <div className="flex-1 flex flex-col sm:flex-row items-center sm:items-center gap-1 sm:gap-2 min-w-0">
                   {match.homeTeam?.logo ? (
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 p-1 border ${homeWinning ? "border-[#00FF84]/30 bg-[#00FF84]/8 shadow-[0_0_20px_rgba(0,255,132,0.15)]" : "border-white/8 bg-white/4"}`}>
-                      <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={26} height={26} className="object-contain" />
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 p-1 border ${homeWinning ? "border-accent/30 bg-accent/8 shadow-[0_0_20px_rgba(16,185,129,0.15)]" : "border-white/8 bg-white/4"}`}>
+                      <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={26} height={26} className="object-contain" style={{ width: 26, height: 26 }} />
                     </div>
                   ) : (
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 border text-sm font-black ${homeWinning ? "border-[#00FF84]/30 bg-[#00FF84]/10 text-[#00FF84]" : "border-white/8 bg-white/5 text-white"}`}>
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 border text-sm font-black ${homeWinning ? "border-accent/30 bg-accent/10 text-accent" : "border-white/8 bg-white/5 text-white"}`}>
                       {(match.homeTeam?.name ?? match.participant1 ?? "H").charAt(0)}
                     </div>
                   )}
                   {match.homeTeam?.slug ? (
                     <Link href={`/team/${match.homeTeam.slug}`} className="text-center sm:text-left hover:opacity-80 transition-opacity min-w-0">
-                      <p className={`font-black text-xs sm:text-sm leading-tight truncate ${homeWinning ? "text-[#00FF84]" : "text-white"}`}>
+                      <p className={`font-black text-xs sm:text-sm leading-tight truncate ${homeWinning ? "text-accent" : "text-white"}`}>
                         {match.homeTeam.name}
                       </p>
                     </Link>
                   ) : (
-                    <p className={`font-black text-xs sm:text-sm text-center sm:text-left truncate ${homeWinning ? "text-[#00FF84]" : "text-white"}`}>
+                    <p className={`font-black text-xs sm:text-sm text-center sm:text-left truncate ${homeWinning ? "text-accent" : "text-white"}`}>
                       {match.participant1 ?? "Home"}
                     </p>
                   )}
@@ -216,12 +216,12 @@ export default async function LiveMatchPage({ params }: Props) {
                   {(isLive || isFinished) && hasScore ? (
                     <>
                       <div className="flex items-center gap-1 sm:gap-1.5">
-                        <span className={`text-xl sm:text-2xl font-black tabular-nums leading-none ${homeWinning ? "text-[#00FF84]" : "text-white"}`}>{homeScore}</span>
+                        <span className={`text-xl sm:text-2xl font-black tabular-nums leading-none ${homeWinning ? "text-accent" : "text-white"}`}>{homeScore}</span>
                         <span className="text-sm sm:text-base text-white/25 font-black">—</span>
-                        <span className={`text-xl sm:text-2xl font-black tabular-nums leading-none ${awayWinning ? "text-[#00FF84]" : "text-white"}`}>{awayScore}</span>
+                        <span className={`text-xl sm:text-2xl font-black tabular-nums leading-none ${awayWinning ? "text-primary" : "text-white"}`}>{awayScore}</span>
                       </div>
                       {match.status === "HALFTIME" && (
-                        <span className="text-xs font-bold text-yellow-400 bg-yellow-500/12 border border-yellow-500/20 px-2.5 py-0.5 rounded-full mt-1">Half Time</span>
+                        <span className="text-xs font-bold text-warning bg-warning/12 border border-warning/20 px-2.5 py-0.5 rounded-full mt-1">Half Time</span>
                       )}
                     </>
                   ) : (
@@ -234,22 +234,22 @@ export default async function LiveMatchPage({ params }: Props) {
                 {/* Away team */}
                 <div className="flex-1 flex flex-col sm:flex-row-reverse items-center sm:items-center gap-1 sm:gap-2 min-w-0">
                   {match.awayTeam?.logo ? (
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 p-1 border ${awayWinning ? "border-blue-500/30 bg-blue-500/8 shadow-[0_0_20px_rgba(59,130,246,0.15)]" : "border-white/8 bg-white/4"}`}>
-                      <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={26} height={26} className="object-contain" />
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 p-1 border ${awayWinning ? "border-primary/30 bg-primary/8 shadow-[0_0_20px_rgba(37,99,235,0.15)]" : "border-white/8 bg-white/4"}`}>
+                      <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={26} height={26} className="object-contain" style={{ width: 26, height: 26 }} />
                     </div>
                   ) : (
-                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 border text-sm font-black ${awayWinning ? "border-blue-400/30 bg-blue-500/10 text-blue-400" : "border-white/8 bg-white/5 text-white"}`}>
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center shrink-0 border text-sm font-black ${awayWinning ? "border-primary/30 bg-primary/10 text-primary" : "border-white/8 bg-white/5 text-white"}`}>
                       {(match.awayTeam?.name ?? match.participant2 ?? "A").charAt(0)}
                     </div>
                   )}
                   {match.awayTeam?.slug ? (
                     <Link href={`/team/${match.awayTeam.slug}`} className="text-center sm:text-right hover:opacity-80 transition-opacity min-w-0">
-                      <p className={`font-black text-xs sm:text-sm leading-tight truncate ${awayWinning ? "text-blue-400" : "text-white"}`}>
+                      <p className={`font-black text-xs sm:text-sm leading-tight truncate ${awayWinning ? "text-primary" : "text-white"}`}>
                         {match.awayTeam.name}
                       </p>
                     </Link>
                   ) : (
-                    <p className={`font-black text-xs sm:text-sm text-center sm:text-right truncate ${awayWinning ? "text-blue-400" : "text-white"}`}>
+                    <p className={`font-black text-xs sm:text-sm text-center sm:text-right truncate ${awayWinning ? "text-primary" : "text-white"}`}>
                       {match.participant2 ?? "Away"}
                     </p>
                   )}
@@ -259,8 +259,8 @@ export default async function LiveMatchPage({ params }: Props) {
               /* ── Head-to-head: UFC, Boxing, Cricket, etc. ── */
               <div className="flex items-center gap-4 sm:gap-8">
                 <div className="flex-1 flex flex-col items-center gap-3 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-[#00FF84]/10 border-2 border-[#00FF84]/25 flex items-center justify-center shadow-[0_0_20px_rgba(0,255,132,0.12)]">
-                    <span className="text-2xl font-black text-[#00FF84]">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
+                  <div className="w-16 h-16 rounded-2xl bg-accent/10 border-2 border-accent/25 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.12)]">
+                    <span className="text-2xl font-black text-accent">{(match.participant1 ?? "?").charAt(0).toUpperCase()}</span>
                   </div>
                   <span className="font-black text-white text-base sm:text-lg leading-tight">{match.participant1}</span>
                 </div>
@@ -269,8 +269,8 @@ export default async function LiveMatchPage({ params }: Props) {
                   <span className="text-lg sm:text-2xl font-black text-white/30">VS</span>
                 </div>
                 <div className="flex-1 flex flex-col items-center gap-3 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border-2 border-blue-500/25 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.12)]">
-                    <span className="text-2xl font-black text-blue-400">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 border-2 border-primary/25 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.12)]">
+                    <span className="text-2xl font-black text-primary">{(match.participant2 ?? "?").charAt(0).toUpperCase()}</span>
                   </div>
                   <span className="font-black text-white text-base sm:text-lg leading-tight">{match.participant2}</span>
                 </div>
@@ -289,7 +289,7 @@ export default async function LiveMatchPage({ params }: Props) {
         </div>
 
         {/* ── PLAYER + SIDEBAR ── */}
-        <div className="grid lg:grid-cols-[1fr,380px] gap-4">
+        <div className="grid lg:grid-cols-[1fr_380px] gap-4">
           {/* Left column */}
           <div className="space-y-4">
             <div className="rounded-2xl overflow-hidden border border-white/6 shadow-2xl xl:max-w-4xl 2xl:max-w-5xl xl:mx-auto">
@@ -307,21 +307,21 @@ export default async function LiveMatchPage({ params }: Props) {
 
             {/* Match Statistics */}
             {isFootball && match.statistics && (
-              <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+              <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
                 <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-[#00FF84]/10 flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                     <span className="text-sm">📊</span>
                   </div>
                   <h3 className="text-sm font-bold text-white">Match Statistics</h3>
                 </div>
                 <div className="p-5 space-y-4">
                   {[
-                    { label: "Possession", home: match.statistics.homePossession ?? 50, away: match.statistics.awayPossession ?? 50, unit: "%", homeColor: "#00FF84", awayColor: "#3B82F6" },
-                    { label: "Shots", home: match.statistics.homeShots ?? 0, away: match.statistics.awayShots ?? 0, homeColor: "#00FF84", awayColor: "#3B82F6" },
-                    { label: "Shots on Target", home: match.statistics.homeShotsOnTarget ?? 0, away: match.statistics.awayShotsOnTarget ?? 0, homeColor: "#00FF84", awayColor: "#3B82F6" },
-                    { label: "Corners", home: match.statistics.homeCorners ?? 0, away: match.statistics.awayCorners ?? 0, homeColor: "#00FF84", awayColor: "#3B82F6" },
-                    { label: "Yellow Cards", home: match.statistics.homeYellowCards ?? 0, away: match.statistics.awayYellowCards ?? 0, homeColor: "#EAB308", awayColor: "#EAB308" },
-                    { label: "Fouls", home: match.statistics.homeFouls ?? 0, away: match.statistics.awayFouls ?? 0, homeColor: "#EF4444", awayColor: "#EF4444" },
+                    { label: "Possession", home: match.statistics.homePossession ?? 50, away: match.statistics.awayPossession ?? 50, unit: "%", homeColor: "var(--accent)", awayColor: "var(--primary)" },
+                    { label: "Shots", home: match.statistics.homeShots ?? 0, away: match.statistics.awayShots ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
+                    { label: "Shots on Target", home: match.statistics.homeShotsOnTarget ?? 0, away: match.statistics.awayShotsOnTarget ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
+                    { label: "Corners", home: match.statistics.homeCorners ?? 0, away: match.statistics.awayCorners ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
+                    { label: "Yellow Cards", home: match.statistics.homeYellowCards ?? 0, away: match.statistics.awayYellowCards ?? 0, homeColor: "var(--warning)", awayColor: "var(--warning)" },
+                    { label: "Fouls", home: match.statistics.homeFouls ?? 0, away: match.statistics.awayFouls ?? 0, homeColor: "var(--danger)", awayColor: "var(--danger)" },
                   ].map((stat) => (
                     <StatRow key={stat.label} {...stat} />
                   ))}

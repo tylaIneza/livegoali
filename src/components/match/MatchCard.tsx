@@ -30,7 +30,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
       >
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="flex items-center gap-4 p-3 rounded-xl border border-white/8 bg-[#121821]/60 backdrop-blur-md hover:border-[#00FF84]/30 hover:bg-[#1a2235]/70 transition-all duration-200 cursor-pointer"
+          className="flex items-center gap-4 p-3 rounded-xl border border-white/8 bg-card/60 backdrop-blur-md hover:border-primary/30 hover:bg-white/5 transition-all duration-200 cursor-pointer"
         >
           <div className="w-20 text-center">
             {isLive ? (
@@ -43,9 +43,9 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
           </div>
           <div className="flex-1 flex items-center gap-3">
             <div className="flex items-center gap-2 flex-1">
-              <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={24} />
+              <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={24} />
               <span className="text-sm font-medium text-white truncate">
-                {match.homeTeam.shortName || match.homeTeam.name}
+                {match.homeTeam?.shortName || match.homeTeam?.name || match.participant1 || "TBA"}
               </span>
             </div>
             <div className="flex items-center gap-2 font-bold text-lg">
@@ -61,12 +61,12 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
             </div>
             <div className="flex items-center gap-2 flex-1 justify-end">
               <span className="text-sm font-medium text-white truncate text-right">
-                {match.awayTeam.shortName || match.awayTeam.name}
+                {match.awayTeam?.shortName || match.awayTeam?.name || match.participant2 || "TBA"}
               </span>
-              <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={24} />
+              <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={24} />
             </div>
           </div>
-          {isLive && <Play className="w-4 h-4 text-[#00FF84] shrink-0" />}
+          {isLive && <Play className="w-4 h-4 text-primary shrink-0" />}
         </motion.div>
       </Link>
     );
@@ -77,14 +77,14 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
       whileHover={{ y: -2, scale: 1.005 }}
       className={`relative rounded-2xl border overflow-hidden transition-all duration-200 ${
         isLive
-          ? "border-[#00FF84]/20 bg-gradient-to-b from-[#00FF84]/10 to-[#121821]/60 backdrop-blur-md shadow-[0_0_30px_rgba(0,255,132,0.08)]"
-          : "border-white/8 bg-[#121821]/60 backdrop-blur-md"
+          ? "border-accent/20 bg-gradient-to-b from-accent/10 to-card/60 backdrop-blur-md shadow-[0_0_30px_rgba(16,185,129,0.08)]"
+          : "border-white/8 bg-card/60 backdrop-blur-md"
       }`}
     >
       {/* League Header */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/6">
         <div className="flex items-center gap-2">
-          {match.league.logo && (
+          {match.league?.logo && (
             <Image
               src={match.league.logo}
               alt={match.league.name}
@@ -93,7 +93,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               className="rounded-sm object-contain"
             />
           )}
-          <span className="text-xs text-white/75 font-medium">{match.league.name}</span>
+          <span className="text-xs text-white/75 font-medium">{match.league?.name ?? "Event"}</span>
           {match.round && (
             <span className="text-xs text-white/60">• {match.round}</span>
           )}
@@ -113,9 +113,9 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
         <div className="flex items-center gap-4">
           {/* Home Team */}
           <div className="flex-1 flex flex-col items-center gap-2">
-            <TeamLogo logo={match.homeTeam.logo} name={match.homeTeam.name} size={48} />
+            <TeamLogo logo={match.homeTeam?.logo ?? null} name={match.homeTeam?.name ?? match.participant1 ?? ""} size={48} />
             <span className="text-sm font-bold text-white text-center leading-tight">
-              {match.homeTeam.name}
+              {match.homeTeam?.name ?? match.participant1 ?? "TBA"}
             </span>
           </div>
 
@@ -126,7 +126,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
                 <div className="text-3xl font-black tabular-nums text-white">
                   {match.homeScore ?? 0} - {match.awayScore ?? 0}
                 </div>
-                <span className="text-[10px] text-white/70 font-medium bg-[#1F2937] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] text-white/70 font-medium bg-muted px-2 py-0.5 rounded-full">
                   FULL TIME
                 </span>
               </>
@@ -144,9 +144,9 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
 
           {/* Away Team */}
           <div className="flex-1 flex flex-col items-center gap-2">
-            <TeamLogo logo={match.awayTeam.logo} name={match.awayTeam.name} size={48} />
+            <TeamLogo logo={match.awayTeam?.logo ?? null} name={match.awayTeam?.name ?? match.participant2 ?? ""} size={48} />
             <span className="text-sm font-bold text-white text-center leading-tight">
-              {match.awayTeam.name}
+              {match.awayTeam?.name ?? match.participant2 ?? "TBA"}
             </span>
           </div>
         </div>
@@ -161,15 +161,15 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
             </div>
             <div className="flex h-1 rounded-full overflow-hidden gap-0.5">
               <div
-                className="h-full bg-[#00FF84] rounded-l-full transition-all"
+                className="h-full bg-accent rounded-l-full transition-all"
                 style={{ width: `${match.prediction.homeWinProb}%` }}
               />
               <div
-                className="h-full bg-yellow-400 transition-all"
+                className="h-full bg-warning transition-all"
                 style={{ width: `${match.prediction.drawProb}%` }}
               />
               <div
-                className="h-full bg-blue-400 rounded-r-full transition-all"
+                className="h-full bg-primary rounded-r-full transition-all"
                 style={{ width: `${match.prediction.awayWinProb}%` }}
               />
             </div>
@@ -225,10 +225,10 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
   }
   return (
     <div
-      className="rounded-full bg-[#1F2937] flex items-center justify-center text-xs font-bold text-[#00FF84]"
+      className="rounded-full bg-muted flex items-center justify-center text-xs font-bold text-primary"
       style={{ width: size, height: size }}
     >
-      {name.charAt(0)}
+      {name.charAt(0) || "?"}
     </div>
   );
 }
