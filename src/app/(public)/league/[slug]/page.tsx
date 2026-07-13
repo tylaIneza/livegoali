@@ -2,11 +2,12 @@ export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchCard } from "@/components/match/MatchCard";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { Trophy, List } from "lucide-react";
 import type { Metadata } from "next";
-import type { MatchWithTeams } from "@/types";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -31,6 +32,11 @@ export default async function LeaguePage({ params }: Props) {
   });
 
   if (!league) notFound();
+
+  const session = await auth();
+  const isFavorited = session?.user
+    ? !!(await prisma.favorite.findFirst({ where: { userId: session.user.id, leagueId: league.id } }))
+    : false;
 
   const [fixtures, results] = await Promise.all([
     prisma.match.findMany({
@@ -62,16 +68,17 @@ export default async function LeaguePage({ params }: Props) {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="flex items-center gap-5 mb-8 p-6 rounded-2xl border border-white/8 bg-[#121821]">
+      <div className="flex items-center gap-5 mb-8 p-6 rounded-2xl border border-white/8 bg-card">
         {league.logo ? (
           <Image src={league.logo} alt={league.name} width={72} height={72} className="object-contain" />
         ) : (
-          <div className="w-18 h-18 rounded-2xl bg-[#1F2937] flex items-center justify-center text-3xl">🏆</div>
+          <div className="w-18 h-18 rounded-2xl bg-muted flex items-center justify-center text-3xl">🏆</div>
         )}
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-black text-white">{league.name}</h1>
           <p className="text-white/75">{league.country} · {league.season}</p>
         </div>
+        <FavoriteButton leagueId={league.id} initialFavorited={isFavorited} className="shrink-0" />
       </div>
 
       <Tabs defaultValue="fixtures">
@@ -86,7 +93,7 @@ export default async function LeaguePage({ params }: Props) {
             <p className="text-center text-white/70 py-12">No upcoming fixtures</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {fixtures.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
+              {fixtures.map((m) => <MatchCard key={m.id} match={m} />)}
             </div>
           )}
         </TabsContent>
@@ -96,14 +103,14 @@ export default async function LeaguePage({ params }: Props) {
             <p className="text-center text-white/70 py-12">No recent results</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {results.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
+              {results.map((m) => <MatchCard key={m.id} match={m} />)}
             </div>
           )}
         </TabsContent>
 
         {league.standings.length > 0 && (
           <TabsContent value="table">
-            <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+            <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -139,7 +146,7 @@ export default async function LeaguePage({ params }: Props) {
                         <td className="px-4 py-3 text-center text-white/75">{s.lost}</td>
                         <td className="px-4 py-3 text-center text-white/75">{s.goalsFor}</td>
                         <td className="px-4 py-3 text-center text-white/75">{s.goalsAgainst}</td>
-                        <td className={`px-4 py-3 text-center font-medium ${s.goalDifference > 0 ? "text-[#00FF84]" : s.goalDifference < 0 ? "text-red-400" : "text-white/75"}`}>
+                        <td className={`px-4 py-3 text-center font-medium ${s.goalDifference > 0 ? "text-accent" : s.goalDifference < 0 ? "text-danger" : "text-white/75"}`}>
                           {s.goalDifference > 0 ? "+" : ""}{s.goalDifference}
                         </td>
                         <td className="px-4 py-3 text-center font-black text-white text-base">{s.points}</td>
@@ -148,9 +155,9 @@ export default async function LeaguePage({ params }: Props) {
                             <div className="flex justify-center gap-0.5">
                               {s.form.slice(-5).split("").map((r, i) => (
                                 <span key={i} className={`w-5 h-5 rounded-sm text-[10px] font-bold flex items-center justify-center ${
-                                  r === "W" ? "bg-[#00FF84]/20 text-[#00FF84]"
-                                  : r === "D" ? "bg-yellow-500/20 text-yellow-400"
-                                  : "bg-red-500/20 text-red-400"
+                                  r === "W" ? "bg-accent/20 text-accent"
+                                  : r === "D" ? "bg-warning/20 text-warning"
+                                  : "bg-danger/20 text-danger"
                                 }`}>{r}</span>
                               ))}
                             </div>

@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchCard } from "@/components/match/MatchCard";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { MapPin, Users, Calendar, Globe, Shield } from "lucide-react";
 import type { Metadata } from "next";
-import type { MatchWithTeams } from "@/types";
 
 interface Props { params: Promise<{ slug: string }> }
 
@@ -35,6 +36,11 @@ export default async function TeamPage({ params }: Props) {
   });
 
   if (!team) notFound();
+
+  const session = await auth();
+  const isFavorited = session?.user
+    ? !!(await prisma.favorite.findFirst({ where: { userId: session.user.id, teamId: team.id } }))
+    : false;
 
   const matchInclude = {
     homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -78,12 +84,12 @@ export default async function TeamPage({ params }: Props) {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       {/* Header */}
-      <div className="rounded-2xl border border-white/8 bg-[#121821] p-6 mb-6">
+      <div className="rounded-2xl border border-white/8 bg-card p-6 mb-6">
         <div className="flex items-center gap-5">
           {team.logo ? (
             <Image src={team.logo} alt={team.name} width={80} height={80} className="object-contain shrink-0" />
           ) : (
-            <div className="w-20 h-20 rounded-2xl bg-[#1F2937] flex items-center justify-center text-4xl shrink-0">
+            <div className="w-20 h-20 rounded-2xl bg-muted flex items-center justify-center text-4xl shrink-0">
               ⚽
             </div>
           )}
@@ -106,19 +112,20 @@ export default async function TeamPage({ params }: Props) {
                 </span>
               )}
               {team.league && (
-                <Link href={`/league/${team.league.slug}`} className="flex items-center gap-1.5 text-sm text-[#00FF84] hover:underline">
+                <Link href={`/league/${team.league.slug}`} className="flex items-center gap-1.5 text-sm text-primary hover:underline">
                   <Shield className="w-3.5 h-3.5" />
                   {team.league.name}
                 </Link>
               )}
               {team.website && (
-                <a href={team.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-white/75 hover:text-[#00FF84] transition-colors">
+                <a href={team.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-white/75 hover:text-primary transition-colors">
                   <Globe className="w-3.5 h-3.5 text-white/60" />
                   Website
                 </a>
               )}
             </div>
           </div>
+          <FavoriteButton teamId={team.id} initialFavorited={isFavorited} className="shrink-0" />
         </div>
 
         {/* Stats row */}
@@ -126,9 +133,9 @@ export default async function TeamPage({ params }: Props) {
           <div className="mt-5 pt-5 border-t border-white/8 grid grid-cols-4 sm:grid-cols-7 gap-4">
             {[
               { label: "Played", value: standing.played },
-              { label: "Won", value: standing.won, color: "text-[#00FF84]" },
-              { label: "Drawn", value: standing.drawn, color: "text-yellow-400" },
-              { label: "Lost", value: standing.lost, color: "text-red-400" },
+              { label: "Won", value: standing.won, color: "text-accent" },
+              { label: "Drawn", value: standing.drawn, color: "text-warning" },
+              { label: "Lost", value: standing.lost, color: "text-danger" },
               { label: "GF", value: standing.goalsFor },
               { label: "GA", value: standing.goalsAgainst },
               { label: "Points", value: standing.points, color: "text-white", bold: true },
@@ -182,7 +189,7 @@ export default async function TeamPage({ params }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {fixtures.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
+              {fixtures.map((m) => <MatchCard key={m.id} match={m} />)}
             </div>
           )}
         </TabsContent>
@@ -195,16 +202,16 @@ export default async function TeamPage({ params }: Props) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {results.map((m) => <MatchCard key={m.id} match={m as unknown as MatchWithTeams} />)}
+              {results.map((m) => <MatchCard key={m.id} match={m} />)}
             </div>
           )}
         </TabsContent>
 
         {team.players.length > 0 && (
           <TabsContent value="squad">
-            <div className="rounded-2xl border border-white/8 bg-[#121821] overflow-hidden">
+            <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
               <div className="flex items-center gap-2 px-5 py-4 border-b border-white/8">
-                <Users className="w-4 h-4 text-[#00FF84]" />
+                <Users className="w-4 h-4 text-primary" />
                 <span className="text-sm font-semibold text-white">Squad</span>
               </div>
               <div className="divide-y divide-white/5">
@@ -217,7 +224,7 @@ export default async function TeamPage({ params }: Props) {
                     {player.image ? (
                       <Image src={player.image} alt={player.name} width={36} height={36} className="rounded-full object-cover shrink-0" />
                     ) : (
-                      <div className="w-9 h-9 rounded-full bg-[#1F2937] flex items-center justify-center text-sm font-bold text-white/75 shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-white/75 shrink-0">
                         {player.number ?? "?"}
                       </div>
                     )}
