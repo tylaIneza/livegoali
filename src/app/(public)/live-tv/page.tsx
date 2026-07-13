@@ -49,28 +49,28 @@ export default async function LiveTvPage() {
   return (
     <>
       <div className="relative overflow-hidden border-b border-white/6"
-        style={{ background: "linear-gradient(135deg, #110808 0%, #0B0F14 40%, #06040f 100%)" }}>
+        style={{ background: "linear-gradient(135deg, #110808 0%, #0F172A 40%, #06040f 100%)" }}>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/3 w-96 h-48 rounded-full opacity-20 blur-3xl"
-            style={{ background: "radial-gradient(circle, #EF4444, transparent)" }} />
+            style={{ background: "radial-gradient(circle, var(--danger), transparent)" }} />
           <div className="absolute bottom-0 right-1/4 w-64 h-32 rounded-full opacity-10 blur-3xl"
-            style={{ background: "radial-gradient(circle, #00FF84, transparent)" }} />
+            style={{ background: "radial-gradient(circle, var(--accent), transparent)" }} />
         </div>
-        <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-danger to-transparent" />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 relative">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
             <div className="relative shrink-0">
-              <div className="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center"
+              <div className="w-16 h-16 rounded-2xl bg-danger/20 border border-danger/30 flex items-center justify-center"
                 style={{ boxShadow: "0 0 40px rgba(239,68,68,0.25)" }}>
-                <Tv className="w-8 h-8 text-red-400" />
+                <Tv className="w-8 h-8 text-danger" />
               </div>
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 live-pulse" />
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-danger live-pulse" />
             </div>
             <div className="text-center sm:text-left">
               <div className="flex items-center justify-center sm:justify-start gap-3 mb-2">
-                <span className="flex items-center gap-1.5 text-xs font-black text-red-400 bg-red-500/12 border border-red-500/25 px-3 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" />
+                <span className="flex items-center gap-1.5 text-xs font-black text-danger bg-danger/12 border border-danger/25 px-3 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-danger live-pulse" />
                   24/7
                 </span>
               </div>
@@ -85,9 +85,9 @@ export default async function LiveTvPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
         {channels.length === 0 ? (
-          <div className="rounded-2xl border border-white/6 bg-[#121821]/80 p-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-red-500/8 border border-red-500/12 flex items-center justify-center mx-auto mb-5">
-              <Tv className="w-9 h-9 text-red-500/40" />
+          <div className="rounded-2xl border border-white/6 bg-card/80 p-16 text-center">
+            <div className="w-20 h-20 rounded-full bg-danger/8 border border-danger/12 flex items-center justify-center mx-auto mb-5">
+              <Tv className="w-9 h-9 text-danger/40" />
             </div>
             <p className="text-white font-black text-xl mb-2">No channels available yet</p>
             <p className="text-white/50 text-sm">Check back soon — new channels are added regularly</p>

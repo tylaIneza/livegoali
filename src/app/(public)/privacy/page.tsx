@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <p className="text-white/70 text-sm">Last Updated: June 23, 2026</p>
         <p className="text-white/75 mt-4 leading-relaxed">
           Welcome to LiveGoali (&ldquo;LiveGoali&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;). This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit or use{" "}
-          <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link>{" "}
+          <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link>{" "}
           (the &ldquo;Website&rdquo;).
         </p>
         <p className="text-white/75 mt-3 leading-relaxed">
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
       <div className="space-y-6">
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">1. Information We Collect</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-4">
             <div>
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">2. How We Use Your Information</h2>
           <p className="text-white/75 text-sm mb-2">We may use your information to:</p>
           <ul className="list-disc list-inside space-y-1 text-white/75 text-sm">
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">3. Google AdSense and Advertising</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>LiveGoali may display advertisements provided by Google and other advertising partners.</p>
@@ -98,7 +98,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">4. Analytics Services</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We may use analytics services such as Google Analytics to understand how visitors use our Website.</p>
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">5. Sharing of Information</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We do not sell personal information.</p>
@@ -130,7 +130,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">6. Data Security</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We implement reasonable technical and organizational measures to protect your information from unauthorized access, disclosure, alteration, or destruction.</p>
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">7. User Content</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Comments, predictions, and other content submitted by users may be publicly visible.</p>
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">8. Third-Party Websites</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Our Website may contain links to third-party websites.</p>
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">9. Children&apos;s Privacy</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>LiveGoali is not directed toward children under the age of 13.</p>
@@ -162,7 +162,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">10. Your Rights</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Depending on your location and applicable laws, you may have rights regarding your personal information, including:</p>
@@ -178,7 +178,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">11. Data Retention</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We retain personal information only for as long as necessary to:</p>
@@ -192,7 +192,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">12. International Users</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Your information may be processed and stored in countries other than your own.</p>
@@ -200,7 +200,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">13. Changes to This Privacy Policy</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We may update this Privacy Policy periodically.</p>
@@ -209,18 +209,18 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">14. Contact Us</h2>
           <p className="text-white/75 text-sm mb-4">If you have any questions about this Privacy Policy, please contact us:</p>
           <div className="space-y-1.5 text-sm">
             <p className="font-semibold text-white">LiveGoali</p>
-            <p className="text-white/75">Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
-            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
-            <p className="text-white/75">Contact Page: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
+            <p className="text-white/75">Website: <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
+            <p className="text-white/75">Contact Page: <Link href="/contact" className="text-primary hover:underline">www.livegoali.com/contact</Link></p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">15. Consent</h2>
           <p className="text-white/75 text-sm leading-relaxed">By accessing or using LiveGoali, you acknowledge that you have read, understood, and agreed to this Privacy Policy.</p>
         </div>
@@ -229,7 +229,7 @@ export default function PrivacyPage() {
 
       <div className="mt-10 text-center">
         <p className="text-white/70 text-sm">
-          Questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Contact us</Link>
+          Questions? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>
         </p>
       </div>
     </div>

@@ -17,7 +17,7 @@ export default function AboutPage() {
       </div>
 
       <div className="space-y-6">
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Who We Are</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>LiveGoali was created by football fans for football fans. Our mission is to provide a simple, fast, and reliable platform where supporters can follow their favorite teams, leagues, and competitions in real time.</p>
@@ -25,7 +25,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">What We Offer</h2>
           <p className="text-white/75 text-sm mb-3">At LiveGoali, we provide:</p>
           <ul className="list-disc list-inside space-y-1.5 text-white/75 text-sm mb-3">
@@ -41,7 +41,7 @@ export default function AboutPage() {
           <p className="text-white/75 text-sm">Our goal is to make football information accessible and easy to follow for fans across the globe.</p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Our Mission</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Our mission is to deliver accurate, timely, and engaging football content that helps fans stay informed and enjoy every moment of the game.</p>
@@ -49,7 +49,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Community First</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Football is more than a sport—it&apos;s a community. LiveGoali encourages respectful discussion and engagement among fans from different countries, clubs, and backgrounds.</p>
@@ -57,17 +57,17 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Accuracy and Reliability</h2>
           <p className="text-white/75 text-sm leading-relaxed">We strive to provide accurate football information and updates. While we make every effort to keep our data current and reliable, some information may occasionally be delayed, incomplete, or subject to change.</p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Independence</h2>
           <p className="text-white/75 text-sm leading-relaxed">LiveGoali operates as an independent football information platform. Any trademarks, team names, league names, or logos belong to their respective owners.</p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Our Vision</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>We aim to become one of the most trusted football platforms by providing fans with real-time information, insightful content, and an enjoyable user experience.</p>
@@ -75,13 +75,13 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">Contact Us</h2>
           <p className="text-white/75 text-sm mb-4">We welcome feedback, suggestions, and questions from our users.</p>
           <div className="space-y-1.5 text-sm">
-            <p className="text-white/75">Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
-            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
-            <p className="text-white/75">Contact Page: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
+            <p className="text-white/75">Website: <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
+            <p className="text-white/75">Contact Page: <Link href="/contact" className="text-primary hover:underline">www.livegoali.com/contact</Link></p>
           </div>
         </div>
       </div>

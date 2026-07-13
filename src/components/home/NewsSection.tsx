@@ -29,7 +29,7 @@ export function NewsSection({ articles }: Props) {
             <p className="text-sm text-white/70">Latest from the world of football</p>
           </div>
         </div>
-        <Link href="/news" className="text-sm text-[#00FF84] hover:underline flex items-center gap-1">
+        <Link href="/news" className="text-sm text-primary hover:underline flex items-center gap-1">
           All News <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -42,7 +42,7 @@ export function NewsSection({ articles }: Props) {
           className="lg:col-span-2"
         >
           <Link href={`/news/${featured.slug}`}>
-            <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-[#121821] group cursor-pointer h-full min-h-[300px]">
+            <div className="relative rounded-2xl overflow-hidden border border-white/8 bg-card group cursor-pointer h-full min-h-[300px]">
               {featured.featuredImage ? (
                 <Image
                   src={featured.featuredImage}
@@ -51,16 +51,16 @@ export function NewsSection({ articles }: Props) {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1F2937] to-[#0B0F14]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-muted to-background" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
               <div className="absolute inset-0 p-6 flex flex-col justify-end">
                 {featured.category && (
-                  <span className="inline-block text-xs font-bold text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/30 px-2.5 py-1 rounded-full mb-3 w-fit">
+                  <span className="inline-block text-xs font-bold text-primary bg-primary/10 border border-primary/30 px-2.5 py-1 rounded-full mb-3 w-fit">
                     {featured.category.name}
                   </span>
                 )}
-                <h3 className="text-xl font-black text-white mb-2 leading-tight group-hover:text-[#00FF84] transition-colors">
+                <h3 className="text-xl font-black text-white mb-2 leading-tight group-hover:text-primary transition-colors">
                   {featured.title}
                 </h3>
                 {featured.excerpt && (
@@ -85,7 +85,7 @@ export function NewsSection({ articles }: Props) {
               transition={{ delay: i * 0.1 }}
             >
               <Link href={`/news/${article.slug}`}>
-                <div className="flex gap-3 p-3 rounded-xl border border-white/8 bg-[#121821] hover:border-[#00FF84]/30 transition-all duration-200 group cursor-pointer">
+                <div className="flex gap-3 p-3 rounded-xl border border-white/8 bg-card hover:border-primary/30 transition-all duration-200 group cursor-pointer">
                   {article.featuredImage ? (
                     <Image
                       src={article.featuredImage}
@@ -95,12 +95,12 @@ export function NewsSection({ articles }: Props) {
                       className="rounded-lg object-cover w-20 h-16 shrink-0"
                     />
                   ) : (
-                    <div className="w-20 h-16 rounded-lg bg-[#1F2937] shrink-0 flex items-center justify-center">
+                    <div className="w-20 h-16 rounded-lg bg-muted shrink-0 flex items-center justify-center">
                       <Newspaper className="w-6 h-6 text-white/60" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-[#00FF84] transition-colors leading-tight">
+                    <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                       {article.title}
                     </h4>
                     <div className="flex items-center gap-1 mt-1 text-xs text-white/70">

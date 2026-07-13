@@ -17,7 +17,7 @@ export default function CareersPage() {
       </div>
 
       <div className="space-y-6">
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Who We&apos;re Looking For</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-3">
             LiveGoali is always open to hearing from talented individuals who are passionate about football, technology, and building great user experiences. We look for people who are self-motivated, creative, and eager to make an impact.
@@ -27,7 +27,7 @@ export default function CareersPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Current Openings</h2>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
@@ -38,7 +38,7 @@ export default function CareersPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Why LiveGoali</h2>
           <ul className="space-y-3 text-white/75 text-sm">
             {[
@@ -49,21 +49,21 @@ export default function CareersPage() {
               "Fast-moving, collaborative culture",
             ].map((item) => (
               <li key={item} className="flex items-start gap-2">
-                <span className="text-[#00FF84] mt-0.5">✓</span>
+                <span className="text-primary mt-0.5">✓</span>
                 <span>{item}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-8 text-center">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
           <h2 className="text-xl font-black text-white mb-2">Interested in joining us?</h2>
           <p className="text-white/75 text-sm mb-5">
             Send us your CV and a short note about yourself and what you&apos;d like to work on.
           </p>
           <a
             href="mailto:hello@livegoali.com?subject=Career%20Enquiry"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#00FF84] text-[#0B0F14] font-bold text-sm hover:bg-[#00FF84]/90 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors"
           >
             Send Your CV
           </a>
@@ -73,7 +73,7 @@ export default function CareersPage() {
 
       <div className="mt-8 text-center">
         <p className="text-white/70 text-sm">
-          Other questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Contact us</Link>
+          Other questions? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>
         </p>
       </div>
     </div>

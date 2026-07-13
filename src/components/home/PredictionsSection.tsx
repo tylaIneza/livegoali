@@ -57,9 +57,9 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
   const maxProb = Math.max(pred.homeWinProb, pred.drawProb, pred.awayWinProb);
   const recommendation =
     pred.homeWinProb === maxProb
-      ? match.homeTeam.name
+      ? match.homeTeam?.name ?? match.participant1 ?? "Home"
       : pred.awayWinProb === maxProb
-      ? match.awayTeam.name
+      ? match.awayTeam?.name ?? match.participant2 ?? "Away"
       : "Draw";
 
   return (
@@ -68,10 +68,10 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {match.league.logo && (
+            {match.league?.logo && (
               <Image src={match.league.logo} alt={match.league.name} width={16} height={16} className="object-contain" />
             )}
-            <span className="text-xs text-white/70 font-medium">{match.league.name}</span>
+            <span className="text-xs text-white/70 font-medium">{match.league?.name ?? "Event"}</span>
           </div>
           <span className="text-xs text-white/70">{formatMatchDate(match.scheduledAt)}</span>
         </div>
@@ -79,15 +79,15 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
         {/* Teams */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            {match.homeTeam.logo && (
+            {match.homeTeam?.logo && (
               <Image src={match.homeTeam.logo} alt={match.homeTeam.name} width={28} height={28} className="object-contain" />
             )}
-            <span className="font-bold text-white text-sm">{match.homeTeam.name}</span>
+            <span className="font-bold text-white text-sm">{match.homeTeam?.name ?? match.participant1 ?? "TBA"}</span>
           </div>
           <span className="text-white/60 text-sm font-bold">VS</span>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-white text-sm">{match.awayTeam.name}</span>
-            {match.awayTeam.logo && (
+            <span className="font-bold text-white text-sm">{match.awayTeam?.name ?? match.participant2 ?? "TBA"}</span>
+            {match.awayTeam?.logo && (
               <Image src={match.awayTeam.logo} alt={match.awayTeam.name} width={28} height={28} className="object-contain" />
             )}
           </div>
@@ -95,9 +95,9 @@ function PredictionCard({ match }: { match: MatchWithTeams }) {
 
         {/* Prediction Bars */}
         <div className="space-y-2.5 mb-4">
-          <PredBar label={match.homeTeam.shortName || match.homeTeam.name} value={pred.homeWinProb} color="bg-[#00FF84]" />
+          <PredBar label={match.homeTeam?.shortName || match.homeTeam?.name || match.participant1 || "Home"} value={pred.homeWinProb} color="bg-[#00FF84]" />
           <PredBar label="Draw" value={pred.drawProb} color="bg-yellow-400" />
-          <PredBar label={match.awayTeam.shortName || match.awayTeam.name} value={pred.awayWinProb} color="bg-blue-400" />
+          <PredBar label={match.awayTeam?.shortName || match.awayTeam?.name || match.participant2 || "Away"} value={pred.awayWinProb} color="bg-blue-400" />
         </div>
 
         {/* Footer */}

@@ -26,7 +26,7 @@ export default function DmcaPage() {
 
       <div className="space-y-6">
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Reporting Copyright Infringement</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-3">
             If you believe that content available on LiveGoali infringes your copyright, you may submit a DMCA takedown notice to our designated agent. To be valid, your notice must include the following:
@@ -48,17 +48,17 @@ export default function DmcaPage() {
           </ol>
         </div>
 
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">Submit a DMCA Notice</h2>
           <p className="text-white/75 text-sm mb-4">Send your completed DMCA notice to our legal team:</p>
           <div className="space-y-1.5 text-sm">
             <p className="font-semibold text-white">LiveGoali — Legal Department</p>
-            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
-            <p className="text-white/75">Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
+            <p className="text-white/75">Website: <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link></p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Counter-Notice</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-3">
             If you believe your content was removed or disabled as a result of a mistake or misidentification, you may submit a counter-notice. Your counter-notice must include:
@@ -70,17 +70,17 @@ export default function DmcaPage() {
             <li>A statement that you consent to the jurisdiction of the relevant courts.</li>
             <li>Your physical or electronic signature.</li>
           </ul>
-          <p className="text-white/75 text-sm">Send counter-notices to: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
+          <p className="text-white/75 text-sm">Send counter-notices to: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Repeat Infringers</h2>
           <p className="text-white/75 text-sm leading-relaxed">
             LiveGoali reserves the right to terminate the accounts of users who are found to be repeat infringers of copyright or other intellectual property rights.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Disclaimer</h2>
           <p className="text-white/75 text-sm leading-relaxed">
             Submitting a false or misleading DMCA notice may result in legal liability. If you are unsure whether content infringes your copyright, we recommend consulting a legal professional before submitting a notice.
@@ -91,7 +91,7 @@ export default function DmcaPage() {
 
       <div className="mt-10 text-center">
         <p className="text-white/70 text-sm">
-          Questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Contact us</Link> · <Link href="/terms" className="text-[#00FF84] hover:underline">Terms of Service</Link> · <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link>
+          Questions? <Link href="/contact" className="text-primary hover:underline">Contact us</Link> · <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link> · <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
         </p>
       </div>
     </div>

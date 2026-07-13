@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p className="text-white/70 text-sm">Last Updated: June 23, 2026</p>
         <p className="text-white/75 mt-4 leading-relaxed">
           Welcome to LiveGoali (&ldquo;LiveGoali&rdquo;, &ldquo;we&rdquo;, &ldquo;our&rdquo;, or &ldquo;us&rdquo;). By accessing or using{" "}
-          <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link>{" "}
+          <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link>{" "}
           (the &ldquo;Website&rdquo;), you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, please do not use our Website.
         </p>
       </div>
@@ -189,9 +189,9 @@ export default function TermsPage() {
             content: (
               <div className="space-y-1">
                 <p className="font-semibold text-white">LiveGoali</p>
-                <p>Website: <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link></p>
-                <p>Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
-                <p>Contact Page: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
+                <p>Website: <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link></p>
+                <p>Email: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
+                <p>Contact Page: <Link href="/contact" className="text-primary hover:underline">www.livegoali.com/contact</Link></p>
               </div>
             ),
           },
@@ -202,7 +202,7 @@ export default function TermsPage() {
             ),
           },
         ].map((s) => (
-          <div key={s.title} className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+          <div key={s.title} className="rounded-2xl border border-white/8 bg-card p-6">
             <h2 className="text-white font-bold mb-3">{s.title}</h2>
             <div className="text-white/75 text-sm leading-relaxed">{s.content}</div>
           </div>
@@ -211,7 +211,7 @@ export default function TermsPage() {
 
       <div className="mt-10 text-center">
         <p className="text-white/70 text-sm">
-          Questions? <Link href="/contact" className="text-[#00FF84] hover:underline">Contact us</Link>
+          Questions? <Link href="/contact" className="text-primary hover:underline">Contact us</Link>
         </p>
       </div>
     </div>

@@ -27,7 +27,7 @@ export default function RegisterPage() {
   };
 
   const strengthLabel = ["", "Weak", "Fair", "Good", "Strong"];
-  const strengthColor = ["", "bg-red-500", "bg-yellow-500", "bg-blue-500", "bg-[#00FF84]"];
+  const strengthColor = ["", "bg-danger", "bg-warning", "bg-primary", "bg-accent"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +68,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 stadium-bg" />
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#00FF84]/5 rounded-full blur-3xl" />
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -138,7 +138,7 @@ export default function RegisterPage() {
                       <div key={i} className={`flex-1 rounded-full transition-all ${i <= strength ? strengthColor[strength] : "bg-white/10"}`} />
                     ))}
                   </div>
-                  <span className={`text-xs font-medium ${strength >= 3 ? "text-[#00FF84]" : strength >= 2 ? "text-yellow-400" : "text-red-400"}`}>
+                  <span className={`text-xs font-medium ${strength >= 3 ? "text-accent" : strength >= 2 ? "text-warning" : "text-danger"}`}>
                     {strengthLabel[strength]}
                   </span>
                 </div>
@@ -158,15 +158,15 @@ export default function RegisterPage() {
                   required
                 />
                 {form.confirmPassword && form.password === form.confirmPassword && (
-                  <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#00FF84]" />
+                  <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-accent" />
                 )}
               </div>
             </div>
 
             <p className="text-xs text-white/70">
               By creating an account you agree to our{" "}
-              <Link href="/terms" className="text-[#00FF84] hover:underline">Terms</Link>{" "}and{" "}
-              <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link>.
+              <Link href="/terms" className="text-primary hover:underline">Terms</Link>{" "}and{" "}
+              <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
             </p>
 
             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
@@ -176,7 +176,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-white/70 mt-6">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#00FF84] hover:underline font-medium">Sign in</Link>
+            <Link href="/login" className="text-primary hover:underline font-medium">Sign in</Link>
           </p>
         </div>
       </motion.div>

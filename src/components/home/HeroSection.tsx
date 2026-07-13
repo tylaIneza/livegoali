@@ -81,7 +81,7 @@ export function HeroSection({ liveMatches, upcomingMatches }: HeroProps) {
           </Link>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr,340px] gap-4">
+        <div className="grid lg:grid-cols-[1fr_340px] gap-4">
           {/* Main featured card */}
           {isMainLive ? (
             <FeaturedLiveCard match={featuredMain} />

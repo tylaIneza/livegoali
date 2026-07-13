@@ -36,7 +36,7 @@ export function LeaguesSection({ leagues }: Props) {
             <p className="text-sm text-white/70">Top football competitions worldwide</p>
           </div>
         </div>
-        <Link href="/leagues" className="text-sm text-[#00FF84] hover:underline flex items-center gap-1">
+        <Link href="/leagues" className="text-sm text-primary hover:underline flex items-center gap-1">
           View All <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
@@ -52,10 +52,10 @@ export function LeaguesSection({ leagues }: Props) {
               transition={{ delay: i * 0.07 }}
             >
               <Link href={`/league/${league.slug}`}>
-                <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-[#121821] p-5 hover:border-[#00FF84]/30 hover:bg-[#1a2235] transition-all duration-200 group cursor-pointer">
+                <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-card p-5 hover:border-primary/30 hover:bg-white/5 transition-all duration-200 group cursor-pointer">
                   <div
                     className="absolute inset-0 opacity-10"
-                    style={{ background: `linear-gradient(135deg, ${"color" in league ? (league as {color: string}).color : "#1F2937"} 0%, transparent 60%)` }}
+                    style={{ background: `linear-gradient(135deg, ${"color" in league ? (league as {color: string}).color : "var(--muted)"} 0%, transparent 60%)` }}
                   />
                   <div className="relative flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-white/5">
@@ -66,14 +66,14 @@ export function LeaguesSection({ leagues }: Props) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-white text-sm leading-tight group-hover:text-[#00FF84] transition-colors">
+                      <p className="font-bold text-white text-sm leading-tight group-hover:text-primary transition-colors">
                         {league.name}
                       </p>
                       <p className="text-xs text-white/70 mt-0.5">
                         {league.country}{"season" in league && league.season ? ` · ${league.season}` : ""}
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-[#00FF84] transition-colors shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-primary transition-colors shrink-0" />
                   </div>
                 </div>
               </Link>

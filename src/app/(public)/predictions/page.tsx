@@ -38,7 +38,7 @@ export default async function PredictionsPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 text-sm font-bold text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/30 px-4 py-2 rounded-full mb-4">
+        <div className="inline-flex items-center gap-2 text-sm font-bold text-primary bg-primary/10 border border-primary/30 px-4 py-2 rounded-full mb-4">
           <Brain className="w-4 h-4" />
           AI-POWERED PREDICTIONS
         </div>
@@ -52,7 +52,7 @@ export default async function PredictionsPage() {
       {highConfidence.length > 0 && (
         <section className="mb-10">
           <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-[#00FF84]" />
+            <Zap className="w-5 h-5 text-primary" />
             <h2 className="text-xl font-black text-white">High Confidence Picks</h2>
             <Badge variant="default">70%+ Confidence</Badge>
           </div>
@@ -67,7 +67,7 @@ export default async function PredictionsPage() {
       {/* All predictions */}
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-blue-400" />
+          <TrendingUp className="w-5 h-5 text-primary" />
           <h2 className="text-xl font-black text-white">All Predictions</h2>
           <span className="text-white/70 text-sm">{matches.length} matches</span>
         </div>
@@ -119,10 +119,10 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
 
   return (
     <Link href={`/match/${match.slug}`}>
-      <div className={`rounded-2xl border p-5 hover:border-[#00FF84]/30 transition-all duration-200 group cursor-pointer ${
+      <div className={`rounded-2xl border p-5 hover:border-primary/30 transition-all duration-200 group cursor-pointer ${
         featured
-          ? "border-[#00FF84]/20 bg-gradient-to-b from-[#00FF84]/5 to-[#121821]"
-          : "border-white/8 bg-[#121821]"
+          ? "border-accent/20 bg-gradient-to-b from-accent/5 to-card"
+          : "border-white/8 bg-card"
       }`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -133,7 +133,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
             <span className="text-xs text-white/70">{match.league.name}</span>
           </div>
           <div className="flex items-center gap-2">
-            {isLive && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-bold">LIVE</span>}
+            {isLive && <span className="text-[10px] bg-danger/20 text-danger px-2 py-0.5 rounded-full font-bold">LIVE</span>}
             <LocalTime iso={String(match.scheduledAt)} format="full" className="text-xs text-white/60" />
           </div>
         </div>
@@ -148,7 +148,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
           </div>
           <div className="text-center">
             {isLive && (match.sport?.slug === "football" || !match.sport?.slug) ? (
-              <span className="text-lg font-black text-[#00FF84]">{match.homeScore} - {match.awayScore}</span>
+              <span className="text-lg font-black text-white">{match.homeScore} - {match.awayScore}</span>
             ) : (
               <span className="text-sm text-white/60 font-bold">VS</span>
             )}
@@ -164,9 +164,9 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
         {/* Probability bars */}
         <div className="space-y-2 mb-4">
           {[
-            { label: match.homeTeam.shortName || match.homeTeam.name, value: pred.homeWinProb, color: "bg-[#00FF84]", textColor: "text-[#00FF84]" },
-            { label: "Draw", value: pred.drawProb, color: "bg-yellow-400", textColor: "text-yellow-400" },
-            { label: match.awayTeam.shortName || match.awayTeam.name, value: pred.awayWinProb, color: "bg-blue-400", textColor: "text-blue-400" },
+            { label: match.homeTeam.shortName || match.homeTeam.name, value: pred.homeWinProb, color: "bg-accent", textColor: "text-accent" },
+            { label: "Draw", value: pred.drawProb, color: "bg-warning", textColor: "text-warning" },
+            { label: match.awayTeam.shortName || match.awayTeam.name, value: pred.awayWinProb, color: "bg-primary", textColor: "text-primary" },
           ].map((bar) => (
             <div key={bar.label} className="flex items-center gap-3">
               <span className="text-xs text-white/70 w-16 truncate">{bar.label}</span>
@@ -183,7 +183,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-white/6">
           <div className="flex items-center gap-1.5">
-            <Target className="w-3.5 h-3.5 text-[#00FF84]" />
+            <Target className="w-3.5 h-3.5 text-primary" />
             <span className="text-xs text-white/75">
               Tip: <span className="font-bold text-white">
                 {pred.recommendation === "HOME_WIN" ? match.homeTeam.name
@@ -194,7 +194,7 @@ function PredictionCard({ match, featured = false }: { match: PredMatch; feature
           </div>
           <div className="flex items-center gap-1.5">
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              pred.confidence >= 70 ? "bg-[#00FF84]/10 text-[#00FF84]" : "bg-white/5 text-white/75"
+              pred.confidence >= 70 ? "bg-accent/10 text-accent" : "bg-white/5 text-white/75"
             }`}>
               {pred.confidence.toFixed(0)}% confident
             </span>

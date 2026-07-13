@@ -62,12 +62,12 @@ export default async function NewsArticlePage({ params }: Props) {
       {/* Category & meta */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         {article.category && (
-          <Link href={`/news?category=${article.category.slug}`} className="text-xs font-bold text-[#00FF84] bg-[#00FF84]/10 border border-[#00FF84]/30 px-3 py-1 rounded-full">
+          <Link href={`/news?category=${article.category.slug}`} className="text-xs font-bold text-primary bg-primary/10 border border-primary/30 px-3 py-1 rounded-full">
             {article.category.name}
           </Link>
         )}
         {article.isSponsored && (
-          <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-3 py-1 rounded-full">SPONSORED</span>
+          <span className="text-xs font-bold text-warning bg-warning/10 border border-warning/30 px-3 py-1 rounded-full">SPONSORED</span>
         )}
         <div className="flex items-center gap-1 text-xs text-white/70">
           <Clock className="w-3 h-3" />
@@ -100,7 +100,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
       {/* Content */}
       <div
-        className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-gray-300 prose-a:text-[#00FF84] prose-strong:text-white"
+        className="prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-gray-300 prose-a:text-primary prose-strong:text-white"
         dangerouslySetInnerHTML={{ __html: article.content }}
       />
 
@@ -110,7 +110,7 @@ export default async function NewsArticlePage({ params }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             <Tag className="w-4 h-4 text-white/70" />
             {article.tags.map((t) => (
-              <span key={t.tagId} className="text-xs font-medium text-white/75 bg-[#1F2937] px-3 py-1 rounded-full hover:text-white transition-colors cursor-pointer">
+              <span key={t.tagId} className="text-xs font-medium text-white/75 bg-muted px-3 py-1 rounded-full hover:text-white transition-colors cursor-pointer">
                 #{t.tag.name}
               </span>
             ))}
@@ -125,16 +125,16 @@ export default async function NewsArticlePage({ params }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {related.map((r) => (
               <Link key={r.id} href={`/news/${r.slug}`}>
-                <div className="rounded-xl overflow-hidden border border-white/8 bg-[#121821] hover:border-[#00FF84]/30 transition-all group">
+                <div className="rounded-xl overflow-hidden border border-white/8 bg-card hover:border-primary/30 transition-all group">
                   {r.featuredImage ? (
                     <div className="relative h-36">
                       <Image src={r.featuredImage} alt={r.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   ) : (
-                    <div className="h-36 bg-[#1F2937]" />
+                    <div className="h-36 bg-muted" />
                   )}
                   <div className="p-3">
-                    <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-[#00FF84] transition-colors">{r.title}</h4>
+                    <h4 className="text-sm font-bold text-white line-clamp-2 group-hover:text-primary transition-colors">{r.title}</h4>
                     <p className="text-xs text-white/70 mt-1">{r.publishedAt ? formatTimeAgo(r.publishedAt) : ""}</p>
                   </div>
                 </div>

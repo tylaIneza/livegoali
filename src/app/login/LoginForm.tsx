@@ -48,8 +48,8 @@ export function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 stadium-bg" />
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#00FF84]/5 rounded-full blur-3xl" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -123,7 +123,7 @@ export function LoginForm() {
             </div>
 
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-xs text-[#00FF84] hover:underline">
+              <Link href="/forgot-password" className="text-xs text-primary hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -135,7 +135,7 @@ export function LoginForm() {
 
           <p className="text-center text-sm text-white/70 mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#00FF84] hover:underline font-medium">
+            <Link href="/register" className="text-primary hover:underline font-medium">
               Create one free
             </Link>
           </p>

@@ -35,8 +35,8 @@ export default function ContactPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <h2 className="text-white font-bold">Join Our Telegram Support Group</h2>
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#00FF84]/10 text-[#00FF84] text-[10px] font-bold px-2 py-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF84] live-pulse" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 text-accent text-[10px] font-bold px-2 py-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent live-pulse" />
                   LIVE
                 </span>
               </div>
@@ -49,17 +49,17 @@ export default function ContactPage() {
         </a>
 
         {/* Get in Touch */}
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-5">Get in Touch</h2>
           <div className="space-y-5">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#00FF84]/10 flex items-center justify-center shrink-0">
-                <Mail className="w-5 h-5 text-[#00FF84]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Mail className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">General Support</p>
                 <p className="text-white/70 text-xs mb-1">For general questions, account assistance, or website support</p>
-                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-primary text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
 
@@ -72,7 +72,7 @@ export default function ContactPage() {
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">Business &amp; Partnerships</p>
                 <p className="text-white/70 text-xs mb-1">For advertising opportunities, sponsorships, partnerships, or business-related inquiries</p>
-                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-primary text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
 
@@ -85,14 +85,14 @@ export default function ContactPage() {
               <div>
                 <p className="text-white text-sm font-semibold mb-0.5">Copyright &amp; Legal Requests</p>
                 <p className="text-white/70 text-xs mb-1">For copyright concerns, intellectual property issues, or legal inquiries</p>
-                <a href="mailto:hello@livegoali.com" className="text-[#00FF84] text-sm hover:underline">hello@livegoali.com</a>
+                <a href="mailto:hello@livegoali.com" className="text-primary text-sm hover:underline">hello@livegoali.com</a>
               </div>
             </div>
           </div>
         </div>
 
         {/* Response Time */}
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center shrink-0">
               <Clock className="w-5 h-5 text-yellow-400" />
@@ -107,7 +107,7 @@ export default function ContactPage() {
         </div>
 
         {/* Report Technical Issues */}
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <div className="flex items-start gap-4 mb-4">
             <div className="w-10 h-10 rounded-xl bg-red-400/10 flex items-center justify-center shrink-0">
               <AlertCircle className="w-5 h-5 text-red-400" />
@@ -127,7 +127,7 @@ export default function ContactPage() {
         </div>
 
         {/* Community Guidelines */}
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Community Guidelines</h2>
           <p className="text-white/75 text-sm leading-relaxed">
             When contacting us, please communicate respectfully and provide accurate information. Messages containing spam, abusive language, harassment, or fraudulent content may be ignored or blocked.
@@ -135,7 +135,7 @@ export default function ContactPage() {
         </div>
 
         {/* About */}
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">About LiveGoali</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-4">
             LiveGoali is dedicated to providing football fans with live scores, match information, statistics, predictions, news, and football-related content from around the world. We appreciate your support and feedback as we continue to improve our platform.
@@ -149,9 +149,9 @@ export default function ContactPage() {
       <div className="mt-10 text-center">
         <p className="text-white/70 text-sm">
           Looking for legal information?{" "}
-          <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link>
+          <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
           {" · "}
-          <Link href="/terms" className="text-[#00FF84] hover:underline">Terms of Service</Link>
+          <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
         </p>
       </div>
     </div>

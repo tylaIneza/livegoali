@@ -46,11 +46,11 @@ export default async function NewsPage() {
       {/* Categories */}
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">
-          <button className="px-4 py-1.5 rounded-full text-sm font-medium bg-[#00FF84] text-[#0B0F14]">All</button>
+          <button className="px-4 py-1.5 rounded-full text-sm font-medium bg-primary text-primary-foreground">All</button>
           {categories.map((cat) => (
             <button
               key={cat.id}
-              className="px-4 py-1.5 rounded-full text-sm font-medium bg-[#1F2937] text-gray-300 hover:bg-[#00FF84]/10 hover:text-[#00FF84] transition-all"
+              className="px-4 py-1.5 rounded-full text-sm font-medium bg-muted text-gray-300 hover:bg-primary/10 hover:text-primary transition-all"
             >
               {cat.name}
             </button>
@@ -67,18 +67,18 @@ export default async function NewsPage() {
               href={`/news/${article.slug}`}
               className={`relative rounded-2xl overflow-hidden border border-white/8 group ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
             >
-              <div className={`relative ${i === 0 ? "h-80" : "h-44"} bg-[#1F2937]`}>
+              <div className={`relative ${i === 0 ? "h-80" : "h-44"} bg-muted`}>
                 {article.featuredImage && (
                   <Image src={article.featuredImage} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 <div className="absolute inset-0 p-5 flex flex-col justify-end">
                   {article.category && (
-                    <span className="text-xs font-bold text-[#00FF84] bg-[#00FF84]/10 px-2.5 py-1 rounded-full w-fit mb-2">
+                    <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full w-fit mb-2">
                       {article.category.name}
                     </span>
                   )}
-                  <h3 className={`font-black text-white group-hover:text-[#00FF84] transition-colors leading-tight ${i === 0 ? "text-xl" : "text-sm"}`}>
+                  <h3 className={`font-black text-white group-hover:text-primary transition-colors leading-tight ${i === 0 ? "text-xl" : "text-sm"}`}>
                     {article.title}
                   </h3>
                   <div className="flex items-center gap-1 mt-2 text-xs text-white/75">
@@ -96,21 +96,21 @@ export default async function NewsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {articles.filter((a) => !a.isFeatured).map((article) => (
           <Link key={article.id} href={`/news/${article.slug}`}>
-            <div className="rounded-xl overflow-hidden border border-white/8 bg-[#121821] hover:border-[#00FF84]/30 transition-all duration-200 group">
+            <div className="rounded-xl overflow-hidden border border-white/8 bg-card hover:border-primary/30 transition-all duration-200 group">
               {article.featuredImage ? (
-                <div className="relative h-44 bg-[#1F2937]">
+                <div className="relative h-44 bg-muted">
                   <Image src={article.featuredImage} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               ) : (
-                <div className="h-44 bg-gradient-to-br from-[#1F2937] to-[#0B0F14] flex items-center justify-center">
+                <div className="h-44 bg-gradient-to-br from-muted to-background flex items-center justify-center">
                   <Newspaper className="w-10 h-10 text-white/60" />
                 </div>
               )}
               <div className="p-4">
                 {article.category && (
-                  <span className="text-xs font-bold text-[#00FF84]">{article.category.name}</span>
+                  <span className="text-xs font-bold text-primary">{article.category.name}</span>
                 )}
-                <h3 className="font-bold text-white text-sm mt-1 line-clamp-2 group-hover:text-[#00FF84] transition-colors leading-tight">
+                <h3 className="font-bold text-white text-sm mt-1 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
                   {article.title}
                 </h3>
                 {article.excerpt && (

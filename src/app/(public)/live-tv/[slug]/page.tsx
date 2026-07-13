@@ -44,14 +44,14 @@ export default async function LiveTvChannelPage({ params }: Props) {
   });
 
   return (
-    <div className="min-h-screen bg-[#0B0F14]">
+    <div className="min-h-screen bg-background">
       <ViewTracker type="channel" channelId={channel.id} />
 
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">
         {/* Header */}
         <div className="relative rounded-2xl overflow-hidden border border-white/8 p-5 sm:p-6"
-          style={{ background: "linear-gradient(135deg, #0f1923 0%, #0B0F14 60%, #0f1923 100%)" }}>
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+          style={{ background: "linear-gradient(135deg, #0f1923 0%, #0F172A 60%, #0f1923 100%)" }}>
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-danger to-transparent" />
           <div className="relative flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center overflow-hidden shrink-0">
               {channel.logo ? (
@@ -63,8 +63,8 @@ export default async function LiveTvChannelPage({ params }: Props) {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-black text-white text-xl truncate">{channel.name}</h1>
-                <span className="flex items-center gap-1 text-[10px] font-black text-red-400 bg-red-500/12 border border-red-500/25 px-2 py-0.5 rounded-full shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 live-pulse" /> 24/7 LIVE
+                <span className="flex items-center gap-1 text-[10px] font-black text-danger bg-danger/12 border border-danger/25 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-danger live-pulse" /> 24/7 LIVE
                 </span>
               </div>
               {channel.description && <p className="text-sm text-white/50 mt-0.5 truncate">{channel.description}</p>}
@@ -97,7 +97,7 @@ export default async function LiveTvChannelPage({ params }: Props) {
         )}
 
         <div className="text-center">
-          <Link href="/live-tv" className="text-sm text-white/50 hover:text-[#00FF84] transition-colors font-semibold">
+          <Link href="/live-tv" className="text-sm text-white/50 hover:text-primary transition-colors font-semibold">
             ← All Channels
           </Link>
         </div>

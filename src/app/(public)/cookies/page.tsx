@@ -41,21 +41,21 @@ export default function CookiesPage() {
         <p className="text-white/70 text-sm">Last Updated: June 23, 2026</p>
         <p className="text-white/75 mt-4 leading-relaxed">
           This Cookie Policy explains how LiveGoali uses cookies and similar tracking technologies when you visit{" "}
-          <Link href="/" className="text-[#00FF84] hover:underline">www.livegoali.com</Link>.
+          <Link href="/" className="text-primary hover:underline">www.livegoali.com</Link>.
           By continuing to use our Website, you consent to the use of cookies as described in this policy.
         </p>
       </div>
 
       <div className="space-y-6">
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">What Are Cookies?</h2>
           <p className="text-white/75 text-sm leading-relaxed">
             Cookies are small text files that are placed on your device when you visit a website. They are widely used to make websites work more efficiently, remember your preferences, and provide information to website owners. Cookies cannot execute programs or deliver viruses to your device.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-5">Types of Cookies We Use</h2>
           <div className="space-y-5">
             {cookieTypes.map((type, i) => (
@@ -63,7 +63,7 @@ export default function CookiesPage() {
                 {i > 0 && <div className="w-full h-px bg-white/5 mb-5" />}
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <p className="text-white text-sm font-semibold">{type.name}</p>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${type.required ? "bg-red-500/10 text-red-400" : "bg-white/5 text-white/75"}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${type.required ? "bg-danger/10 text-danger" : "bg-white/5 text-white/75"}`}>
                     {type.required ? "Required" : "Optional"}
                   </span>
                 </div>
@@ -78,7 +78,7 @@ export default function CookiesPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Third-Party Cookies</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-3">
             Some cookies on our Website are placed by third-party services, including Google (Analytics and AdSense). These third parties may collect information about your online activities across different websites.
@@ -88,7 +88,7 @@ export default function CookiesPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">How to Control Cookies</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-3">
             You can control and manage cookies through your browser settings. Most browsers allow you to:
@@ -104,19 +104,19 @@ export default function CookiesPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/8 bg-[#121821] p-6">
+        <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">Changes to This Policy</h2>
           <p className="text-white/75 text-sm leading-relaxed">
             We may update this Cookie Policy from time to time. Any changes will be posted on this page with an updated effective date. Continued use of our Website after changes are posted constitutes your acceptance of the updated policy.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[#00FF84]/20 bg-[#00FF84]/5 p-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">Contact Us</h2>
           <p className="text-white/75 text-sm mb-3">If you have questions about our use of cookies, please contact us:</p>
           <div className="space-y-1 text-sm">
-            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-[#00FF84] hover:underline">hello@livegoali.com</a></p>
-            <p className="text-white/75">Contact: <Link href="/contact" className="text-[#00FF84] hover:underline">www.livegoali.com/contact</Link></p>
+            <p className="text-white/75">Email: <a href="mailto:hello@livegoali.com" className="text-primary hover:underline">hello@livegoali.com</a></p>
+            <p className="text-white/75">Contact: <Link href="/contact" className="text-primary hover:underline">www.livegoali.com/contact</Link></p>
           </div>
         </div>
 
@@ -124,7 +124,7 @@ export default function CookiesPage() {
 
       <div className="mt-10 text-center">
         <p className="text-white/70 text-sm">
-          Also see our <Link href="/privacy" className="text-[#00FF84] hover:underline">Privacy Policy</Link> and <Link href="/terms" className="text-[#00FF84] hover:underline">Terms of Service</Link>
+          Also see our <Link href="/privacy" className="text-primary hover:underline">Privacy Policy</Link> and <Link href="/terms" className="text-primary hover:underline">Terms of Service</Link>
         </p>
       </div>
     </div>
