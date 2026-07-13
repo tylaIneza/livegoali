@@ -119,9 +119,9 @@ export default async function HomePage({
     }).then((d) => { cacheSet("home:news", d, 120); return d; })),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cacheGet<any>("home:upcoming-featured").then((c: any) => c ?? prisma.match.findMany({
-      where: { status: "SCHEDULED" },
+      where: { status: "SCHEDULED", isFeatured: true },
       include: matchInclude,
-      orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
+      orderBy: { scheduledAt: "asc" },
       take: 1,
     }).then((d) => { cacheSet("home:upcoming-featured", d, 60); return d; })),
   ]).catch(() => [[], [], [], []])) as [
@@ -131,8 +131,11 @@ export default async function HomePage({
     HomeMatchItem[],
   ];
 
+  // Only ever shows a match an admin explicitly marked Featured — no
+  // "just pick the first live/upcoming match" guessing, which used to let
+  // stale matches keep winning the hero slot by sort order alone.
   const featuredMatch: HomeMatchItem | null =
-    liveMatches.find((m) => m.isFeatured) ?? liveMatches[0] ?? upcomingFeatured[0] ?? null;
+    liveMatches.find((m) => m.isFeatured) ?? upcomingFeatured[0] ?? null;
   const heroIsLive = !!featuredMatch && (featuredMatch.status === "LIVE" || featuredMatch.status === "HALFTIME");
 
   return (
