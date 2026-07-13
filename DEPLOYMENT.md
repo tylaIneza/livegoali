@@ -18,9 +18,9 @@ cp .env.example .env.local
 
 ### 3. Database Setup
 
-Start PostgreSQL and Redis (Docker):
+Start MySQL and Redis (Docker):
 ```bash
-docker run -d --name pg -e POSTGRES_DB=livegoali -e POSTGRES_PASSWORD=password -p 5432:5432 postgres:16-alpine
+docker run -d --name mysql -e MYSQL_DATABASE=livegoali -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 mysql:8
 docker run -d --name redis -p 6379:6379 redis:7-alpine
 ```
 
@@ -109,7 +109,8 @@ nginx -t && nginx -s reload
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | ✅ |
+| `DATABASE_URL` | MySQL connection string | ✅ |
+| `DB_CONNECTION_LIMIT` | Prisma pool size per process (see ecosystem.config.js) | Optional |
 | `REDIS_URL` | Redis connection string | ✅ |
 | `NEXTAUTH_SECRET` | NextAuth JWT secret | ✅ |
 | `NEXTAUTH_URL` | App URL (https://livegoali.com) | ✅ |
@@ -140,7 +141,7 @@ nginx -t && nginx -s reload
 └────────┬────────┘  └───────────────┘
          │
 ┌────────▼────────────────────────────┐
-│        PostgreSQL + Redis           │
+│           MySQL + Redis             │
 │     (Database + Cache/Sessions)     │
 └─────────────────────────────────────┘
 ```
