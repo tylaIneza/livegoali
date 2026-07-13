@@ -20,7 +20,10 @@ module.exports = {
       node_args: "--max-old-space-size=500",
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
+        // Port 3000 is already used by another app on the shared VPS
+        // (confirmed via `ss -tlnp` — check for conflicts again if you
+        // deploy this to a different box).
+        PORT: 3002,
       },
       error_file: "logs/web-error.log",
       out_file: "logs/web-out.log",
