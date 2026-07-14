@@ -405,11 +405,21 @@ async function flushVisitCounters() {
 }
 
 // ── Auto-live: set SCHEDULED matches to LIVE 30 min before kickoff ────────────
+// Only flips matches that actually have a stream to show — otherwise the site
+// tells viewers a match is "LIVE" (badges, homepage, notifications) before
+// there's anything real behind the play button.
 async function autoLiveMatches() {
   const now = new Date();
   const in30min = new Date(now.getTime() + 30 * 60_000);
   const matches = await prisma.match.findMany({
-    where: { status: "SCHEDULED", scheduledAt: { lte: in30min } },
+    where: {
+      status: "SCHEDULED",
+      scheduledAt: { lte: in30min },
+      OR: [
+        { streamUrl: { not: null } },
+        { streams: { some: { isActive: true } } },
+      ],
+    },
     select: { id: true, scheduledAt: true },
   });
   for (const match of matches) {
