@@ -2,6 +2,13 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Hls from "hls.js";
+import type {
+  Loader,
+  LoaderCallbacks,
+  LoaderConfiguration,
+  LoaderContext,
+  LoaderStats,
+} from "hls.js";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play, Pause, Volume2, VolumeX, Maximize, Minimize,
@@ -46,6 +53,86 @@ function safePlay(video: HTMLVideoElement): void {
   }
 }
 
+// hls.js normally fetches manifests/keys/segments directly from the browser,
+// which sends Referer/Origin: <this site>. Most stream CDNs hotlink-protect
+// against that (silent NETWORK_ERROR). Referer can't be spoofed from client
+// JS (XHR/fetch forbid it), so this loader tunnels every request through
+// /api/stream/proxy, which re-fetches server-side with the real embed page's
+// Referer/Origin. It reports back `context.url` (not the proxy URL) as the
+// response url so hls.js still resolves relative manifest URIs correctly.
+function makeProxyLoader(referer: string) {
+  return class ProxyLoader implements Loader<LoaderContext> {
+    public context: LoaderContext | null = null;
+    public stats: LoaderStats = {
+      aborted: false, loaded: 0, retry: 0, total: 0, chunkCount: 0, bwEstimate: 0,
+      loading: { start: 0, first: 0, end: 0 },
+      parsing: { start: 0, end: 0 },
+      buffering: { start: 0, first: 0, end: 0 },
+    };
+    private callbacks: LoaderCallbacks<LoaderContext> | null = null;
+    private controller: AbortController | null = null;
+
+    private abortInternal(): void {
+      if (this.controller && !this.stats.loading.end) {
+        this.stats.aborted = true;
+        this.controller.abort();
+      }
+    }
+
+    abort(): void {
+      this.abortInternal();
+      this.callbacks?.onAbort?.(this.stats, this.context as LoaderContext, null);
+    }
+
+    destroy(): void {
+      this.abortInternal();
+      this.callbacks = null;
+      this.context = null;
+    }
+
+    load(context: LoaderContext, config: LoaderConfiguration, callbacks: LoaderCallbacks<LoaderContext>): void {
+      this.context = context;
+      this.callbacks = callbacks;
+      this.stats.loading.start = performance.now();
+      const controller = (this.controller = new AbortController());
+      const timeoutMs = config.loadPolicy.maxLoadTimeMs || 20000;
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        this.abortInternal();
+        callbacks.onTimeout(this.stats, context, null);
+      }, timeoutMs);
+
+      const headers: Record<string, string> = {};
+      if (context.rangeEnd !== undefined) headers["Range"] = `bytes=${context.rangeStart}-${context.rangeEnd - 1}`;
+      const proxyUrl = `/api/stream/proxy?url=${encodeURIComponent(context.url)}&ref=${encodeURIComponent(referer)}`;
+
+      fetch(proxyUrl, { signal: controller.signal, headers })
+        .then(async (res) => {
+          clearTimeout(timer);
+          if (this.stats.aborted) return;
+          this.stats.loading.first = performance.now();
+          if (!res.ok) {
+            callbacks.onError({ code: res.status, text: res.statusText }, context, res, this.stats);
+            return;
+          }
+          const data = context.responseType === "arraybuffer" ? await res.arrayBuffer() : await res.text();
+          this.stats.loading.end = performance.now();
+          const len = data instanceof ArrayBuffer ? data.byteLength : data.length;
+          this.stats.loaded = this.stats.total = len;
+          const elapsed = Math.max(1, this.stats.loading.end - this.stats.loading.first);
+          this.stats.bwEstimate = (len * 8000) / elapsed;
+          callbacks.onSuccess({ url: context.url, data, code: res.status }, this.stats, context, res);
+        })
+        .catch((err: Error) => {
+          clearTimeout(timer);
+          if (timedOut || this.stats.aborted) return;
+          callbacks.onError({ code: 0, text: err.message }, context, null, this.stats);
+        });
+    }
+  };
+}
+
 export function LiveGoaliPlayer({
   streams,
   matchTitle,
@@ -63,6 +150,7 @@ export function LiveGoaliPlayer({
   const containerRef   = useRef<HTMLDivElement>(null);
   const controlsTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef     = useRef(true);
+  const sourcePageRef  = useRef<string | null>(null);
 
   const [isPlaying,          setIsPlaying]          = useState(false);
   const [isMuted,            setIsMuted]            = useState(true);
@@ -91,12 +179,18 @@ export function LiveGoaliPlayer({
     if (!rawUrl || !isWebpage) return;
     setResolvedUrl(null);
     setExtractFailed(false);
+    sourcePageRef.current = null;
     fetch(`/api/stream/extract?url=${encodeURIComponent(rawUrl)}`)
       .then((r) => r.json())
       .then((data) => {
         if (!mountedRef.current) return;
-        if (data.url) setResolvedUrl(data.url);
-        else setExtractFailed(true);
+        if (data.url) {
+          // The page we scraped the manifest from — hls.js's requests get
+          // this spoofed back as Referer/Origin via the proxy loader so the
+          // CDN's hotlink protection sees the same request it'd see embedded.
+          sourcePageRef.current = data.source_page ?? rawUrl;
+          setResolvedUrl(data.url);
+        } else setExtractFailed(true);
       })
       .catch(() => { if (mountedRef.current) setExtractFailed(true); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,8 +239,16 @@ export function LiveGoaliPlayer({
     if (!isMounted()) return;
     setIsLoading(true); setError(null); setIsPlaying(false);
     const hlsUrl = stream.type === "HLS" || urlToLoad.includes(".m3u8");
+    let referer = sourcePageRef.current;
+    if (!referer) {
+      try { referer = `${new URL(urlToLoad).origin}/`; } catch { referer = urlToLoad; }
+    }
+    const proxiedSrc = (u: string) => `/api/stream/proxy?url=${encodeURIComponent(u)}&ref=${encodeURIComponent(referer!)}`;
     if (hlsUrl && Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: true, lowLatencyMode: true, backBufferLength: 30, maxBufferLength: 30, maxMaxBufferLength: 60 });
+      const hls = new Hls({
+        enableWorker: true, lowLatencyMode: true, backBufferLength: 30, maxBufferLength: 30, maxMaxBufferLength: 60,
+        loader: makeProxyLoader(referer),
+      });
       hlsRef.current = hls;
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
         if (!mountedRef.current) return;
@@ -166,10 +268,12 @@ export function LiveGoaliPlayer({
       });
       hls.loadSource(urlToLoad); hls.attachMedia(video);
     } else if (hlsUrl && video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = urlToLoad;
+      // iOS/Safari native HLS — no hls.js loader hook here, so route through
+      // the proxy directly; it rewrites the manifest's nested URIs too.
+      video.src = proxiedSrc(urlToLoad);
       video.addEventListener("loadedmetadata", () => { if (!mountedRef.current) return; setIsLoading(false); safePlay(video); }, { once: true });
     } else {
-      video.src = urlToLoad;
+      video.src = proxiedSrc(urlToLoad);
       video.addEventListener("loadeddata", () => { if (!mountedRef.current) return; setIsLoading(false); safePlay(video); }, { once: true });
     }
   }, [activeStreams, switchToNextStream]);
@@ -370,7 +474,7 @@ export function LiveGoaliPlayer({
           <div className="absolute inset-0 rounded-full border-2 border-white/8" />
           <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
         </div>
-        <p className="text-white/40 text-xs">Connecting to stream…</p>
+        <p className="text-white/40 text-xs">Loading LiveGoali...</p>
         <Watermark />
       </div>
     );
