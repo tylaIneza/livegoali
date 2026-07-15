@@ -15,16 +15,23 @@ export default async function AdminMatchesPage() {
       sport: { select: { name: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true } },
     },
-    orderBy: { scheduledAt: "desc" },
+    orderBy: [{ isPublished: "asc" }, { scheduledAt: "desc" }],
     take: 100,
   });
+
+  const pendingCount = matches.filter((m) => !m.isPublished).length;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">Match Management</h1>
-          <p className="text-white/70 text-sm mt-1">{matches.length} matches total</p>
+          <p className="text-white/70 text-sm mt-1">
+            {matches.length} matches total
+            {pendingCount > 0 && (
+              <span className="text-warning font-semibold"> · {pendingCount} awaiting approval</span>
+            )}
+          </p>
         </div>
         <Button asChild>
           <Link href="/admin/matches/new">

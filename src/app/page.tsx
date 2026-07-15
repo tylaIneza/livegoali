@@ -51,7 +51,7 @@ export default async function HomePage({
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const liveMatches = (await cacheGet<any>("home:live").then((c: any) => c ?? prisma.match.findMany({
-    where: { status: { in: ["LIVE", "HALFTIME"] } },
+    where: { status: { in: ["LIVE", "HALFTIME"] }, isPublished: true },
     include: matchInclude,
     orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
   }).then((d) => { cacheSet("home:live", d, 15); return d; })).catch(() => [])) as HomeMatchItem[];
@@ -61,10 +61,11 @@ export default async function HomePage({
   const includeLiveRegardlessOfDate = isToday && (!activeStatus || activeStatus === "live");
   const dateRangeWhere = {
     scheduledAt: { gte: dayStart, lte: dayEnd },
+    isPublished: true,
     ...(statusWhere ? { status: statusWhere } : {}),
   };
   const scheduleWhere = includeLiveRegardlessOfDate
-    ? { OR: [{ status: { in: ["LIVE", "HALFTIME"] as ("LIVE" | "HALFTIME")[] } }, dateRangeWhere] }
+    ? { OR: [{ status: { in: ["LIVE", "HALFTIME"] as ("LIVE" | "HALFTIME")[] }, isPublished: true }, dateRangeWhere] }
     : dateRangeWhere;
 
   const scheduleCacheKey = `home:schedule:${dateStr}:${params.status ?? "all"}`;
@@ -88,7 +89,7 @@ export default async function HomePage({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fallbackMatches = (await cacheGet<any>(fallbackCacheKey)
       .then((c: any) => c ?? prisma.match.findMany({ // eslint-disable-line @typescript-eslint/no-explicit-any
-        where: { status: fallbackStatus },
+        where: { status: fallbackStatus, isPublished: true },
         include: matchInclude,
         orderBy: { scheduledAt: fallbackOrder },
         take: 20,
@@ -123,7 +124,7 @@ export default async function HomePage({
     // filtered stricter below for the hero (which never guesses).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cacheGet<any>("home:upcoming-featured").then((c: any) => c ?? prisma.match.findMany({
-      where: { status: "SCHEDULED" },
+      where: { status: "SCHEDULED", isPublished: true },
       include: matchInclude,
       orderBy: [{ isFeatured: "desc" }, { scheduledAt: "asc" }],
       take: 1,

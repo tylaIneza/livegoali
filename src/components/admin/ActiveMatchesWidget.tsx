@@ -7,6 +7,7 @@ import Link from "next/link";
 
 interface Match {
   id: string;
+  slug: string;
   status: string;
   title?: string | null;
   participant1?: string | null;
@@ -129,7 +130,7 @@ export function ActiveMatchesWidget() {
             return (
               <Link
                 key={match.id}
-                href={`/live/${match.id}`}
+                href={`/live/${match.slug}`}
                 target="_blank"
                 className="block relative rounded-xl overflow-hidden border transition-all duration-200 hover:-translate-y-0.5 group"
                 style={{

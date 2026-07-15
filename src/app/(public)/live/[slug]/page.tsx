@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { cacheGet, cacheSet } from "@/lib/redis";
 import { LiveGoaliPlayer } from "@/components/player/LiveGoaliPlayer";
 import { ViewTracker } from "@/components/ViewTracker";
@@ -16,12 +17,12 @@ import Link from "next/link";
 import { Trophy, Wifi } from "lucide-react";
 
 interface Props {
-  params: Promise<{ matchId: string }>;
+  params: Promise<{ slug: string }>;
 }
 
-async function fetchMatchFromDb(matchId: string) {
+async function fetchMatchFromDb(slug: string) {
   return prisma.match.findUnique({
-    where: { id: matchId },
+    where: { slug },
     include: {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
       awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -37,22 +38,22 @@ async function fetchMatchFromDb(matchId: string) {
 
 type MatchData = NonNullable<Awaited<ReturnType<typeof fetchMatchFromDb>>>;
 
-async function getMatchData(matchId: string): Promise<MatchData | null> {
+async function getMatchData(slug: string): Promise<MatchData | null> {
   try {
-    const cached = await cacheGet<MatchData>(`match:live:${matchId}`);
+    const cached = await cacheGet<MatchData>(`match:live:${slug}`);
     if (cached) return cached;
   } catch {}
-  const match = await fetchMatchFromDb(matchId);
+  const match = await fetchMatchFromDb(slug);
   if (match) {
-    try { await cacheSet(`match:live:${matchId}`, match, 10); } catch {}
+    try { await cacheSet(`match:live:${slug}`, match, 10); } catch {}
   }
   return match;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { matchId } = await params;
-    const match = await getMatchData(matchId);
+    const { slug } = await params;
+    const match = await getMatchData(slug);
     if (!match) return { title: "Match Not Found" };
     const p1 = match.homeTeam?.name ?? match.participant1 ?? "TBA";
     const p2 = match.awayTeam?.name ?? match.participant2 ?? "TBA";
@@ -70,17 +71,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function LiveMatchPage({ params }: Props) {
-  const { matchId } = await params;
+  const { slug } = await params;
 
   let match: MatchData | null;
   try {
-    match = await getMatchData(matchId);
+    match = await getMatchData(slug);
   } catch (err) {
     console.error("[LiveMatchPage] DB error:", err);
     return notFound();
   }
 
   if (!match) notFound();
+
+  // Unpublished imports (e.g. pending PPV approval) are only visible to staff previewing them.
+  if (!match.isPublished) {
+    const session = await auth();
+    const role = session?.user?.role;
+    if (!role || !["ADMIN", "SUPER_ADMIN", "EDITOR"].includes(role)) notFound();
+  }
 
   const isLive = match.status === "LIVE" || match.status === "HALFTIME";
   const isFinished = match.status === "FINISHED";

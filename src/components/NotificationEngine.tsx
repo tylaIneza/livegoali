@@ -40,7 +40,7 @@ export function NotificationEngine() {
           );
           notification.onclick = () => {
             window.focus();
-            routerRef.current.push(`/live/${match.id}`);
+            routerRef.current.push(`/live/${match.slug}`);
             notification.close();
           };
 

@@ -317,7 +317,7 @@ export default async function FixturesPage({
                   {leagueMatches.map((match) => {
                     const isLive = match.status === "LIVE" || match.status === "HALFTIME";
                     const isFinished = match.status === "FINISHED";
-                    const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
+                    const href = isLive ? `/live/${match.slug}` : `/match/${match.slug}`;
                     const fSportSlug = match.sport?.slug ?? null;
                     const SOLO_F = ["formula1"];
                     const fIsFootball = fSportSlug === "football" || !!match.homeTeamId;

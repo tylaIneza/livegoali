@@ -24,7 +24,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
   if (variant === "compact") {
     return (
       <Link
-        href={isLive ? `/live/${match.id}` : `/match/${match.slug}`}
+        href={isLive ? `/live/${match.slug}` : `/match/${match.slug}`}
         onMouseEnter={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
         onTouchStart={isLive ? () => prefetchStreamForMatch(match.id) : undefined}
       >
@@ -181,7 +181,7 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
           {isLive ? (
             <Button size="sm" className="flex-1 text-xs" asChild>
               <Link
-                href={`/live/${match.id}`}
+                href={`/live/${match.slug}`}
                 onMouseEnter={() => prefetchStreamForMatch(match.id)}
                 onTouchStart={() => prefetchStreamForMatch(match.id)}
               >

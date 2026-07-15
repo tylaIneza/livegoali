@@ -68,7 +68,7 @@ export function SearchBar({ variant = "desktop", onNavigate, className }: Search
       ...results.matches.map((m) => ({
         type: "match" as const,
         id: m.id,
-        href: m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.id}` : `/match/${m.slug}`,
+        href: m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.slug}` : `/match/${m.slug}`,
       })),
       ...results.teams.map((t) => ({ type: "team" as const, id: t.id, href: `/team/${t.slug}` })),
       ...results.leagues.map((l) => ({ type: "league" as const, id: l.id, href: `/league/${l.slug}` })),
@@ -187,7 +187,7 @@ export function SearchBar({ variant = "desktop", onNavigate, className }: Search
                     <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/40">Matches</p>
                     {results!.matches.map((m) => {
                       const flatIndex = flatResults.findIndex((f) => f.type === "match" && f.id === m.id);
-                      const href = m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.id}` : `/match/${m.slug}`;
+                      const href = m.status === "LIVE" || m.status === "HALFTIME" ? `/live/${m.slug}` : `/match/${m.slug}`;
                       return (
                         <Link
                           key={m.id}

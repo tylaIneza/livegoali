@@ -242,7 +242,7 @@ function FeaturedLiveCard({ match }: { match: Match }) {
         <div className="flex gap-3">
           <Button size="lg" className="flex-1" asChild>
             <Link
-              href={`/live/${match.id}`}
+              href={`/live/${match.slug}`}
               onMouseEnter={() => prefetchStreamForMatch(match.id)}
               onTouchStart={() => prefetchStreamForMatch(match.id)}
             ><Play className="w-4 h-4" />Watch Live</Link>
@@ -311,7 +311,7 @@ function FeaturedUpcomingCard({ match }: { match: Match }) {
    Compact side card (right col)
 ──────────────────────────────── */
 function SideMatchCard({ match, isLive }: { match: Match; isLive: boolean }) {
-  const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
+  const href = isLive ? `/live/${match.slug}` : `/match/${match.slug}`;
   return (
     <Link
       href={href}

@@ -45,7 +45,12 @@ export function EditMatchForm({ match }: Props) {
   const router = useRouter();
 
   const sportSlug = match.sport?.slug ?? null;
-  const isFootball = sportSlug === "football" || !!match.homeTeamId;
+  // Which edit UI to show — team-based (logos, multi-stream sources) vs
+  // participant-name-based (title/participant fields, single stream URL).
+  // Keyed on actually having Team rows, not on sport category: a football
+  // category match can still lack Team relations (e.g. a PPV import), and
+  // that match needs the participant-name form just like UFC/boxing/F1 do.
+  const isFootball = !!match.homeTeamId;
   const hasScore = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
   const hasHalftime = !sportSlug || HALFTIME_SPORTS.includes(sportSlug);
 

@@ -23,7 +23,7 @@ export function FeaturedMatchCard({ match }: { match: HomeMatchItem | null }) {
   const hasTeams = !!match.homeTeam;
   const homeLabel = match.homeTeam?.shortName ?? match.homeTeam?.name ?? match.participant1 ?? "TBA";
   const awayLabel = match.awayTeam?.shortName ?? match.awayTeam?.name ?? match.participant2 ?? "TBA";
-  const href = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
+  const href = isLive ? `/live/${match.slug}` : `/match/${match.slug}`;
 
   return (
     <div className="glass rounded-2xl p-3 w-full max-w-[240px] shadow-2xl">

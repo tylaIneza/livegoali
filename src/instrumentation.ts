@@ -5,5 +5,8 @@ export async function register() {
     // caused N duplicate status flips and flooded the DB.
     const { startFootballSyncWorker } = await import("@/lib/football-sync-worker");
     startFootballSyncWorker();
+
+    const { startPpvSyncWorker } = await import("@/lib/ppv-sync-worker");
+    startPpvSyncWorker();
   }
 }

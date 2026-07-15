@@ -96,7 +96,7 @@ export function ScheduleTable({ matches, dateStr, activeStatus }: ScheduleTableP
                     const sportSlug = match.sport?.slug ?? null;
                     const isFootball = sportSlug === "football" || !!match.homeTeamId;
                     const hasScore = isFootball;
-                    const detailHref = isLive ? `/live/${match.id}` : `/match/${match.slug}`;
+                    const detailHref = isLive ? `/live/${match.slug}` : `/match/${match.slug}`;
 
                     return (
                       <div key={match.id} className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/3 transition-colors group/match">
@@ -133,7 +133,7 @@ export function ScheduleTable({ matches, dateStr, activeStatus }: ScheduleTableP
                         <div className="shrink-0 flex items-center gap-1">
                           {isLive ? (
                             <Link
-                              href={`/live/${match.id}`}
+                              href={`/live/${match.slug}`}
                               className="px-3 py-1.5 rounded-lg gradient-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition-all"
                             >
                               Watch

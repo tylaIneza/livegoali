@@ -3,6 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { cacheGet, cacheSet } from "@/lib/redis";
 
+async function isAdmin() {
+  const session = await auth();
+  const role = session?.user?.role;
+  return role === "ADMIN" || role === "SUPER_ADMIN" || role === "EDITOR";
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
@@ -10,12 +16,15 @@ export async function GET(req: NextRequest) {
   const date = searchParams.get("date");
   const take = parseInt(searchParams.get("take") || "20");
   const skip = parseInt(searchParams.get("skip") || "0");
+  // Unpublished (e.g. pending-approval PPV imports) are only ever returned
+  // to an authenticated admin/editor explicitly asking for them.
+  const includeUnpublished = searchParams.get("includeUnpublished") === "1" && await isAdmin();
 
-  const cacheKey = `matches:${status}:${leagueId}:${date}:${take}:${skip}`;
+  const cacheKey = `matches:${status}:${leagueId}:${date}:${take}:${skip}:${includeUnpublished ? "all" : "pub"}`;
   const cached = await cacheGet(cacheKey);
   if (cached) return NextResponse.json(cached);
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = includeUnpublished ? {} : { isPublished: true };
   if (status) {
     if (status === "LIVE") {
       where.status = { in: ["LIVE", "HALFTIME"] };

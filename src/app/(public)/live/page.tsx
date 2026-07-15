@@ -65,7 +65,7 @@ export default async function LivePage() {
   const [liveMatches, upcomingToday] = (await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cacheGet<any>("home:live").then((c: any) => c ?? prisma.match.findMany({
-      where: { status: { in: ["LIVE", "HALFTIME"] } },
+      where: { status: { in: ["LIVE", "HALFTIME"] }, isPublished: true },
       include: {
         homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
         awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -79,6 +79,7 @@ export default async function LivePage() {
     cacheGet<any>("live:upcoming-today").then((c: any) => c ?? prisma.match.findMany({
       where: {
         status: "SCHEDULED",
+        isPublished: true,
         scheduledAt: {
           gte: now,
           lte: new Date(now.getTime() + 24 * 60 * 60 * 1000),
@@ -320,7 +321,7 @@ export default async function LivePage() {
                         )}
 
                         <Link
-                          href={`/live/${match.id}`}
+                          href={`/live/${match.slug}`}
                           className={`mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-black text-sm transition-all active:scale-[0.98] ${
                             match.isFeatured
                               ? "bg-warning text-warning-foreground hover:bg-warning/90"

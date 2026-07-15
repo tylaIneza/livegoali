@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { Button } from "@/components/ui/button";
@@ -60,10 +61,23 @@ export default async function MatchPage({ params }: Props) {
 
   if (!match) notFound();
 
+  if (!match.isPublished) {
+    const session = await auth();
+    const role = session?.user?.role;
+    if (!role || !["ADMIN", "SUPER_ADMIN", "EDITOR"].includes(role)) notFound();
+  }
+
   const isLive = match.status === "LIVE" || match.status === "HALFTIME";
   const isScheduled = match.status === "SCHEDULED";
   const sportSlug = match.sport?.slug ?? null;
   const isFootball = sportSlug === "football" || !!match.homeTeamId;
+  // isFootball answers "does this match have real Team rows to render logos
+  // for" (true for any team-based sport, including basketball/volleyball
+  // once they have Team rows). The Overview grid below needs a narrower
+  // signal: "does this match actually have league/competition data to show"
+  // — a PPV import (any sport, football included) has no league, so it falls
+  // back to the Sport-name field instead of blank Competition/Round/Season.
+  const isRealFootball = sportSlug === "football" && !!match.league;
   const SOLO_SPORTS = ["formula1"];
   const hasScore = sportSlug === "football" || (!sportSlug && !!match.homeTeamId);
   const isSoloEvent = SOLO_SPORTS.includes(sportSlug ?? "");
@@ -208,7 +222,7 @@ export default async function MatchPage({ params }: Props) {
         <div className="px-6 pb-6 flex gap-3 justify-center">
           {isLive && (match.streams.length > 0 || !!match.streamUrl) && (
             <Button asChild>
-              <Link href={`/live/${match.id}`}>
+              <Link href={`/live/${match.slug}`}>
                 <Play className="w-4 h-4" />
                 {sportSlug === "formula1" ? "Watch Race"
                   : (sportSlug === "ufc" || sportSlug === "boxing") ? "Watch Fight"
@@ -240,7 +254,7 @@ export default async function MatchPage({ params }: Props) {
         <TabsContent value="overview">
           <div className="p-4 rounded-xl border border-white/8 bg-card">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              {(isFootball ? [
+              {(isRealFootball ? [
                 { label: "Venue", value: match.venue || "TBA" },
                 { label: "Competition", value: match.league?.name || "—" },
                 { label: "Round", value: match.round || "—" },

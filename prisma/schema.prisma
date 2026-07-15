@@ -256,6 +256,11 @@ model Match {
   views            Int         @default(0)
   userViews        Int         @default(0)
   anonViews        Int         @default(0)
+  // ── External import support (e.g. PPV streams API) ──────────────────────
+  source           String      @default("manual") // "manual" | "ppv" | future providers
+  externalId       String? // provider's native stream/fixture ID
+  isPublished      Boolean     @default(true) // manual matches are published immediately; API imports start false until an admin approves
+  isAlwaysLive     Boolean     @default(false) // provider marked this as a 24/7 channel rather than a scheduled event
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
@@ -273,6 +278,7 @@ model Match {
   predictionEntries PredictionEntry[]
   scoreSnapshot     MatchScoreSnapshot?
 
+  @@unique([source, externalId])
   @@index([slug])
   @@index([sportId])
   @@index([leagueId])
@@ -281,6 +287,7 @@ model Match {
   @@index([status])
   @@index([scheduledAt])
   @@index([status, scheduledAt])
+  @@index([isPublished])
   @@fulltext([title, participant1, participant2])
 }
 

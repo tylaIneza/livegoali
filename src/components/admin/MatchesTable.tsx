@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Eye, Edit, Trash, Radio } from "lucide-react";
+import { Eye, Edit, Trash, Radio, Check, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatMatchDate } from "@/lib/utils";
@@ -25,6 +25,8 @@ interface Match {
   league?: { name: string } | null;
   sport?: { name: string; icon: string } | null;
   streams: { id: string }[];
+  source?: string;
+  isPublished?: boolean;
 }
 
 export function MatchesTable({ matches: initial }: { matches: Match[] }) {
@@ -32,6 +34,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
   const [matches, setMatches] = useState(initial);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     setDeleting(id);
@@ -46,6 +49,25 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
       toast.error("Failed to delete match");
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleTogglePublish = async (id: string, nextValue: boolean) => {
+    setPublishing(id);
+    try {
+      const res = await fetch(`/api/matches/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublished: nextValue }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setMatches((prev) => prev.map((m) => (m.id === id ? { ...m, isPublished: nextValue } : m)));
+      toast.success(nextValue ? "Match published" : "Match unpublished");
+      router.refresh();
+    } catch {
+      toast.error("Failed to update match");
+    } finally {
+      setPublishing(null);
     }
   };
 
@@ -88,7 +110,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/8">
-              {["Match", "League", "Date", "Status", "Streams", "Actions"].map((h) => (
+              {["Match", "League", "Date", "Status", "Source", "Streams", "Actions"].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-bold text-white/70 uppercase tracking-wider">
                   {h}
                 </th>
@@ -137,6 +159,16 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
                   </Badge>
                 </td>
                 <td className="px-4 py-3">
+                  <div className="flex flex-col gap-1 items-start">
+                    <Badge variant={match.source && match.source !== "manual" ? "new" : "secondary"}>
+                      {match.source && match.source !== "manual" ? match.source.toUpperCase() : "Manual"}
+                    </Badge>
+                    {match.isPublished === false && (
+                      <span className="text-[10px] font-bold text-warning">Pending approval</span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-3">
                   <div className="flex items-center gap-1.5">
                     <Radio className={`w-3.5 h-3.5 ${match.streams.length > 0 ? "text-[#00FF84]" : "text-white/60"}`} />
                     <span className="text-sm text-white/75">{match.streams.length} active</span>
@@ -144,11 +176,36 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild className="h-8 w-8">
-                      <Link href={match.status === "LIVE" || match.status === "HALFTIME" ? `/live/${match.id}` : `/match/${match.slug}`} target="_blank">
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                    </Button>
+                    {match.isPublished === false ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:text-[#00FF84] hover:bg-[#00FF84]/10"
+                        onClick={() => handleTogglePublish(match.id, true)}
+                        disabled={publishing === match.id}
+                        title="Publish"
+                      >
+                        <Check className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" size="icon" asChild className="h-8 w-8">
+                        <Link href={match.status === "LIVE" || match.status === "HALFTIME" ? `/live/${match.slug}` : `/match/${match.slug}`} target="_blank">
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                      </Button>
+                    )}
+                    {match.source && match.source !== "manual" && match.isPublished !== false && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:text-warning hover:bg-warning/10"
+                        onClick={() => handleTogglePublish(match.id, false)}
+                        disabled={publishing === match.id}
+                        title="Unpublish"
+                      >
+                        <XIcon className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button variant="ghost" size="icon" asChild className="h-8 w-8">
                       <Link href={`/admin/matches/${match.id}`}>
                         <Edit className="w-4 h-4" />
