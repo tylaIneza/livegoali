@@ -184,7 +184,13 @@ io.on("connection", (socket) => {
       console.error("[socket] chat history failed:", err);
     }
 
-    await trackJoin(matchId, !!userId);
+    // Idempotent: a socket reconnect re-emits join-match for the same match
+    // without an intervening leave-match, which would otherwise double-count
+    // the same viewer. Only increment once per "session" of watching.
+    if (!socket.data.countedViewer) {
+      socket.data.countedViewer = true;
+      await trackJoin(matchId, !!userId);
+    }
     await broadcastMatchViewers(matchId);
     scheduleBroadcastGlobal();
   });
@@ -192,7 +198,14 @@ io.on("connection", (socket) => {
   socket.on("leave-match", async (matchId: string) => {
     socket.leave(`match-${matchId}`);
     const userId = socket.data.userId as string | null;
-    await trackLeave(matchId, !!userId);
+    // Mirrors the join guard above — without this, leaving a match then
+    // later disconnecting (e.g. closing the tab from the homepage) decrements
+    // the same match a second time via the disconnect handler below, driving
+    // counts negative.
+    if (socket.data.countedViewer) {
+      socket.data.countedViewer = false;
+      await trackLeave(matchId, !!userId);
+    }
     await broadcastMatchViewers(matchId);
     scheduleBroadcastGlobal();
   });
@@ -271,7 +284,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", async () => {
     const matchId = socket.data.matchId as string | undefined;
     const userId = socket.data.userId as string | null;
-    if (matchId) {
+    if (matchId && socket.data.countedViewer) {
+      socket.data.countedViewer = false;
       await trackLeave(matchId, !!userId);
       await broadcastMatchViewers(matchId);
       scheduleBroadcastGlobal();
