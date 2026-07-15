@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,29 +16,10 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const match = await prisma.match.findUnique({
-    where: { slug },
-    include: {
-      homeTeam: { select: { name: true } },
-      awayTeam: { select: { name: true } },
-      league: { select: { name: true } },
-    },
-  });
-  if (!match) return { title: "Match Not Found" };
-  const p1 = match.homeTeam?.name ?? match.participant1 ?? "TBA";
-  const p2 = match.awayTeam?.name ?? match.participant2 ?? "TBA";
-  return {
-    title: match.title ?? `${p1} vs ${p2}`,
-    description: `${p1} vs ${p2}${match.league?.name ? ` - ${match.league.name}` : ""}`,
-  };
-}
-
-export default async function MatchPage({ params }: Props) {
-  const { slug } = await params;
-
-  const match = await prisma.match.findUnique({
+// cache() dedupes this across generateMetadata and the page body within the
+// same request — without it, every page view ran the same deep query twice.
+const getMatch = cache(async (slug: string) => {
+  return prisma.match.findUnique({
     where: { slug },
     include: {
       homeTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
@@ -58,6 +40,24 @@ export default async function MatchPage({ params }: Props) {
       prediction: true,
     },
   });
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const match = await getMatch(slug);
+  if (!match) return { title: "Match Not Found" };
+  const p1 = match.homeTeam?.name ?? match.participant1 ?? "TBA";
+  const p2 = match.awayTeam?.name ?? match.participant2 ?? "TBA";
+  return {
+    title: match.title ?? `${p1} vs ${p2}`,
+    description: `${p1} vs ${p2}${match.league?.name ? ` - ${match.league.name}` : ""}`,
+  };
+}
+
+export default async function MatchPage({ params }: Props) {
+  const { slug } = await params;
+
+  const match = await getMatch(slug);
 
   if (!match) notFound();
 

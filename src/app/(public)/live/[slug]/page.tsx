@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { cacheGet, cacheSet } from "@/lib/redis";
+import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
 import { LiveGoaliPlayer } from "@/components/player/LiveGoaliPlayer";
 import { ViewTracker } from "@/components/ViewTracker";
 import { LiveViewerTracker } from "@/components/LiveViewerTracker";
@@ -38,17 +39,38 @@ async function fetchMatchFromDb(slug: string) {
 
 type MatchData = NonNullable<Awaited<ReturnType<typeof fetchMatchFromDb>>>;
 
-async function getMatchData(slug: string): Promise<MatchData | null> {
+// cache() dedupes this across generateMetadata and the page body within the
+// same request. The lock below also protects across *different* visitors:
+// when the 10s cache expires, a burst of concurrent viewers would otherwise
+// all miss at once and hammer the DB simultaneously (a cache stampede).
+const getMatchData = cache(async (slug: string): Promise<MatchData | null> => {
   try {
     const cached = await cacheGet<MatchData>(`match:live:${slug}`);
     if (cached) return cached;
   } catch {}
-  const match = await fetchMatchFromDb(slug);
-  if (match) {
-    try { await cacheSet(`match:live:${slug}`, match, 10); } catch {}
+
+  const lockKey = `lock:match:live:${slug}`;
+  const gotLock = await acquireLock(lockKey, 5);
+  if (!gotLock) {
+    // Another request is already refreshing this match — briefly wait for
+    // its result instead of piling another DB query on top of it.
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      const cached = await cacheGet<MatchData>(`match:live:${slug}`);
+      if (cached) return cached;
+    } catch {}
   }
-  return match;
-}
+
+  try {
+    const match = await fetchMatchFromDb(slug);
+    if (match) {
+      try { await cacheSet(`match:live:${slug}`, match, 10); } catch {}
+    }
+    return match;
+  } finally {
+    if (gotLock) await releaseLock(lockKey);
+  }
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
