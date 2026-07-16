@@ -92,6 +92,7 @@ model User {
   auditLogs       AuditLog[]
 
   @@index([email])
+  @@index([createdAt])
 }
 
 model Account {
@@ -288,6 +289,9 @@ model Match {
   @@index([scheduledAt])
   @@index([status, scheduledAt])
   @@index([isPublished])
+  @@index([leagueId, status, scheduledAt])
+  @@index([homeTeamId, status, scheduledAt])
+  @@index([awayTeamId, status, scheduledAt])
   @@fulltext([title, participant1, participant2])
 }
 
@@ -482,6 +486,7 @@ model Comment {
   @@index([matchId])
   @@index([userId])
   @@index([parentId])
+  @@index([matchId, parentId, createdAt])
 }
 
 model LiveChatMessage {
@@ -497,6 +502,7 @@ model LiveChatMessage {
 
   @@index([matchId])
   @@index([userId])
+  @@index([matchId, createdAt])
 }
 
 model Category {
@@ -541,6 +547,7 @@ model News {
   @@index([slug])
   @@index([categoryId])
   @@index([isPublished])
+  @@index([isPublished, publishedAt])
 }
 
 model NewsTag {
@@ -606,6 +613,8 @@ model Notification {
 
   @@index([userId])
   @@index([isRead])
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
 }
 
 model Advertisement {

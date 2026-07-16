@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
 
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { cacheGet, cacheSet } from "@/lib/redis";
 import { LiveGoaliPlayer } from "@/components/player/LiveGoaliPlayer";
 import { ViewTracker } from "@/components/ViewTracker";
 import { ChannelCard } from "@/components/channel/ChannelCard";
@@ -14,12 +16,31 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getChannel(slug: string) {
+async function fetchChannelFromDb(slug: string) {
   return prisma.channel.findUnique({
     where: { slug },
     include: { sources: { where: { isActive: true }, orderBy: { priority: "asc" } } },
   });
 }
+
+type ChannelData = Awaited<ReturnType<typeof fetchChannelFromDb>>;
+
+// cache() dedupes this across generateMetadata and the page body within the
+// same request; Redis dedupes it across concurrent visitors of the same
+// 24/7 channel too.
+const getChannel = cache(async (slug: string): Promise<ChannelData> => {
+  const key = `channel:detail:${slug}`;
+  try {
+    const cached = await cacheGet<ChannelData>(key);
+    if (cached) return cached;
+  } catch {}
+
+  const channel = await fetchChannelFromDb(slug);
+  if (channel) {
+    try { await cacheSet(key, channel, 15); } catch {}
+  }
+  return channel;
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

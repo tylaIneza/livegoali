@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheDel } from "@/lib/redis";
 import bcrypt from "bcryptjs";
 import type { UserRole } from "@prisma/client";
+
+const USERS_CACHE_KEY = "admin:users:all";
 
 async function requireAdmin() {
   const session = await auth();
@@ -49,6 +52,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
   });
 
+  try { await cacheDel(USERS_CACHE_KEY); } catch {}
+
   return NextResponse.json(updated);
 }
 
@@ -73,6 +78,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   await prisma.user.delete({ where: { id } });
+
+  try { await cacheDel(USERS_CACHE_KEY); } catch {}
 
   return NextResponse.json({ ok: true });
 }

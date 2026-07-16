@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheGet, cacheSet, cacheDel } from "@/lib/redis";
 import bcrypt from "bcryptjs";
 import type { UserRole } from "@prisma/client";
+
+const USERS_CACHE_KEY = "admin:users:all";
 
 async function requireAdmin() {
   const session = await auth();
@@ -17,6 +20,11 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  try {
+    const cached = await cacheGet(USERS_CACHE_KEY);
+    if (cached) return NextResponse.json(cached);
+  } catch {}
+
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     select: {
@@ -25,6 +33,8 @@ export async function GET() {
       _count: { select: { predictions: true, comments: true } },
     },
   });
+
+  try { await cacheSet(USERS_CACHE_KEY, users, 30); } catch {}
 
   return NextResponse.json(users);
 }
@@ -60,6 +70,8 @@ export async function POST(req: NextRequest) {
       _count: { select: { predictions: true, comments: true } },
     },
   });
+
+  try { await cacheDel(USERS_CACHE_KEY); } catch {}
 
   return NextResponse.json(user, { status: 201 });
 }

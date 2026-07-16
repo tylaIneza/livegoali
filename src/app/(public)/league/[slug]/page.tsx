@@ -1,8 +1,10 @@
 export const dynamic = "force-dynamic";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MatchCard } from "@/components/match/MatchCard";
 import { FavoriteButton } from "@/components/FavoriteButton";
@@ -11,15 +13,7 @@ import type { Metadata } from "next";
 
 interface Props { params: Promise<{ slug: string }> }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const league = await prisma.league.findUnique({ where: { slug }, select: { name: true } });
-  return { title: league?.name || "League" };
-}
-
-export default async function LeaguePage({ params }: Props) {
-  const { slug } = await params;
-
+async function fetchLeagueDataFromDb(slug: string) {
   const league = await prisma.league.findUnique({
     where: { slug },
     include: {
@@ -31,12 +25,7 @@ export default async function LeaguePage({ params }: Props) {
     },
   });
 
-  if (!league) notFound();
-
-  const session = await auth();
-  const isFavorited = session?.user
-    ? !!(await prisma.favorite.findFirst({ where: { userId: session.user.id, leagueId: league.id } }))
-    : false;
+  if (!league) return null;
 
   const [fixtures, results] = await Promise.all([
     prisma.match.findMany({
@@ -64,6 +53,61 @@ export default async function LeaguePage({ params }: Props) {
       take: 10,
     }),
   ]);
+
+  return { league, fixtures, results };
+}
+
+type LeagueData = NonNullable<Awaited<ReturnType<typeof fetchLeagueDataFromDb>>>;
+
+// Standings/fixtures/results are identical for every visitor of a given
+// league — only the favorite-star check below is per-user, so that's kept
+// outside the cache. Redis + lock dedupes the 3-query bundle across
+// concurrent visitors the same way the match/live pages do.
+const getLeagueData = cache(async (slug: string): Promise<LeagueData | null> => {
+  const key = `league:detail:${slug}`;
+  try {
+    const cached = await cacheGet<LeagueData>(key);
+    if (cached) return cached;
+  } catch {}
+
+  const lockKey = `lock:league:detail:${slug}`;
+  const gotLock = await acquireLock(lockKey, 5);
+  if (!gotLock) {
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      const cached = await cacheGet<LeagueData>(key);
+      if (cached) return cached;
+    } catch {}
+  }
+
+  try {
+    const data = await fetchLeagueDataFromDb(slug);
+    if (data) {
+      try { await cacheSet(key, data, 15); } catch {}
+    }
+    return data;
+  } finally {
+    if (gotLock) await releaseLock(lockKey);
+  }
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const data = await getLeagueData(slug);
+  return { title: data?.league.name || "League" };
+}
+
+export default async function LeaguePage({ params }: Props) {
+  const { slug } = await params;
+
+  const data = await getLeagueData(slug);
+  if (!data) notFound();
+  const { league, fixtures, results } = data;
+
+  const session = await auth();
+  const isFavorited = session?.user
+    ? !!(await prisma.favorite.findFirst({ where: { userId: session.user.id, leagueId: league.id } }))
+    : false;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

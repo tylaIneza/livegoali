@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheGet, cacheSet, cacheDel } from "@/lib/redis";
 import { z } from "zod";
 
 const commentSchema = z.object({
@@ -9,6 +10,14 @@ const commentSchema = z.object({
   parentId: z.string().optional(),
 });
 
+function commentsCacheKey(matchId: string) {
+  return `comments:${matchId}`;
+}
+
+// CommentSection polls this every 30s per viewer (src/components/match/
+// CommentSection.tsx) — a popular match with hundreds of concurrent viewers
+// turned into hundreds of identical queries every 30s. A short TTL cuts that
+// to one query per match per window while staying effectively real-time.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const matchId = searchParams.get("matchId");
@@ -16,6 +25,12 @@ export async function GET(req: NextRequest) {
   if (!matchId) {
     return NextResponse.json({ error: "matchId required" }, { status: 400 });
   }
+
+  const key = commentsCacheKey(matchId);
+  try {
+    const cached = await cacheGet(key);
+    if (cached) return NextResponse.json(cached);
+  } catch {}
 
   const comments = await prisma.comment.findMany({
     where: { matchId, parentId: null, isDeleted: false },
@@ -34,6 +49,8 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
     take: 50,
   });
+
+  try { await cacheSet(key, comments, 5); } catch {}
 
   return NextResponse.json(comments);
 }
@@ -72,6 +89,8 @@ export async function POST(req: NextRequest) {
       user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
     },
   });
+
+  try { await cacheDel(commentsCacheKey(matchId)); } catch {}
 
   return NextResponse.json(comment, { status: 201 });
 }

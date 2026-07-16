@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { Button } from "@/components/ui/button";
@@ -16,9 +17,7 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-// cache() dedupes this across generateMetadata and the page body within the
-// same request — without it, every page view ran the same deep query twice.
-const getMatch = cache(async (slug: string) => {
+async function fetchMatchFromDb(slug: string) {
   return prisma.match.findUnique({
     where: { slug },
     include: {
@@ -40,6 +39,40 @@ const getMatch = cache(async (slug: string) => {
       prediction: true,
     },
   });
+}
+
+type MatchData = NonNullable<Awaited<ReturnType<typeof fetchMatchFromDb>>>;
+
+// cache() dedupes this across generateMetadata and the page body within the
+// same request. The Redis layer + lock dedupes it across *different*
+// concurrent visitors too: without it, every page view ran this deep query
+// (teams, league, stats, lineups, events, prediction) fresh, and a burst of
+// viewers on the same match would each miss the cache and hit MySQL at once.
+const getMatch = cache(async (slug: string): Promise<MatchData | null> => {
+  try {
+    const cached = await cacheGet<MatchData>(`match:detail:${slug}`);
+    if (cached) return cached;
+  } catch {}
+
+  const lockKey = `lock:match:detail:${slug}`;
+  const gotLock = await acquireLock(lockKey, 5);
+  if (!gotLock) {
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      const cached = await cacheGet<MatchData>(`match:detail:${slug}`);
+      if (cached) return cached;
+    } catch {}
+  }
+
+  try {
+    const match = await fetchMatchFromDb(slug);
+    if (match) {
+      try { await cacheSet(`match:detail:${slug}`, match, 10); } catch {}
+    }
+    return match;
+  } finally {
+    if (gotLock) await releaseLock(lockKey);
+  }
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

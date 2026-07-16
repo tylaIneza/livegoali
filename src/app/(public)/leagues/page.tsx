@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { cacheGet, cacheSet } from "@/lib/redis";
 import Link from "next/link";
 import Image from "next/image";
 import { Trophy, ArrowRight, Globe } from "lucide-react";
@@ -28,8 +29,8 @@ const LEAGUE_FLAGS: Record<string, string> = {
   France: "🇫🇷", Europe: "🏆", Africa: "🌍", Rwanda: "🇷🇼",
 };
 
-export default async function LeaguesPage() {
-  const leagues = await prisma.league.findMany({
+async function fetchLeaguesFromDb() {
+  return prisma.league.findMany({
     where: { isActive: true },
     include: {
       _count: {
@@ -38,6 +39,25 @@ export default async function LeaguesPage() {
     },
     orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
   }).catch(() => []);
+}
+
+type LeagueListItem = Awaited<ReturnType<typeof fetchLeaguesFromDb>>[number];
+
+// Same list for every visitor — no per-user data on this page.
+async function getLeagues(): Promise<LeagueListItem[]> {
+  const key = "leagues:all";
+  try {
+    const cached = await cacheGet<LeagueListItem[]>(key);
+    if (cached) return cached;
+  } catch {}
+
+  const leagues = await fetchLeaguesFromDb();
+  try { await cacheSet(key, leagues, 30); } catch {}
+  return leagues;
+}
+
+export default async function LeaguesPage() {
+  const leagues = await getLeagues();
 
   const featured = leagues.filter((l) => l.isFeatured);
   const others = leagues.filter((l) => !l.isFeatured);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { cacheDel } from "@/lib/redis";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -26,6 +27,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     where: { id },
     data: { isDeleted: true, content: "[deleted]" },
   });
+
+  try { await cacheDel(`comments:${comment.matchId}`); } catch {}
 
   return NextResponse.json({ success: true });
 }

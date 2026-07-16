@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { cacheGet, cacheSet } from "@/lib/redis";
 import Link from "next/link";
 import Image from "next/image";
 import { Brain, Target, TrendingUp, Zap } from "lucide-react";
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
   description: "AI-powered match predictions with expected goals, win probabilities, and expert analysis.",
 };
 
-export default async function PredictionsPage() {
-  const matches = await prisma.match.findMany({
+async function fetchPredictionMatchesFromDb() {
+  return prisma.match.findMany({
     where: {
       status: { in: ["SCHEDULED", "LIVE", "HALFTIME"] },
       prediction: { isNot: null },
@@ -30,6 +31,25 @@ export default async function PredictionsPage() {
     orderBy: { scheduledAt: "asc" },
     take: 30,
   }).catch(() => []);
+}
+
+type PredictionMatch = Awaited<ReturnType<typeof fetchPredictionMatchesFromDb>>[number];
+
+// Same list for every visitor — no per-user data on this page.
+async function getPredictionMatches(): Promise<PredictionMatch[]> {
+  const key = "predictions:upcoming";
+  try {
+    const cached = await cacheGet<PredictionMatch[]>(key);
+    if (cached) return cached;
+  } catch {}
+
+  const matches = await fetchPredictionMatchesFromDb();
+  try { await cacheSet(key, matches, 15); } catch {}
+  return matches;
+}
+
+export default async function PredictionsPage() {
+  const matches = await getPredictionMatches();
 
   const highConfidence = matches.filter((m) => (m.prediction?.confidence ?? 0) >= 70);
   const regular = matches.filter((m) => (m.prediction?.confidence ?? 0) < 70);
