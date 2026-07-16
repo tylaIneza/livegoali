@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
+import { assertSafeExternalUrl } from "@/lib/url-safety";
 
 const RESULT_TTL = 300; // seconds — how long a resolved stream URL stays cached
 const NEGATIVE_TTL = 30; // seconds — how long a failed extraction is cached, to avoid hammering broken pages
@@ -116,10 +117,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "url parameter required" }, { status: 400 });
   }
 
-  // If it's already a direct stream, return it immediately — no scraping needed
+  // If it's already a direct stream, return it immediately — no scraping needed.
+  // (Not a server-side fetch, so no SSRF exposure — the player fetches it client-side.)
   const lower = targetUrl.toLowerCase();
   if (lower.includes(".m3u8") || lower.includes(".mpd")) {
     return NextResponse.json({ url: targetUrl, type: "direct" });
+  }
+
+  // Everything past this point fetches targetUrl server-side — block internal/
+  // private network targets so this endpoint can't be used as an SSRF proxy.
+  try {
+    await assertSafeExternalUrl(targetUrl);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "URL not allowed";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 
   const key = cacheKey(targetUrl);

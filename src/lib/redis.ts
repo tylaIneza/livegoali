@@ -73,3 +73,29 @@ export async function acquireLock(key: string, ttlSeconds: number): Promise<bool
 export async function releaseLock(key: string): Promise<void> {
   await cacheDel(key);
 }
+
+// Generic failed-attempt counters for brute-force protection (login, etc).
+// Fail open on Redis errors so an outage degrades to "no rate limiting"
+// rather than locking everyone out.
+export async function getAttemptCount(key: string): Promise<number> {
+  try {
+    const value = await redis.get(key);
+    return value ? parseInt(value, 10) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function recordAttempt(key: string, ttlSeconds: number): Promise<number> {
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) await redis.expire(key, ttlSeconds);
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
+export async function clearAttempts(key: string): Promise<void> {
+  await cacheDel(key);
+}
