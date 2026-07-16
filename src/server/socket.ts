@@ -4,6 +4,7 @@ import { createAdapter } from "@socket.io/redis-adapter";
 import Redis from "ioredis";
 import { randomBytes } from "crypto";
 import { prisma } from "../lib/prisma";
+import { getFootballStreams } from "../lib/ppv-football";
 
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 
@@ -445,15 +446,29 @@ async function autoLiveMatches() {
   }
 }
 
+// Keeps Match rows synced with PPV even if nobody happens to be browsing
+// /football right now — getFootballStreams() already syncs to the DB on its
+// own cache refresh (see src/lib/ppv-football.ts), so this just guarantees
+// that refresh happens at least once every 5 minutes regardless of traffic.
+async function syncPpvFootball() {
+  try {
+    await getFootballStreams();
+  } catch (err) {
+    console.error("[sync-ppv-football] failed:", err);
+  }
+}
+
 resetViewerCounts().then(() => {
   autoLiveMatches();
   flushVisitCounters();
   flushAdViews();
   flushMatchViews();
+  syncPpvFootball();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
   setInterval(flushAdViews, 60_000);
   setInterval(flushMatchViews, 60_000);
+  setInterval(syncPpvFootball, 5 * 60_000);
 });
 
 const PORT = process.env.SOCKET_PORT ? parseInt(process.env.SOCKET_PORT) : 3001;
