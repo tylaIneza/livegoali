@@ -79,7 +79,7 @@ export function AdsManager() {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    fetch("/api/ads?all=1")
+    fetch("/api/promotions?all=1")
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d)) setAds(d); })
       .catch(() => toast.error("Failed to load ads"))
@@ -109,7 +109,7 @@ export function AdsManager() {
     if (!form.targetUrl.trim()) { toast.error("Target URL is required"); return; }
     setSaving(true);
     try {
-      const res = await fetch("/api/ads", {
+      const res = await fetch("/api/promotions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, revenue: parseFloat(form.revenue) || 0 }),
@@ -131,7 +131,7 @@ export function AdsManager() {
     if (!form.title.trim()) { toast.error("Title is required"); return; }
     setSaving(true);
     try {
-      const res = await fetch(`/api/ads/${editTarget.id}`, {
+      const res = await fetch(`/api/promotions/${editTarget.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, revenue: parseFloat(form.revenue) || 0 }),
@@ -152,7 +152,7 @@ export function AdsManager() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/ads/${deleteTarget.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/promotions/${deleteTarget.id}`, { method: "DELETE" });
       if (!res.ok) { toast.error("Failed to delete"); return; }
       setAds((p) => p.filter((a) => a.id !== deleteTarget.id));
       setDeleteTarget(null);
@@ -166,7 +166,7 @@ export function AdsManager() {
 
   const toggleActive = async (ad: Ad) => {
     try {
-      const res = await fetch(`/api/ads/${ad.id}`, {
+      const res = await fetch(`/api/promotions/${ad.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isActive: !ad.isActive }),

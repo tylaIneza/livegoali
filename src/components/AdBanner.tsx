@@ -23,7 +23,7 @@ export function AdBanner({ placement, className = "" }: Props) {
   const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/ads?placement=${placement}`)
+    fetch(`/api/promotions?placement=${placement}`)
       .then((r) => r.json())
       .then((data: Ad[]) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -31,7 +31,7 @@ export function AdBanner({ placement, className = "" }: Props) {
           return;
         }
         // Fall back to any active ad
-        return fetch("/api/ads")
+        return fetch("/api/promotions")
           .then((r) => r.json())
           .then((all: Ad[]) => {
             if (Array.isArray(all) && all.length > 0) {
@@ -45,7 +45,7 @@ export function AdBanner({ placement, className = "" }: Props) {
 
   useEffect(() => {
     if (!ad) return;
-    fetch(`/api/ads/${ad.id}`, {
+    fetch(`/api/promotions/${ad.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "view" }),
@@ -55,7 +55,7 @@ export function AdBanner({ placement, className = "" }: Props) {
   if (loading || !ad) return null;
 
   const handleClick = () => {
-    fetch(`/api/ads/${ad.id}`, {
+    fetch(`/api/promotions/${ad.id}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "click" }),
