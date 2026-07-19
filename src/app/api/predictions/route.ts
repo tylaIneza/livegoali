@@ -21,17 +21,24 @@ function predictionCacheKey(matchId: string) {
 // LiveMatchSidebar polls this every 60s per viewer — a popular live match with
 // thousands of concurrent viewers turned into thousands of identical uncached
 // queries every minute. Cache it the same way comments/ads/live-check already are.
+//
+// Cached value is wrapped ({ prediction }) rather than stored bare: matches with
+// no Prediction row legitimately cache a null prediction, and cacheGet returns
+// plain JS null for both "nothing cached" and "cached value is null" — an
+// unwrapped `if (cached)` check treats a real cached null as a miss and
+// re-queries MySQL every time. Confirmed happening in production (§ predictions
+// cache check, 2026-07-19) before this wrapper was added.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const matchId = searchParams.get("matchId");
 
   if (matchId) {
     const key = predictionCacheKey(matchId);
-    const cached = await cacheGet(key);
-    if (cached) return NextResponse.json(cached);
+    const cached = await cacheGet<{ prediction: Awaited<ReturnType<typeof prisma.prediction.findUnique>> }>(key);
+    if (cached) return NextResponse.json(cached.prediction);
 
     const prediction = await prisma.prediction.findUnique({ where: { matchId } });
-    try { await cacheSet(key, prediction, 30); } catch {}
+    try { await cacheSet(key, { prediction }, 30); } catch {}
     return NextResponse.json(prediction);
   }
 
