@@ -1,4 +1,7 @@
-export const dynamic = "force-dynamic";
+// See src/app/(public)/live/[slug]/page.tsx for why this is revalidate
+// instead of force-dynamic, and the accepted auth-gate trade-off that
+// comes with it (same isPublished/auth() pattern as that page).
+export const revalidate = 10;
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -74,6 +77,12 @@ const getMatch = cache(async (slug: string): Promise<MatchData | null> => {
     if (gotLock) await releaseLock(lockKey);
   }
 });
+
+// See src/app/(public)/live/[slug]/page.tsx — required for revalidate to
+// actually take effect on on-demand-visited slugs.
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

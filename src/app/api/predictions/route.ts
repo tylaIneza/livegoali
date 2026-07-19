@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { generateAIPrediction } from "@/lib/prediction-engine";
+import { cacheGet, cacheSet, cacheDel } from "@/lib/redis";
 
 const entrySchema = z.object({
   matchId: z.string(),
@@ -13,12 +14,24 @@ const entrySchema = z.object({
   overUnder: z.string().optional(),
 });
 
+function predictionCacheKey(matchId: string) {
+  return `prediction:${matchId}`;
+}
+
+// LiveMatchSidebar polls this every 60s per viewer — a popular live match with
+// thousands of concurrent viewers turned into thousands of identical uncached
+// queries every minute. Cache it the same way comments/ads/live-check already are.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const matchId = searchParams.get("matchId");
 
   if (matchId) {
+    const key = predictionCacheKey(matchId);
+    const cached = await cacheGet(key);
+    if (cached) return NextResponse.json(cached);
+
     const prediction = await prisma.prediction.findUnique({ where: { matchId } });
+    try { await cacheSet(key, prediction, 30); } catch {}
     return NextResponse.json(prediction);
   }
 
@@ -101,6 +114,7 @@ export async function PUT(req: NextRequest) {
 
   if (generate) {
     const prediction = await generateAIPrediction(matchId);
+    try { await cacheDel(predictionCacheKey(matchId)); } catch {}
     return NextResponse.json(prediction);
   }
 
@@ -109,6 +123,8 @@ export async function PUT(req: NextRequest) {
     create: { matchId, ...body },
     update: { ...body, isOverridden: true },
   });
+
+  try { await cacheDel(predictionCacheKey(matchId)); } catch {}
 
   return NextResponse.json(prediction);
 }

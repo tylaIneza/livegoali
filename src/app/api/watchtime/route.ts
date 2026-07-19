@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
 
 const KEY = "total_watch_seconds";
+const PENDING_KEY = "watchtime:pending_seconds";
 
 function formatHours(hours: number): string {
   if (hours >= 1_000_000) return `${+(hours / 1_000_000).toFixed(1)}M`;
@@ -16,6 +18,11 @@ export async function GET() {
   return NextResponse.json({ hours, formatted: formatHours(hours) });
 }
 
+// Every viewer flushes here every 30s (WatchtimeTracker) — at 10k concurrent
+// viewers that's ~333 req/s. Buffer in Redis (atomic INCRBY, no lock
+// contention) instead of writing straight to the single Settings row on
+// every request; the socket server drains this into MySQL once a minute
+// (see flushWatchTime in src/server/socket.ts).
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -24,11 +31,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false }, { status: 400 });
     }
 
-    await prisma.$executeRaw`
-      INSERT INTO Settings (id, \`key\`, value, updatedAt)
-      VALUES (${crypto.randomUUID()}, ${KEY}, ${String(seconds)}, NOW())
-      ON DUPLICATE KEY UPDATE value = CAST(value AS UNSIGNED) + ${seconds}, updatedAt = NOW()
-    `;
+    await redis.incrby(PENDING_KEY, Math.round(seconds));
 
     return NextResponse.json({ ok: true });
   } catch {

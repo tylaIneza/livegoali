@@ -418,6 +418,17 @@ async function flushVisitCounters() {
   }
 }
 
+async function flushWatchTime() {
+  try {
+    const key = "watchtime:pending_seconds";
+    const [value] = await pubClient.pipeline().get(key).del(key).exec().then((r) => [r?.[0]?.[1] as string | null]);
+    const seconds = parseInt(value || "0");
+    if (seconds > 0) await incrementDbSetting("total_watch_seconds", seconds);
+  } catch (err) {
+    console.error("[flush] watch time flush failed:", err);
+  }
+}
+
 // ── Auto-live: set SCHEDULED matches to LIVE 30 min before kickoff ────────────
 // Only flips matches that actually have a stream to show — otherwise the site
 // tells viewers a match is "LIVE" (badges, homepage, notifications) before
@@ -463,11 +474,13 @@ resetViewerCounts().then(() => {
   flushVisitCounters();
   flushAdViews();
   flushMatchViews();
+  flushWatchTime();
   syncPpvFootball();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
   setInterval(flushAdViews, 60_000);
   setInterval(flushMatchViews, 60_000);
+  setInterval(flushWatchTime, 60_000);
   setInterval(syncPpvFootball, 5 * 60_000);
 });
 
