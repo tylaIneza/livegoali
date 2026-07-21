@@ -45,19 +45,30 @@ const BLOCKED_DOMAINS = [
   "pixel.", "beacon.", "metrics.",
 ];
 
+// Caps how much of the page we scan, and lets us stop after the first
+// (most specific) pattern already found something — ad-laden embed pages
+// can run several hundred KB, and all 6 regexes running to completion over
+// the full document blocks Node's single JS thread for the duration,
+// stalling every other concurrent request on that worker in the meantime.
+const MAX_SCAN_CHARS = 200_000; // embed players load their src near the top of the document
+
 function extractStreamUrls(html: string): string[] {
+  const scoped = html.length > MAX_SCAN_CHARS ? html.slice(0, MAX_SCAN_CHARS) : html;
   const found = new Set<string>();
 
   for (const pattern of STREAM_PATTERNS) {
     pattern.lastIndex = 0;
     let match;
-    while ((match = pattern.exec(html)) !== null) {
+    while ((match = pattern.exec(scoped)) !== null) {
       const url = match[1];
       if (!url) continue;
       // Skip ad/tracker URLs
       const isBlocked = BLOCKED_DOMAINS.some((d) => url.includes(d));
       if (!isBlocked) found.add(url);
     }
+    // A direct .m3u8 match from the first, most specific pattern is already
+    // good enough to serve — skip the remaining, more speculative patterns.
+    if (found.size > 0 && pattern === STREAM_PATTERNS[0]) break;
   }
 
   // Sort: prefer longer (more specific) URLs, prefer https

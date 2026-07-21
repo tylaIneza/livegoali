@@ -93,14 +93,12 @@ export async function POST(req: NextRequest) {
         isUser = !!session?.user;
       } catch {}
 
-      prisma.match.update({
-        where: { id: matchId },
-        data: {
-          views: { increment: 1 },
-          userViews: isUser ? { increment: 1 } : undefined,
-          anonViews: !isUser ? { increment: 1 } : undefined,
-        },
-      }).catch(() => {});
+      // Buffered in Redis and drained in aggregate by flushViewCounters in
+      // src/server/socket.ts. This used to write straight to the Match row
+      // on every call, racing with the identical increment fired by the
+      // socket server's join-match handler — both hammering the same row
+      // under concurrent viewers.
+      redis.hincrby(`viewbuf:${matchId}`, isUser ? "users" : "guests", 1).catch(() => {});
 
       const month = new Date().toISOString().slice(0, 7);
       redis.incr(`match_views:${month}`).catch(() => {});

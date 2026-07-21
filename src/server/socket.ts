@@ -19,6 +19,23 @@ subClient.on("error", (err) => console.error("[redis:sub] connection error:", er
 // Redis key helpers
 const vwKey = (matchId: string) => `vw:${matchId}`;
 const ACTIVE_KEY = "vw:active";
+const viewBufKey = (matchId: string) => `viewbuf:${matchId}`;
+
+// Tiny lock helper (mirrors src/lib/redis.ts's acquireLock/releaseLock, reusing
+// the socket server's own pubClient instead of opening another connection) —
+// prevents a burst of viewers joining the same match at once from all missing
+// the chat-history cache together and re-running the same query concurrently.
+async function acquireChatLock(matchId: string): Promise<boolean> {
+  try {
+    const result = await pubClient.set(`lock:chat:${matchId}`, "1", "EX", 5, "NX");
+    return result === "OK";
+  } catch {
+    return true; // Redis unavailable — don't block the join on it
+  }
+}
+async function releaseChatLock(matchId: string): Promise<void> {
+  await pubClient.del(`lock:chat:${matchId}`).catch(() => {});
+}
 
 const httpServer = createServer();
 const io = new Server(httpServer, {
@@ -141,45 +158,57 @@ io.on("connection", (socket) => {
     socket.data.userId = userId;
     socket.join(`match-${matchId}`);
 
-    // Fire-and-forget view count — don't block socket join on DB write
+    // Buffer view counts in Redis and drain them in aggregate (see
+    // flushViewCounters below) instead of writing straight to MySQL per
+    // viewer — a burst of viewers joining the same match used to fire one
+    // UPDATE each, all racing to increment the same Match row.
     if (!socket.data.viewedMatches) socket.data.viewedMatches = new Set<string>();
     if (!socket.data.viewedMatches.has(matchId)) {
       socket.data.viewedMatches.add(matchId);
-      prisma.match
-        .update({
-          where: { id: matchId },
-          data: {
-            views: { increment: 1 },
-            ...(userId ? { userViews: { increment: 1 } } : { anonViews: { increment: 1 } }),
-          },
-        })
-        .catch((err) => console.error("[socket] view increment failed:", err));
+      pubClient
+        .hincrby(viewBufKey(matchId), userId ? "users" : "guests", 1)
+        .catch((err) => console.error("[socket] view buffer incr failed:", err));
     }
 
-    // Send recent chat history — cached 30s so burst joins don't hammer DB
+    // Send recent chat history — cached 30s so burst joins don't hammer DB.
+    // Cache misses are lock-protected (mirrors the pattern used for match
+    // pages / ppv-football / stream-extract) so a burst of viewers joining
+    // right as the cache expires collapses into one query instead of one
+    // per viewer.
     try {
       const chatCacheKey = `chat:${matchId}`;
-      const cachedHistory = await pubClient.get(chatCacheKey);
-      if (cachedHistory) {
-        socket.emit("chat-history", JSON.parse(cachedHistory));
-      } else {
-        const messages = await prisma.liveChatMessage.findMany({
-          where: { matchId, isDeleted: false },
-          include: {
-            user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
-          },
-          orderBy: { createdAt: "asc" },
-          take: 50,
-        });
-        const history = messages.map((m) => ({
-          id: m.id,
-          content: m.content,
-          createdAt: m.createdAt.toISOString(),
-          user: m.user,
-        }));
-        await pubClient.setex(chatCacheKey, 30, JSON.stringify(history));
-        socket.emit("chat-history", history);
+      let cachedHistory = await pubClient.get(chatCacheKey);
+
+      if (!cachedHistory) {
+        const gotLock = await acquireChatLock(matchId);
+        if (!gotLock) {
+          await new Promise((r) => setTimeout(r, 150));
+          cachedHistory = await pubClient.get(chatCacheKey);
+        }
+        if (!cachedHistory) {
+          try {
+            const messages = await prisma.liveChatMessage.findMany({
+              where: { matchId, isDeleted: false },
+              include: {
+                user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
+              },
+              orderBy: { createdAt: "asc" },
+              take: 50,
+            });
+            const history = messages.map((m) => ({
+              id: m.id,
+              content: m.content,
+              createdAt: m.createdAt.toISOString(),
+              user: m.user,
+            }));
+            cachedHistory = JSON.stringify(history);
+            await pubClient.setex(chatCacheKey, 30, cachedHistory);
+          } finally {
+            if (gotLock) await releaseChatLock(matchId);
+          }
+        }
       }
+      socket.emit("chat-history", JSON.parse(cachedHistory ?? "[]"));
     } catch (err) {
       console.error("[socket] chat history failed:", err);
     }
@@ -429,6 +458,53 @@ async function flushWatchTime() {
   }
 }
 
+// Drains the per-match view-count buffers written by join-match above and by
+// the match branch of /api/track (src/app/api/track/route.ts) — both used to
+// write straight to the same Match row per viewer; now they both just
+// HINCRBY a Redis hash, and this collapses that into one UPDATE per match
+// per minute regardless of how many viewers joined in between.
+async function flushViewCounters() {
+  try {
+    const keys: string[] = [];
+    let cursor = "0";
+    do {
+      const [next, batch] = await pubClient.scan(cursor, "MATCH", "viewbuf:*", "COUNT", 100);
+      cursor = next;
+      keys.push(...batch);
+    } while (cursor !== "0");
+    if (!keys.length) return;
+
+    const getPipeline = pubClient.pipeline();
+    for (const key of keys) getPipeline.hgetall(key);
+    const results = await getPipeline.exec();
+    const delPipeline = pubClient.pipeline();
+    for (const key of keys) delPipeline.del(key);
+    await delPipeline.exec();
+
+    await Promise.all(
+      keys.map((key, i) => {
+        const d = (results?.[i]?.[1] as Record<string, string>) || {};
+        const users = Math.max(0, parseInt(d.users || "0"));
+        const guests = Math.max(0, parseInt(d.guests || "0"));
+        if (users <= 0 && guests <= 0) return Promise.resolve();
+        const matchId = key.replace("viewbuf:", "");
+        return prisma.match
+          .update({
+            where: { id: matchId },
+            data: {
+              views: { increment: users + guests },
+              userViews: { increment: users },
+              anonViews: { increment: guests },
+            },
+          })
+          .catch(() => {});
+      }),
+    );
+  } catch (err) {
+    console.error("[flush] view counter flush failed:", err);
+  }
+}
+
 // ── Auto-live: set SCHEDULED matches to LIVE 30 min before kickoff ────────────
 // Only flips matches that actually have a stream to show — otherwise the site
 // tells viewers a match is "LIVE" (badges, homepage, notifications) before
@@ -475,12 +551,14 @@ resetViewerCounts().then(() => {
   flushAdViews();
   flushMatchViews();
   flushWatchTime();
+  flushViewCounters();
   syncPpvFootball();
   setInterval(autoLiveMatches, 60_000);
   setInterval(flushVisitCounters, 60_000);
   setInterval(flushAdViews, 60_000);
   setInterval(flushMatchViews, 60_000);
   setInterval(flushWatchTime, 60_000);
+  setInterval(flushViewCounters, 60_000);
   setInterval(syncPpvFootball, 5 * 60_000);
 });
 

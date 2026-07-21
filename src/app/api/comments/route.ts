@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { cacheGet, cacheSet, cacheDel } from "@/lib/redis";
+import { cacheGet, cacheSet, cacheDel, acquireLock, releaseLock } from "@/lib/redis";
 import { z } from "zod";
 
 const commentSchema = z.object({
@@ -12,6 +12,10 @@ const commentSchema = z.object({
 
 function commentsCacheKey(matchId: string) {
   return `comments:${matchId}`;
+}
+
+function commentsLockKey(matchId: string) {
+  return `lock:comments:${matchId}`;
 }
 
 // CommentSection polls this every 30s per viewer (src/components/match/
@@ -32,27 +36,45 @@ export async function GET(req: NextRequest) {
     if (cached) return NextResponse.json(cached);
   } catch {}
 
-  const comments = await prisma.comment.findMany({
-    where: { matchId, parentId: null, isDeleted: false },
-    include: {
-      user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
-      _count: { select: { replies: true } },
-      replies: {
-        where: { isDeleted: false },
-        include: {
-          user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
+  // Lock-protected cache miss (same pattern as match:live/match:detail and
+  // the chat-history fetch in src/server/socket.ts) — without this, a burst
+  // of viewers all missing the 5s cache window at the same moment each ran
+  // this query themselves instead of one query plus N short waits.
+  const lockKey = commentsLockKey(matchId);
+  const gotLock = await acquireLock(lockKey, 5);
+  if (!gotLock) {
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      const cached = await cacheGet(key);
+      if (cached) return NextResponse.json(cached);
+    } catch {}
+  }
+
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { matchId, parentId: null, isDeleted: false },
+      include: {
+        user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
+        _count: { select: { replies: true } },
+        replies: {
+          where: { isDeleted: false },
+          include: {
+            user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
+          },
+          orderBy: { createdAt: "asc" },
+          take: 5,
         },
-        orderBy: { createdAt: "asc" },
-        take: 5,
       },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
 
-  try { await cacheSet(key, comments, 5); } catch {}
+    try { await cacheSet(key, comments, 5); } catch {}
 
-  return NextResponse.json(comments);
+    return NextResponse.json(comments);
+  } finally {
+    if (gotLock) await releaseLock(lockKey);
+  }
 }
 
 export async function POST(req: NextRequest) {
