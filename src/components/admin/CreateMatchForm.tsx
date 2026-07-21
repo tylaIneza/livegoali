@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Radio, Wand2, Settings } from "lucide-react";
+import { Plus, Radio, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,9 +113,6 @@ export function CreateMatchForm({ leagues, sports }: Props) {
 
   // Shared
   const [isFeatured, setIsFeatured] = useState(false);
-  const [enableComments, setEnableComments] = useState(true);
-  const [enableChat, setEnableChat] = useState(true);
-  const [enablePrediction, setEnablePrediction] = useState(sportType === "football");
 
   // Global stream
   const [streamUrl, setStreamUrl] = useState("");
@@ -123,7 +120,6 @@ export function CreateMatchForm({ leagues, sports }: Props) {
   const [streamQuality, setStreamQuality] = useState("HD");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeneratingPrediction, setIsGeneratingPrediction] = useState(false);
 
   const getSportId = () => sports.find((s) => s.slug === sportType)?.id ?? null;
 
@@ -140,7 +136,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         awayTeamLogo: awayTeamLogo.trim() || undefined,
         scheduledAt: new Date(scheduledAt).toISOString(),
         venue, round,
-        isFeatured, enableComments, enableChat, enablePrediction,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
       };
     }
@@ -154,7 +150,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         title: bkLeague.trim() || undefined,
         venue: bkArena.trim() || undefined, round: bkRound.trim() || undefined,
         scheduledAt: new Date(bkDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ league: bkLeague }),
       };
@@ -169,7 +165,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         title: vbTournament.trim() || undefined,
         venue: vbVenue.trim() || undefined, round: vbRound.trim() || undefined,
         scheduledAt: new Date(vbDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ tournament: vbTournament }),
       };
@@ -183,7 +179,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         participant1: "Formula 1", participant2: f1Championship.trim() || "FIA",
         venue: f1Circuit.trim() || undefined, round: f1SessionType,
         scheduledAt: new Date(f1Date).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ championship: f1Championship, grandPrix: f1GrandPrix, circuit: f1Circuit, sessionType: f1SessionType, country: f1Country }),
       };
@@ -197,7 +193,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         participant1: ufcRedCorner.trim(), participant2: ufcBlueCorner.trim(),
         venue: ufcVenue.trim() || undefined, round: `${ufcRounds} Rounds`,
         scheduledAt: new Date(ufcDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ eventName: ufcEventName, weightClass: ufcWeightClass, rounds: ufcRounds }),
       };
@@ -211,7 +207,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         participant1: boxFighterA.trim(), participant2: boxFighterB.trim(),
         venue: boxVenue.trim() || undefined, round: `${boxRounds} Rounds`,
         scheduledAt: new Date(boxDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ promotion: boxPromotion, weightClass: boxWeightClass, rounds: boxRounds }),
       };
@@ -225,7 +221,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         participant1: tenPlayerA.trim(), participant2: tenPlayerB.trim(),
         venue: tenVenue.trim() || undefined, round: tenRound.trim() || undefined,
         scheduledAt: new Date(tenDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ tournament: tenTournament }),
       };
@@ -239,7 +235,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
         participant1: cktTeamA.trim(), participant2: cktTeamB.trim(),
         venue: cktVenue.trim() || undefined, round: cktRound.trim() || undefined,
         scheduledAt: new Date(cktDate).toISOString(),
-        isFeatured, enableComments, enableChat, enablePrediction: false,
+        isFeatured,
         streamUrl: streamUrl.trim() || undefined, streamType, streamQuality,
         metadata: JSON.stringify({ tournament: cktTournament }),
       };
@@ -313,16 +309,6 @@ export function CreateMatchForm({ leagues, sports }: Props) {
       });
 
       if (!res.ok) throw new Error("Failed to create event");
-      const match = await res.json();
-
-      if (sportType === "football" && enablePrediction) {
-        setIsGeneratingPrediction(true);
-        await fetch("/api/predictions", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ matchId: match.id, generate: true }),
-        });
-      }
 
       toast.success("Event created!");
       router.push("/admin/matches");
@@ -330,7 +316,6 @@ export function CreateMatchForm({ leagues, sports }: Props) {
       toast.error("Failed to create event");
     } finally {
       setIsSubmitting(false);
-      setIsGeneratingPrediction(false);
     }
   };
 
@@ -425,19 +410,10 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4">
-                {[
-                  { label: "Featured Match", value: isFeatured, set: setIsFeatured },
-                  { label: "Comments", value: enableComments, set: setEnableComments },
-                  { label: "Live Chat", value: enableChat, set: setEnableChat },
-                  { label: "Predictions", value: enablePrediction, set: setEnablePrediction },
-                ].map((item) => (
-                  <label key={item.label} className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={item.value} onChange={(e) => item.set(e.target.checked)} className="accent-[#00FF84] w-4 h-4" />
-                    <span className="text-sm text-gray-300">{item.label}</span>
-                  </label>
-                ))}
-              </div>
+              <label className="flex items-center gap-2 cursor-pointer w-fit">
+                <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="accent-[#00FF84] w-4 h-4" />
+                <span className="text-sm text-gray-300">Featured Match</span>
+              </label>
             </>
           )}
 
@@ -482,7 +458,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={bkDate} onChange={(e) => setBkDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -527,7 +503,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={vbDate} onChange={(e) => setVbDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -566,7 +542,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={f1Date} onChange={(e) => setF1Date(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -607,7 +583,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={ufcDate} onChange={(e) => setUfcDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -648,7 +624,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={boxDate} onChange={(e) => setBoxDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -685,7 +661,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={tenDate} onChange={(e) => setTenDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -722,7 +698,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
                   <Input type="datetime-local" value={cktDate} onChange={(e) => setCktDate(e.target.value)} required />
                 </div>
               </div>
-              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} enableComments={enableComments} setEnableComments={setEnableComments} enableChat={enableChat} setEnableChat={setEnableChat} />
+              <SharedToggles isFeatured={isFeatured} setIsFeatured={setIsFeatured} />
             </>
           )}
 
@@ -778,11 +754,7 @@ export function CreateMatchForm({ leagues, sports }: Props) {
       <div className="flex gap-3 justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            isGeneratingPrediction ? (
-              <><Wand2 className="w-4 h-4 animate-spin" /> Generating AI Prediction...</>
-            ) : "Creating..."
-          ) : (
+          {isSubmitting ? "Creating..." : (
             <><Plus className="w-4 h-4" /> Create Event</>
           )}
         </Button>
@@ -793,25 +765,13 @@ export function CreateMatchForm({ leagues, sports }: Props) {
 
 function SharedToggles({
   isFeatured, setIsFeatured,
-  enableComments, setEnableComments,
-  enableChat, setEnableChat,
 }: {
   isFeatured: boolean; setIsFeatured: (v: boolean) => void;
-  enableComments: boolean; setEnableComments: (v: boolean) => void;
-  enableChat: boolean; setEnableChat: (v: boolean) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-4">
-      {[
-        { label: "Featured Event", value: isFeatured, set: setIsFeatured },
-        { label: "Comments", value: enableComments, set: setEnableComments },
-        { label: "Live Chat", value: enableChat, set: setEnableChat },
-      ].map((item) => (
-        <label key={item.label} className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={item.value} onChange={(e) => item.set(e.target.checked)} className="accent-[#00FF84] w-4 h-4" />
-          <span className="text-sm text-gray-300">{item.label}</span>
-        </label>
-      ))}
-    </div>
+    <label className="flex items-center gap-2 cursor-pointer w-fit">
+      <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="accent-[#00FF84] w-4 h-4" />
+      <span className="text-sm text-gray-300">Featured Event</span>
+    </label>
   );
 }

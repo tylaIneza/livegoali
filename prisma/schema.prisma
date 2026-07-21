@@ -40,12 +40,6 @@ enum ChannelCategory {
   OTHER
 }
 
-enum PredictionOutcome {
-  HOME_WIN
-  DRAW
-  AWAY_WIN
-}
-
 enum AdPlacement {
   HEADER
   SIDEBAR
@@ -83,9 +77,6 @@ model User {
 
   accounts        Account[]
   sessions        Session[]
-  predictions     PredictionEntry[]
-  comments        Comment[]
-  chatMessages    LiveChatMessage[]
   favorites       Favorite[]
   notifications   Notification[]
   vipSubscription VIPSubscription?
@@ -249,9 +240,6 @@ model Match {
   attendance       Int?
   coverImage       String?     @db.Text
   isFeatured       Boolean     @default(false)
-  enableComments   Boolean     @default(true)
-  enableChat       Boolean     @default(true)
-  enablePrediction Boolean     @default(true)
   round            String?
   season           String?
   views            Int         @default(0)
@@ -270,13 +258,8 @@ model Match {
   homeTeam          Team?             @relation("HomeTeam", fields: [homeTeamId], references: [id])
   awayTeam          Team?             @relation("AwayTeam", fields: [awayTeamId], references: [id])
   streams           StreamSource[]
-  statistics        MatchStatistic?
   lineups           Lineup[]
   events            MatchEvent[]
-  comments          Comment[]
-  chatMessages      LiveChatMessage[]
-  prediction        Prediction?
-  predictionEntries PredictionEntry[]
   scoreSnapshot     MatchScoreSnapshot?
 
   @@unique([source, externalId])
@@ -352,35 +335,6 @@ model ChannelSource {
   @@index([channelId])
 }
 
-model MatchStatistic {
-  id                String   @id @default(cuid())
-  matchId           String   @unique
-  homePossession    Float?
-  awayPossession    Float?
-  homeShots         Int?
-  awayShots         Int?
-  homeShotsOnTarget Int?
-  awayShotsOnTarget Int?
-  homeCorners       Int?
-  awayCorners       Int?
-  homeYellowCards   Int?
-  awayYellowCards   Int?
-  homeRedCards      Int?
-  awayRedCards      Int?
-  homeOffsides      Int?
-  awayOffsides      Int?
-  homeFouls         Int?
-  awayFouls         Int?
-  homePassAccuracy  Float?
-  awayPassAccuracy  Float?
-  homeXG            Float?
-  awayXG            Float?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-}
-
 model Lineup {
   id        String  @id @default(cuid())
   matchId   String
@@ -423,86 +377,6 @@ model MatchEvent {
   match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
 
   @@index([matchId])
-}
-
-model Prediction {
-  id                String             @id @default(cuid())
-  matchId           String             @unique
-  homeWinProb       Float
-  drawProb          Float
-  awayWinProb       Float
-  expectedHomeGoals Float?
-  expectedAwayGoals Float?
-  confidence        Float
-  aiExplanation     String?            @db.Text
-  expertAnalysis    String?            @db.Text
-  recommendation    PredictionOutcome?
-  isOverridden      Boolean            @default(false)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-}
-
-model PredictionEntry {
-  id                 String            @id @default(cuid())
-  userId             String
-  matchId            String
-  outcome            PredictionOutcome
-  predictedHomeScore Int?
-  predictedAwayScore Int?
-  firstScorerId      String?
-  overUnder          String?
-  btts               Boolean?
-  points             Int               @default(0)
-  isCorrect          Boolean?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, matchId])
-  @@index([userId])
-  @@index([matchId])
-}
-
-model Comment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  userId    String
-  matchId   String
-  parentId  String?
-  likes     Int      @default(0)
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match   Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
-  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  replies Comment[] @relation("CommentReplies")
-
-  @@index([matchId])
-  @@index([userId])
-  @@index([parentId])
-  @@index([matchId, parentId, createdAt])
-}
-
-model LiveChatMessage {
-  id        String   @id @default(cuid())
-  content   String
-  userId    String
-  matchId   String
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
-
-  @@index([matchId])
-  @@index([userId])
-  @@index([matchId, createdAt])
 }
 
 model Category {

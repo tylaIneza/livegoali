@@ -11,8 +11,6 @@ export default async function AdminSettingsPage() {
   const defaults = [
     { key: "site_name", label: "Site Name", value: "LiveGoali" },
     { key: "site_tagline", label: "Tagline", value: "Watch Football Live. Anytime. Anywhere." },
-    { key: "live_chat_slow_mode", label: "Live Chat Slow Mode (seconds)", value: "3" },
-    { key: "max_predictions_per_user", label: "Max Predictions per Match", value: "1" },
     { key: "maintenance_mode", label: "Maintenance Mode", value: "false" },
   ];
 

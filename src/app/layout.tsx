@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     template: "%s | LiveGoali",
   },
   description:
-    "Stream live football matches, get AI predictions, real-time stats, lineups, and live commentary. The best football streaming platform.",
-  keywords: ["football", "live streaming", "soccer", "predictions", "Premier League", "Champions League"],
+    "Stream live football matches, real-time scores, lineups, and live commentary. The best football streaming platform.",
+  keywords: ["football", "live streaming", "soccer", "Premier League", "Champions League"],
   authors: [{ name: "LiveGoali" }],
   creator: "LiveGoali",
   openGraph: {
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     url: process.env.NEXT_PUBLIC_APP_URL,
     siteName: "LiveGoali",
     title: "LiveGoali - Watch Football Live. Anytime. Anywhere.",
-    description: "Stream live football matches with AI predictions and real-time stats.",
+    description: "Stream live football matches with real-time scores and stats.",
     images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
   twitter: {

@@ -24,7 +24,7 @@ interface Props {
     id: string; slug: string; status: string;
     homeScore: number | null; awayScore: number | null;
     matchMinute: number | null; startedAt: Date | null; scheduledAt: Date;
-    isFeatured: boolean; enableComments: boolean; enableChat: boolean; enablePrediction: boolean;
+    isFeatured: boolean;
     venue: string | null; round: string | null;
     homeTeamId: string | null; awayTeamId: string | null; leagueId: string | null;
     title?: string | null; participant1?: string | null; participant2?: string | null;

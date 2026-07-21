@@ -1,18 +1,17 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import { BarChart3, Users, MessageSquare, Timer, Eye, Trophy } from "lucide-react";
+import { BarChart3, Users, Timer, Eye, Trophy } from "lucide-react";
 
 export default async function AdminAnalyticsPage() {
   const [
     totalUsers, newUsersToday, liveMatches, totalMatches,
-    totalComments, watchtimeSetting, totalNews, totalViews,
+    watchtimeSetting, totalNews, totalViews,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: new Date(new Date().setHours(0,0,0,0)) } } }),
     prisma.match.count({ where: { status: { in: ["LIVE","HALFTIME"] } } }),
     prisma.match.count(),
-    prisma.comment.count({ where: { isDeleted: false } }),
     prisma.settings.findUnique({ where: { key: "total_watch_seconds" } }).catch(() => null),
     prisma.news.count({ where: { isPublished: true } }),
     prisma.news.aggregate({ _sum: { views: true } }),
@@ -31,7 +30,6 @@ export default async function AdminAnalyticsPage() {
   const stats = [
     { label: "Total Users", value: totalUsers, sub: `+${newUsersToday} today`, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
     { label: "Live Matches", value: liveMatches, sub: `${totalMatches} total`, icon: Trophy, color: "text-red-400", bg: "bg-red-500/10" },
-    { label: "Comments", value: totalComments, sub: "All time", icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10" },
     { label: "Watchtime", value: `${watchFormatted}h`, sub: "Combined hours", icon: Timer, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
     { label: "Articles", value: totalNews, sub: "Published", icon: BarChart3, color: "text-yellow-400", bg: "bg-yellow-500/10" },
     { label: "Article Views", value: totalViews._sum.views ?? 0, sub: "Total reads", icon: Eye, color: "text-pink-400", bg: "bg-pink-500/10" },
@@ -43,7 +41,6 @@ export default async function AdminAnalyticsPage() {
       homeTeam: { select: { name: true, shortName: true } },
       awayTeam: { select: { name: true, shortName: true } },
       league: { select: { name: true } },
-      _count: { select: { comments: true, chatMessages: true, predictionEntries: true } },
     },
     orderBy: { scheduledAt: "desc" },
     take: 8,
@@ -82,9 +79,7 @@ export default async function AdminAnalyticsPage() {
                 <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                   <th className="px-4 py-3 text-left">Match</th>
                   <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Comments</th>
-                  <th className="px-4 py-3 text-right">Chat</th>
-                  <th className="px-4 py-3 text-right">Predictions</th>
+                  <th className="px-4 py-3 text-right">Views</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -102,9 +97,7 @@ export default async function AdminAnalyticsPage() {
                         m.status === "FINISHED" ? "text-white/75" : "text-blue-400"
                       }`}>{m.status}</span>
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-300">{m._count.comments}</td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-300">{m._count.chatMessages}</td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-300">{m._count.predictionEntries}</td>
+                    <td className="px-4 py-3 text-right text-sm text-gray-300">{m.views}</td>
                   </tr>
                 ))}
               </tbody>

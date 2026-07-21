@@ -22,7 +22,6 @@ interface UserRow {
   isBanned: boolean;
   banReason: string | null;
   createdAt: string;
-  _count: { predictions: number; comments: number };
 }
 
 const ROLES: UserRole[] = ["USER", "EDITOR", "ADMIN", "SUPER_ADMIN"];
@@ -324,7 +323,6 @@ export function UsersManager() {
                   <tr className="border-b border-white/8 text-white/70 text-xs uppercase tracking-wider">
                     <th className="px-4 py-3 text-left">User</th>
                     <th className="px-4 py-3 text-left">Role</th>
-                    <th className="px-4 py-3 text-left hidden md:table-cell">Activity</th>
                     <th className="px-4 py-3 text-left hidden sm:table-cell">Joined</th>
                     <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-right">Actions</th>
@@ -350,9 +348,6 @@ export function UsersManager() {
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${roleBadgeClass[user.role]}`}>
                           {user.role}
                         </span>
-                      </td>
-                      <td className="px-4 py-3 hidden md:table-cell">
-                        <p className="text-xs text-white/75">{user._count.predictions} predictions · {user._count.comments} comments</p>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         <span className="text-xs text-white/70">{formatTimeAgo(new Date(user.createdAt))}</span>
@@ -388,7 +383,7 @@ export function UsersManager() {
                   ))}
                   {filtered.length === 0 && !loading && (
                     <tr>
-                      <td colSpan={6} className="text-center py-10 text-white/60 text-sm">
+                      <td colSpan={5} className="text-center py-10 text-white/60 text-sm">
                         {search ? "No users match your search" : "No users found"}
                       </td>
                     </tr>

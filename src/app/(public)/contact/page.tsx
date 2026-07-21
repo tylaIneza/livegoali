@@ -138,7 +138,7 @@ export default function ContactPage() {
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6">
           <h2 className="text-white font-bold mb-3">About LiveGoali</h2>
           <p className="text-white/75 text-sm leading-relaxed mb-4">
-            LiveGoali is dedicated to providing football fans with live scores, match information, statistics, predictions, news, and football-related content from around the world. We appreciate your support and feedback as we continue to improve our platform.
+            LiveGoali is dedicated to providing football fans with live scores, match information, statistics, news, and football-related content from around the world. We appreciate your support and feedback as we continue to improve our platform.
           </p>
           <p className="text-white/70 text-sm">Thank you for being part of the LiveGoali community.</p>
           <p className="text-white font-bold mt-2">LiveGoali — Football Lives Here.</p>

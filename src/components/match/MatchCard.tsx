@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Play, TrendingUp, Clock } from "lucide-react";
+import { Play, Clock } from "lucide-react";
 import { LiveBadge } from "./LiveBadge";
 import { Button } from "@/components/ui/button";
 import { formatMatchDate } from "@/lib/utils";
@@ -151,31 +151,6 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
           </div>
         </div>
 
-        {/* Prediction Bar */}
-        {match.prediction && (
-          <div className="mt-4 space-y-1">
-            <div className="flex justify-between text-[10px] text-white/70">
-              <span>{match.prediction.homeWinProb.toFixed(0)}% H</span>
-              <span>{match.prediction.drawProb.toFixed(0)}% D</span>
-              <span>{match.prediction.awayWinProb.toFixed(0)}% A</span>
-            </div>
-            <div className="flex h-1 rounded-full overflow-hidden gap-0.5">
-              <div
-                className="h-full bg-accent rounded-l-full transition-all"
-                style={{ width: `${match.prediction.homeWinProb}%` }}
-              />
-              <div
-                className="h-full bg-warning transition-all"
-                style={{ width: `${match.prediction.drawProb}%` }}
-              />
-              <div
-                className="h-full bg-primary rounded-r-full transition-all"
-                style={{ width: `${match.prediction.awayWinProb}%` }}
-              />
-            </div>
-          </div>
-        )}
-
         {/* Actions */}
         <div className="flex gap-2 mt-4">
           {isLive ? (
@@ -194,11 +169,6 @@ export function MatchCard({ match, variant = "default" }: MatchCardProps) {
               <Link href={`/match/${match.slug}`}>Match Details</Link>
             </Button>
           )}
-          <Button variant="outline" size="sm" className="text-xs" asChild>
-            <Link href={`/predictions`}>
-              <TrendingUp className="w-3 h-3" />
-            </Link>
-          </Button>
         </div>
       </div>
     </motion.div>

@@ -48,7 +48,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     select: {
       id: true, name: true, email: true, role: true,
       isVIP: true, isBanned: true, banReason: true, createdAt: true,
-      _count: { select: { predictions: true, comments: true } },
     },
   });
 

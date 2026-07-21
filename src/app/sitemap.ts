@@ -9,7 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: baseUrl, changeFrequency: "always", priority: 1 },
     { url: `${baseUrl}/live`, changeFrequency: "always", priority: 0.9 },
     { url: `${baseUrl}/fixtures`, changeFrequency: "hourly", priority: 0.8 },
-    { url: `${baseUrl}/predictions`, changeFrequency: "hourly", priority: 0.8 },
     { url: `${baseUrl}/news`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${baseUrl}/leagues`, changeFrequency: "daily", priority: 0.7 },
     { url: `${baseUrl}/league/premier-league`, changeFrequency: "daily", priority: 0.7 },

@@ -6,7 +6,6 @@ const footerLinks = {
   Platform: [
     { href: "/", label: "Live Matches" },
     { href: "/fixtures", label: "Fixtures" },
-    { href: "/predictions", label: "Predictions" },
     { href: "/news", label: "Football News" },
     { href: "/leagues", label: "Leagues" },
   ],
@@ -47,7 +46,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-white/75 text-sm leading-relaxed mb-6 max-w-xs">
-              Watch Football Live. Anytime. Anywhere. Your ultimate destination for live football streaming, predictions, and statistics.
+              Watch Football Live. Anytime. Anywhere. Your ultimate destination for live football streaming.
             </p>
             <a
               href="mailto:hello@livegoali.com"

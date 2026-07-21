@@ -35,7 +35,7 @@ export default function PrivacyPage() {
                 <li>Email address</li>
                 <li>Username</li>
                 <li>Password (stored securely and encrypted)</li>
-                <li>Comments and predictions</li>
+                <li>Favorites and account preferences</li>
                 <li>Messages submitted through our contact forms</li>
               </ul>
             </div>
@@ -141,7 +141,7 @@ export default function PrivacyPage() {
         <div className="rounded-2xl border border-white/8 bg-card p-6">
           <h2 className="text-white font-bold mb-3">7. User Content</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
-            <p>Comments, predictions, and other content submitted by users may be publicly visible.</p>
+            <p>Content submitted by users may be publicly visible.</p>
             <p>Please avoid posting sensitive personal information in public areas of the Website.</p>
           </div>
         </div>

@@ -87,7 +87,7 @@ export function MatchesTable({ matches: initial }: { matches: Match[] }) {
           <div className="bg-[#121821] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
             <h3 className="text-lg font-bold text-white mb-2">Delete Match?</h3>
             <p className="text-white/75 text-sm mb-6">
-              This will permanently delete the match, all streams, events, comments and predictions. This cannot be undone.
+              This will permanently delete the match, all streams and events. This cannot be undone.
             </p>
             <div className="flex gap-3">
               <Button

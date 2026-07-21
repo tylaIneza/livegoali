@@ -21,22 +21,6 @@ const vwKey = (matchId: string) => `vw:${matchId}`;
 const ACTIVE_KEY = "vw:active";
 const viewBufKey = (matchId: string) => `viewbuf:${matchId}`;
 
-// Tiny lock helper (mirrors src/lib/redis.ts's acquireLock/releaseLock, reusing
-// the socket server's own pubClient instead of opening another connection) —
-// prevents a burst of viewers joining the same match at once from all missing
-// the chat-history cache together and re-running the same query concurrently.
-async function acquireChatLock(matchId: string): Promise<boolean> {
-  try {
-    const result = await pubClient.set(`lock:chat:${matchId}`, "1", "EX", 5, "NX");
-    return result === "OK";
-  } catch {
-    return true; // Redis unavailable — don't block the join on it
-  }
-}
-async function releaseChatLock(matchId: string): Promise<void> {
-  await pubClient.del(`lock:chat:${matchId}`).catch(() => {});
-}
-
 const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
@@ -88,6 +72,28 @@ async function broadcastMatchViewers(matchId: string) {
     users,
     guests: Math.max(0, parseInt(raw?.guests || "0")),
   });
+}
+
+// Debounced per-match broadcast — fires at most once every 500ms per match.
+// Without this, every single join/leave re-broadcast the viewer count to
+// everyone else already in that match's room immediately: N viewers joining
+// the same match within the same second (e.g. kickoff) turned into N
+// broadcasts each reaching up to N recipients — effectively O(n²) work
+// concentrated in a very short window on one thread. Confirmed via
+// scripts/loadtest-sockets.mjs: 300 simultaneous joins to one match went
+// from instant to ~4s p50 once the (unrelated) chat feature that used to
+// mask this by staggering joins was removed.
+const _matchBroadcastTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const MATCH_BROADCAST_DEBOUNCE_MS = 500;
+
+function scheduleBroadcastMatchViewers(matchId: string) {
+  if (_matchBroadcastTimers.has(matchId)) return;
+  const timer = setTimeout(() => {
+    _matchBroadcastTimers.delete(matchId);
+    broadcastMatchViewers(matchId).catch((err) =>
+      console.error("[socket] match viewer broadcast failed:", err));
+  }, MATCH_BROADCAST_DEBOUNCE_MS);
+  _matchBroadcastTimers.set(matchId, timer);
 }
 
 // Debounced global broadcast — fires at most once every 2 seconds.
@@ -170,49 +176,6 @@ io.on("connection", (socket) => {
         .catch((err) => console.error("[socket] view buffer incr failed:", err));
     }
 
-    // Send recent chat history — cached 30s so burst joins don't hammer DB.
-    // Cache misses are lock-protected (mirrors the pattern used for match
-    // pages / ppv-football / stream-extract) so a burst of viewers joining
-    // right as the cache expires collapses into one query instead of one
-    // per viewer.
-    try {
-      const chatCacheKey = `chat:${matchId}`;
-      let cachedHistory = await pubClient.get(chatCacheKey);
-
-      if (!cachedHistory) {
-        const gotLock = await acquireChatLock(matchId);
-        if (!gotLock) {
-          await new Promise((r) => setTimeout(r, 150));
-          cachedHistory = await pubClient.get(chatCacheKey);
-        }
-        if (!cachedHistory) {
-          try {
-            const messages = await prisma.liveChatMessage.findMany({
-              where: { matchId, isDeleted: false },
-              include: {
-                user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
-              },
-              orderBy: { createdAt: "asc" },
-              take: 50,
-            });
-            const history = messages.map((m) => ({
-              id: m.id,
-              content: m.content,
-              createdAt: m.createdAt.toISOString(),
-              user: m.user,
-            }));
-            cachedHistory = JSON.stringify(history);
-            await pubClient.setex(chatCacheKey, 30, cachedHistory);
-          } finally {
-            if (gotLock) await releaseChatLock(matchId);
-          }
-        }
-      }
-      socket.emit("chat-history", JSON.parse(cachedHistory ?? "[]"));
-    } catch (err) {
-      console.error("[socket] chat history failed:", err);
-    }
-
     // Idempotent: a socket reconnect re-emits join-match for the same match
     // without an intervening leave-match, which would otherwise double-count
     // the same viewer. Only increment once per "session" of watching.
@@ -220,7 +183,7 @@ io.on("connection", (socket) => {
       socket.data.countedViewer = true;
       await trackJoin(matchId, !!userId);
     }
-    await broadcastMatchViewers(matchId);
+    scheduleBroadcastMatchViewers(matchId);
     scheduleBroadcastGlobal();
   });
 
@@ -235,52 +198,9 @@ io.on("connection", (socket) => {
       socket.data.countedViewer = false;
       await trackLeave(matchId, !!userId);
     }
-    await broadcastMatchViewers(matchId);
+    scheduleBroadcastMatchViewers(matchId);
     scheduleBroadcastGlobal();
   });
-
-  socket.on(
-    "send-message",
-    async (data: {
-      matchId: string;
-      content: string;
-      userId?: string;
-      userName?: string;
-      userImage?: string;
-      userRole?: string;
-      isVIP?: boolean;
-    }) => {
-      const { matchId, content, userId } = data;
-      if (!content?.trim() || !userId) return;
-
-      const now = Date.now();
-      const lastMsg = (socket as unknown as { lastMessage?: number }).lastMessage || 0;
-      if (now - lastMsg < 1_000) {
-        socket.emit("error", "Slow down!");
-        return;
-      }
-      (socket as unknown as { lastMessage: number }).lastMessage = now;
-
-      try {
-        const message = await prisma.liveChatMessage.create({
-          data: { matchId, userId, content: content.trim().slice(0, 200) },
-          include: {
-            user: { select: { id: true, name: true, image: true, role: true, isVIP: true } },
-          },
-        });
-        io.to(`match-${matchId}`).emit("chat-message", {
-          id: message.id,
-          content: message.content,
-          createdAt: message.createdAt.toISOString(),
-          user: message.user,
-        });
-        // Invalidate chat history cache so the next join sees this message
-        pubClient.del(`chat:${matchId}`).catch(() => {});
-      } catch (err) {
-        console.error("[socket] message save failed:", err);
-      }
-    },
-  );
 
   socket.on(
     "match-event",
@@ -316,7 +236,7 @@ io.on("connection", (socket) => {
     if (matchId && socket.data.countedViewer) {
       socket.data.countedViewer = false;
       await trackLeave(matchId, !!userId);
-      await broadcastMatchViewers(matchId);
+      scheduleBroadcastMatchViewers(matchId);
       scheduleBroadcastGlobal();
     }
   });

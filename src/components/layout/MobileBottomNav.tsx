@@ -8,7 +8,7 @@ const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/live", label: "Live", icon: Zap },
   { href: "/fixtures", label: "Schedule", icon: Calendar },
-  { href: "/predictions", label: "More", icon: Menu },
+  { href: "/news", label: "More", icon: Menu },
 ];
 
 export function MobileBottomNav() {

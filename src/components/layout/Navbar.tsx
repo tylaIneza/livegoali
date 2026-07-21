@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu, X, Bell, User, ChevronDown,
   Shield, LogOut, Settings, Star,
-  Trophy, Newspaper, BarChart3, MonitorPlay, Goal,
+  Newspaper, BarChart3, MonitorPlay, Goal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,7 +30,6 @@ const navLinks = [
 const moreLinks = [
   { href: "/live-tv", label: "Live TV", icon: MonitorPlay },
   { href: "/football", label: "Football Streams", icon: Goal },
-  { href: "/predictions", label: "Predictions", icon: Trophy },
   { href: "/news", label: "News", icon: Newspaper },
   { href: "/leagues", label: "Leagues", icon: BarChart3 },
 ];

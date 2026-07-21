@@ -29,7 +29,7 @@ export default function AdvertisePage() {
       <div className="mb-10">
         <h1 className="text-4xl font-black text-white mb-3">Advertise with LiveGoali</h1>
         <p className="text-white/75 mt-4 leading-relaxed">
-          Reach a passionate, engaged global audience of football fans. LiveGoali offers premium advertising placements across live match pages, news, fixtures, predictions, and more.
+          Reach a passionate, engaged global audience of football fans. LiveGoali offers premium advertising placements across live match pages, news, fixtures, and more.
         </p>
       </div>
 

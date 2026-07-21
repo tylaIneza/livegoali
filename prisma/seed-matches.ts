@@ -90,7 +90,7 @@ async function main() {
 
   for (const m of liveMatches) {
     const [homeTeam, awayTeam] = await Promise.all([team(m.home), team(m.away)]);
-    const match = await prisma.match.upsert({
+    await prisma.match.upsert({
       where: { slug: m.slug },
       update: { homeScore: m.homeScore, awayScore: m.awayScore, status: m.status, matchMinute: m.minute },
       create: {
@@ -104,28 +104,8 @@ async function main() {
         matchMinute: m.minute,
         scheduledAt: m.scheduledAt,
         isFeatured: m.isFeatured,
-        enableComments: true,
-        enableChat: true,
-        enablePrediction: true,
         round: "Matchday 34",
         season: "2024/25",
-      },
-    });
-
-    // Add prediction
-    await prisma.prediction.upsert({
-      where: { matchId: match.id },
-      update: {},
-      create: {
-        matchId: match.id,
-        homeWinProb: m.home === "arsenal" ? 55 : m.home === "real-madrid" ? 48 : 65,
-        drawProb: 22,
-        awayWinProb: m.home === "arsenal" ? 23 : m.home === "real-madrid" ? 30 : 13,
-        expectedHomeGoals: 1.8,
-        expectedAwayGoals: 1.1,
-        confidence: 72,
-        aiExplanation: `Based on recent form and head-to-head history, ${homeTeam.name} have the advantage playing at home.`,
-        recommendation: "HOME_WIN",
       },
     });
   }
@@ -147,7 +127,7 @@ async function main() {
 
   for (const m of upcomingMatches) {
     const [homeTeam, awayTeam] = await Promise.all([team(m.home), team(m.away)]);
-    const match = await prisma.match.upsert({
+    await prisma.match.upsert({
       where: { slug: m.slug },
       update: {},
       create: {
@@ -157,28 +137,8 @@ async function main() {
         awayTeamId: awayTeam.id,
         status: "SCHEDULED",
         scheduledAt: inHours(m.offset),
-        enableComments: true,
-        enableChat: true,
-        enablePrediction: true,
         round: m.round,
         season: "2024/25",
-      },
-    });
-
-    // Add prediction
-    await prisma.prediction.upsert({
-      where: { matchId: match.id },
-      update: {},
-      create: {
-        matchId: match.id,
-        homeWinProb: Math.floor(35 + Math.random() * 35),
-        drawProb: Math.floor(20 + Math.random() * 15),
-        awayWinProb: Math.floor(20 + Math.random() * 30),
-        expectedHomeGoals: parseFloat((0.9 + Math.random() * 1.5).toFixed(1)),
-        expectedAwayGoals: parseFloat((0.7 + Math.random() * 1.2).toFixed(1)),
-        confidence: Math.floor(58 + Math.random() * 25),
-        aiExplanation: `${homeTeam.name} vs ${awayTeam.name} — prediction based on recent form, H2H, and home advantage.`,
-        recommendation: "HOME_WIN",
       },
     });
   }

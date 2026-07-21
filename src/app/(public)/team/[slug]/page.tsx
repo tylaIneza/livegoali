@@ -47,14 +47,6 @@ export default async function TeamPage({ params }: Props) {
     awayTeam: { select: { id: true, name: true, slug: true, logo: true, shortName: true } },
     league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
     streams: { where: { isActive: true }, take: 1 },
-    prediction: {
-      select: {
-        homeWinProb: true, drawProb: true, awayWinProb: true,
-        confidence: true, recommendation: true,
-        expectedHomeGoals: true, expectedAwayGoals: true,
-        aiExplanation: true, expertAnalysis: true,
-      },
-    },
   } as const;
 
   const [fixtures, results] = await Promise.all([

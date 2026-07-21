@@ -67,9 +67,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // ── Other fields ─────────────────────────────────────────────
   if (body.isFeatured !== undefined) data.isFeatured = body.isFeatured;
   if (body.isPublished !== undefined) data.isPublished = body.isPublished;
-  if (body.enableComments !== undefined) data.enableComments = body.enableComments;
-  if (body.enableChat !== undefined) data.enableChat = body.enableChat;
-  if (body.enablePrediction !== undefined) data.enablePrediction = body.enablePrediction;
 
   const match = await prisma.match.update({ where: { id }, data });
   return NextResponse.json(match);

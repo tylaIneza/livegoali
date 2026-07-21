@@ -50,7 +50,6 @@ export async function GET(req: NextRequest) {
       league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
       sport: { select: { id: true, name: true, slug: true, icon: true } },
       streams: { where: { isActive: true }, select: { id: true, url: true, type: true, quality: true, isPrimary: true, isActive: true, priority: true, label: true }, orderBy: { priority: "asc" }, take: 1 },
-      prediction: { select: { homeWinProb: true, drawProb: true, awayWinProb: true, confidence: true } },
     },
     orderBy: [
       { status: "asc" },
@@ -113,9 +112,6 @@ export async function POST(req: NextRequest) {
       metadata: body.metadata ?? null,
       scheduledAt: new Date(body.scheduledAt),
       isFeatured: body.isFeatured ?? false,
-      enableComments: body.enableComments ?? true,
-      enableChat: body.enableChat ?? true,
-      enablePrediction: body.enablePrediction ?? false,
       venue: body.venue ?? null,
       round: body.round ?? null,
       season: body.season ?? null,

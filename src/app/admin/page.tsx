@@ -17,7 +17,7 @@ async function getAdminStats() {
 
   const [
     totalUsers, liveMatches, totalMatches, totalNews,
-    watchtimeSetting, totalComments,
+    watchtimeSetting,
     siteVisitsTotal, siteVisitsToday,
     recentUsers,
     totalViewsAgg,
@@ -27,7 +27,6 @@ async function getAdminStats() {
     prisma.match.count(),
     prisma.news.count(),
     prisma.settings.findUnique({ where: { key: "total_watch_seconds" } }).catch(() => null),
-    prisma.comment.count({ where: { isDeleted: false } }),
     prisma.settings.findUnique({ where: { key: "site_visits_total" } }),
     prisma.settings.findUnique({ where: { key: `site_visits_${today}` } }),
     prisma.user.findMany({
@@ -93,7 +92,7 @@ async function getAdminStats() {
   }
 
   return {
-    totalUsers, liveMatches, totalMatches, totalNews, totalComments,
+    totalUsers, liveMatches, totalMatches, totalNews,
     watchHoursFormatted: fmtHours(watchHours),
     siteVisitsTotal: parseInt(siteVisitsTotal?.value ?? "0"),
     siteVisitsToday: parseInt(siteVisitsToday?.value ?? "0"),
@@ -168,19 +167,6 @@ export default async function AdminDashboard() {
       border: "rgba(249,115,22,0.25)",
       glow: "rgba(249,115,22,0.10)",
       iconBg: "rgba(249,115,22,0.15)",
-    },
-    {
-      label: "Comments",
-      value: fmt(stats.totalComments),
-      sub: "fan interactions",
-      icon: MessageSquare,
-      href: "/admin/matches",
-      accent: "#EC4899",
-      gradFrom: "rgba(236,72,153,0.18)",
-      gradTo: "rgba(236,72,153,0.03)",
-      border: "rgba(236,72,153,0.25)",
-      glow: "rgba(236,72,153,0.10)",
-      iconBg: "rgba(236,72,153,0.15)",
     },
   ];
 

@@ -51,12 +51,6 @@ export function getMatchStatusColor(status: string): string {
   }
 }
 
-export function getPredictionColor(prob: number): string {
-  if (prob >= 60) return "text-[#00FF84]";
-  if (prob >= 40) return "text-yellow-400";
-  return "text-red-400";
-}
-
 export function truncate(str: string, length: number): string {
   return str.length > length ? `${str.substring(0, length)}...` : str;
 }

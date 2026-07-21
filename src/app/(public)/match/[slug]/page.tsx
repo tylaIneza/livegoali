@@ -12,7 +12,7 @@ import { cacheGet, cacheSet, acquireLock, releaseLock } from "@/lib/redis";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { Button } from "@/components/ui/button";
-import { Play, TrendingUp } from "lucide-react";
+import { Play } from "lucide-react";
 import { LocalTime } from "@/components/LocalTime";
 import type { Metadata } from "next";
 
@@ -29,7 +29,6 @@ async function fetchMatchFromDb(slug: string) {
       league: { select: { id: true, name: true, slug: true, logo: true, country: true, season: true } },
       sport: { select: { id: true, name: true, icon: true, slug: true } },
       streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
-      statistics: true,
       lineups: {
         include: {
           players: {
@@ -39,7 +38,6 @@ async function fetchMatchFromDb(slug: string) {
         },
       },
       events: { orderBy: { minute: "asc" } },
-      prediction: true,
     },
   });
 }
@@ -49,7 +47,7 @@ type MatchData = NonNullable<Awaited<ReturnType<typeof fetchMatchFromDb>>>;
 // cache() dedupes this across generateMetadata and the page body within the
 // same request. The Redis layer + lock dedupes it across *different*
 // concurrent visitors too: without it, every page view ran this deep query
-// (teams, league, stats, lineups, events, prediction) fresh, and a burst of
+// (teams, league, lineups, events) fresh, and a burst of
 // viewers on the same match would each miss the cache and hit MySQL at once.
 const getMatch = cache(async (slug: string): Promise<MatchData | null> => {
   try {
@@ -272,14 +270,6 @@ export default async function MatchPage({ params }: Props) {
               </Link>
             </Button>
           )}
-          {match.enablePrediction && (
-            <Button variant="outline" asChild>
-              <Link href="/predictions">
-                <TrendingUp className="w-4 h-4" />
-                Predictions
-              </Link>
-            </Button>
-          )}
         </div>
       </div>
 
@@ -287,10 +277,8 @@ export default async function MatchPage({ params }: Props) {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full overflow-x-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          {isFootball && match.statistics && <TabsTrigger value="stats">Statistics</TabsTrigger>}
           {isFootball && match.lineups.length > 0 && <TabsTrigger value="lineups">Lineups</TabsTrigger>}
           {isFootball && match.events.length > 0 && <TabsTrigger value="commentary">Commentary</TabsTrigger>}
-          {isFootball && match.prediction && <TabsTrigger value="prediction">Prediction</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview">
@@ -316,100 +304,7 @@ export default async function MatchPage({ params }: Props) {
           </div>
         </TabsContent>
 
-        {isFootball && match.statistics && (
-          <TabsContent value="stats">
-            <div className="p-5 rounded-xl border border-white/8 bg-card space-y-4">
-              {[
-                { label: "Possession", home: match.statistics.homePossession ?? 50, away: match.statistics.awayPossession ?? 50, unit: "%" },
-                { label: "Shots", home: match.statistics.homeShots ?? 0, away: match.statistics.awayShots ?? 0 },
-                { label: "Shots on Target", home: match.statistics.homeShotsOnTarget ?? 0, away: match.statistics.awayShotsOnTarget ?? 0 },
-                { label: "Corners", home: match.statistics.homeCorners ?? 0, away: match.statistics.awayCorners ?? 0 },
-                { label: "Yellow Cards", home: match.statistics.homeYellowCards ?? 0, away: match.statistics.awayYellowCards ?? 0 },
-                { label: "Red Cards", home: match.statistics.homeRedCards ?? 0, away: match.statistics.awayRedCards ?? 0 },
-                { label: "Offsides", home: match.statistics.homeOffsides ?? 0, away: match.statistics.awayOffsides ?? 0 },
-                { label: "Fouls", home: match.statistics.homeFouls ?? 0, away: match.statistics.awayFouls ?? 0 },
-                ...(match.statistics.homeXG !== null ? [{ label: "Expected Goals (xG)", home: match.statistics.homeXG ?? 0, away: match.statistics.awayXG ?? 0, decimals: 2 }] : []),
-              ].map((stat) => (
-                <StatRow key={stat.label} {...stat} />
-              ))}
-            </div>
-          </TabsContent>
-        )}
-
-        {isFootball && match.prediction && (
-          <TabsContent value="prediction">
-            <div className="p-5 rounded-xl border border-white/8 bg-card space-y-5">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-4 rounded-xl bg-background border border-white/8">
-                  <div className="text-3xl font-black text-accent">{match.prediction.homeWinProb.toFixed(0)}%</div>
-                  <div className="text-xs text-white/70 mt-1">Home Win</div>
-                </div>
-                <div className="p-4 rounded-xl bg-background border border-white/8">
-                  <div className="text-3xl font-black text-warning">{match.prediction.drawProb.toFixed(0)}%</div>
-                  <div className="text-xs text-white/70 mt-1">Draw</div>
-                </div>
-                <div className="p-4 rounded-xl bg-background border border-white/8">
-                  <div className="text-3xl font-black text-primary">{match.prediction.awayWinProb.toFixed(0)}%</div>
-                  <div className="text-xs text-white/70 mt-1">Away Win</div>
-                </div>
-              </div>
-
-              <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
-                <div className="h-full bg-accent rounded-l-full" style={{ width: `${match.prediction.homeWinProb}%` }} />
-                <div className="h-full bg-warning" style={{ width: `${match.prediction.drawProb}%` }} />
-                <div className="h-full bg-primary rounded-r-full" style={{ width: `${match.prediction.awayWinProb}%` }} />
-              </div>
-
-              {match.prediction.expectedHomeGoals !== null && (
-                <div className="flex items-center justify-between py-2 border-t border-white/8">
-                  <span className="text-white/75 text-sm">Expected Goals</span>
-                  <span className="font-bold text-white">
-                    {match.prediction.expectedHomeGoals.toFixed(1)} - {match.prediction.expectedAwayGoals?.toFixed(1)}
-                  </span>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between py-2 border-t border-white/8">
-                <span className="text-white/75 text-sm">Confidence</span>
-                <span className="font-bold text-primary">{match.prediction.confidence.toFixed(0)}%</span>
-              </div>
-
-              {match.prediction.aiExplanation && (
-                <div className="p-4 rounded-xl bg-background/50 border border-white/8">
-                  <p className="text-sm text-white/75 leading-relaxed">{match.prediction.aiExplanation}</p>
-                </div>
-              )}
-
-              {match.prediction.expertAnalysis && (
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                  <p className="text-xs font-bold text-primary mb-1">EXPERT ANALYSIS</p>
-                  <p className="text-sm text-gray-300 leading-relaxed">{match.prediction.expertAnalysis}</p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        )}
       </Tabs>
-    </div>
-  );
-}
-
-function StatRow({ label, home, away, unit = "", decimals = 0 }: { label: string; home: number; away: number; unit?: string; decimals?: number }) {
-  const total = home + away || 1;
-  const homeW = (home / total) * 100;
-  const fmt = (v: number) => decimals > 0 ? v.toFixed(decimals) : v;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between text-sm mb-1.5">
-        <span className="font-bold text-white">{fmt(home)}{unit}</span>
-        <span className="text-white/70 text-xs">{label}</span>
-        <span className="font-bold text-white">{fmt(away)}{unit}</span>
-      </div>
-      <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-        <div className="h-full bg-accent rounded-l-full transition-all" style={{ width: `${homeW}%` }} />
-        <div className="h-full bg-primary rounded-r-full flex-1" />
-      </div>
     </div>
   );
 }

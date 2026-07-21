@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Play, Clock, ArrowRight, Zap, Calendar, TrendingUp } from "lucide-react";
+import { Play, Clock, ArrowRight, Zap, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LiveBadge } from "@/components/match/LiveBadge";
 import { formatMatchDate } from "@/lib/utils";
@@ -20,7 +20,6 @@ interface Match {
   homeTeam: { name: string; shortName: string | null; logo: string | null };
   awayTeam: { name: string; shortName: string | null; logo: string | null };
   league: { name: string; logo: string | null };
-  prediction?: { homeWinProb: number; drawProb: number; awayWinProb: number } | null;
 }
 
 interface HeroProps {
@@ -156,19 +155,13 @@ function PlaceholderHero() {
               <span className="text-gradient">Live Football</span>
             </h1>
             <p className="text-white/75 text-base mb-8 max-w-md leading-relaxed">
-              Stream live matches, get AI predictions, and follow real-time scores — all in one place.
+              Stream live matches and follow real-time scores — all in one place.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="lg" asChild>
                 <Link href="/fixtures">
                   <Calendar className="w-4 h-4" />
                   View Fixtures
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/predictions">
-                  <TrendingUp className="w-4 h-4" />
-                  AI Predictions
                 </Link>
               </Button>
             </div>
@@ -183,7 +176,6 @@ function PlaceholderHero() {
           >
             {[
               { label: "Live Streams", value: "HD", icon: Play, color: "text-[#00FF84]", bg: "bg-[#00FF84]/10" },
-              { label: "AI Predictions", value: "24/7", icon: TrendingUp, color: "text-blue-400", bg: "bg-blue-400/10" },
               { label: "Leagues Covered", value: "9+", icon: Zap, color: "text-yellow-400", bg: "bg-yellow-400/10" },
               { label: "Live Updates", value: "Real-time", icon: Clock, color: "text-purple-400", bg: "bg-purple-400/10" },
             ].map((item) => (
@@ -234,9 +226,6 @@ function FeaturedLiveCard({ match }: { match: Match }) {
           </div>
           <TeamBlock team={match.awayTeam} align="right" />
         </div>
-
-        {/* Prediction */}
-        {match.prediction && <PredBar pred={match.prediction} homeLabel={match.homeTeam.shortName || match.homeTeam.name} awayLabel={match.awayTeam.shortName || match.awayTeam.name} />}
 
         {/* Actions */}
         <div className="flex gap-3">
@@ -290,16 +279,10 @@ function FeaturedUpcomingCard({ match }: { match: Match }) {
           <TeamBlock team={match.awayTeam} align="right" />
         </div>
 
-        {/* Prediction */}
-        {match.prediction && <PredBar pred={match.prediction} homeLabel={match.homeTeam.shortName || match.homeTeam.name} awayLabel={match.awayTeam.shortName || match.awayTeam.name} />}
-
         {/* Actions */}
         <div className="flex gap-3">
           <Button variant="secondary" size="lg" className="flex-1" asChild>
             <Link href={`/match/${match.slug}`}><Clock className="w-4 h-4" />Match Details</Link>
-          </Button>
-          <Button variant="outline" size="lg" asChild>
-            <Link href="/predictions"><TrendingUp className="w-4 h-4" /></Link>
           </Button>
         </div>
       </div>
@@ -388,21 +371,4 @@ function TeamLogo({ logo, name, size }: { logo: string | null; name: string; siz
   return logo
     ? <Image src={logo} alt={name} width={size} height={size} className="object-contain shrink-0" style={{ width: size, height: size }} />
     : <div className="rounded-full bg-[#1F2937] flex items-center justify-center text-[10px] font-bold text-[#00FF84] shrink-0" style={{ width: size, height: size }}>{name.charAt(0)}</div>;
-}
-
-function PredBar({ pred, homeLabel, awayLabel }: { pred: { homeWinProb: number; drawProb: number; awayWinProb: number }; homeLabel: string; awayLabel: string }) {
-  return (
-    <div className="p-3 rounded-xl bg-white/4 border border-white/6">
-      <div className="flex justify-between text-[11px] font-bold mb-1.5">
-        <span className="text-[#00FF84]">{pred.homeWinProb.toFixed(0)}% {homeLabel}</span>
-        <span className="text-white/60 text-[10px]">AI Prediction</span>
-        <span className="text-blue-400">{pred.awayWinProb.toFixed(0)}% {awayLabel}</span>
-      </div>
-      <div className="flex h-1.5 rounded-full overflow-hidden gap-px">
-        <div className="bg-[#00FF84] rounded-l-full" style={{ width: `${pred.homeWinProb}%` }} />
-        <div className="bg-yellow-400" style={{ width: `${pred.drawProb}%` }} />
-        <div className="bg-blue-400 rounded-r-full flex-1" />
-      </div>
-    </div>
-  );
 }

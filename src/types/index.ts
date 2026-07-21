@@ -1,6 +1,6 @@
-import type { UserRole, MatchStatus, StreamType, PredictionOutcome } from "@prisma/client";
+import type { UserRole, MatchStatus, StreamType } from "@prisma/client";
 
-export type { UserRole, MatchStatus, StreamType, PredictionOutcome };
+export type { UserRole, MatchStatus, StreamType };
 
 export interface MatchWithTeams {
   id: string;
@@ -40,7 +40,6 @@ export interface MatchWithTeams {
   } | null;
   sport?: { slug: string | null } | null;
   streams?: StreamSourceData[];
-  prediction?: PredictionData | null;
 }
 
 export interface StreamSourceData {
@@ -52,41 +51,6 @@ export interface StreamSourceData {
   isActive: boolean;
   priority: number;
   label: string | null;
-}
-
-export interface PredictionData {
-  homeWinProb: number;
-  drawProb: number;
-  awayWinProb: number;
-  expectedHomeGoals: number | null;
-  expectedAwayGoals: number | null;
-  confidence: number;
-  aiExplanation: string | null;
-  expertAnalysis: string | null;
-  recommendation: PredictionOutcome | null;
-}
-
-export interface MatchStatisticData {
-  homePossession: number | null;
-  awayPossession: number | null;
-  homeShots: number | null;
-  awayShots: number | null;
-  homeShotsOnTarget: number | null;
-  awayShotsOnTarget: number | null;
-  homeCorners: number | null;
-  awayCorners: number | null;
-  homeYellowCards: number | null;
-  awayYellowCards: number | null;
-  homeRedCards: number | null;
-  awayRedCards: number | null;
-  homeOffsides: number | null;
-  awayOffsides: number | null;
-  homeFouls: number | null;
-  awayFouls: number | null;
-  homePassAccuracy: number | null;
-  awayPassAccuracy: number | null;
-  homeXG: number | null;
-  awayXG: number | null;
 }
 
 export interface NewsArticle {
@@ -131,22 +95,6 @@ export interface TeamData {
     slug: string;
     logo: string | null;
   } | null;
-}
-
-export interface CommentData {
-  id: string;
-  content: string;
-  likes: number;
-  createdAt: Date;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-    role: UserRole;
-    isVIP: boolean;
-  };
-  replies?: CommentData[];
-  _count?: { replies: number };
 }
 
 // Minimal shape covering every field accessed on homepage match objects.

@@ -30,7 +30,6 @@ export async function GET() {
     select: {
       id: true, name: true, email: true, image: true,
       role: true, isVIP: true, isBanned: true, banReason: true, createdAt: true,
-      _count: { select: { predictions: true, comments: true } },
     },
   });
 
@@ -67,7 +66,6 @@ export async function POST(req: NextRequest) {
     select: {
       id: true, name: true, email: true, role: true,
       isVIP: true, isBanned: true, banReason: true, createdAt: true,
-      _count: { select: { predictions: true, comments: true } },
     },
   });
 

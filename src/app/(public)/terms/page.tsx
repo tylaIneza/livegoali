@@ -24,7 +24,7 @@ export default function TermsPage() {
           {
             title: "1. About LiveGoali",
             content: (
-              <p>LiveGoali is a football information platform that provides live scores, match schedules, statistics, standings, predictions, news, commentary, and related football content. Certain match streams, media, or external content may be provided by third-party services.</p>
+              <p>LiveGoali is a football information platform that provides live scores, match schedules, statistics, standings, news, commentary, and related football content. Certain match streams, media, or external content may be provided by third-party services.</p>
             ),
           },
           {
@@ -37,7 +37,7 @@ export default function TermsPage() {
             title: "3. User Accounts",
             content: (
               <>
-                <p className="mb-3">Some features such as commenting, predictions, and community participation may require registration.</p>
+                <p className="mb-3">Some features such as favorites and community participation may require registration.</p>
                 <p className="mb-2">You agree to:</p>
                 <ul className="list-disc list-inside space-y-1 text-white/75 text-sm">
                   <li>Provide accurate information.</li>
@@ -104,7 +104,7 @@ export default function TermsPage() {
             title: "8. User-Generated Content",
             content: (
               <>
-                <p className="mb-3">Users may submit comments, predictions, opinions, and other content.</p>
+                <p className="mb-3">Users may submit opinions and other content.</p>
                 <p className="mb-3">By submitting content, you grant LiveGoali a non-exclusive, worldwide, royalty-free license to display, reproduce, distribute, and publish such content on the Website.</p>
                 <p>You remain responsible for any content you submit.</p>
               </>

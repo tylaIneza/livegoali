@@ -40,9 +40,7 @@ async function fetchMatchFromDb(slug: string) {
       league: { select: { id: true, name: true, slug: true, logo: true, country: true } },
       sport: { select: { id: true, name: true, icon: true, slug: true } },
       streams: { where: { isActive: true }, orderBy: { priority: "asc" } },
-      statistics: true,
       events: { orderBy: { minute: "desc" }, take: 20 },
-      prediction: true,
     },
   });
 }
@@ -354,30 +352,6 @@ export default async function LiveMatchPage({ params }: Props) {
               />
             </div>
 
-            {/* Match Statistics */}
-            {isFootball && match.statistics && (
-              <div className="rounded-2xl border border-white/8 bg-card overflow-hidden">
-                <div className="px-5 py-4 border-b border-white/6 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm">📊</span>
-                  </div>
-                  <h3 className="text-sm font-bold text-white">Match Statistics</h3>
-                </div>
-                <div className="p-5 space-y-4">
-                  {[
-                    { label: "Possession", home: match.statistics.homePossession ?? 50, away: match.statistics.awayPossession ?? 50, unit: "%", homeColor: "var(--accent)", awayColor: "var(--primary)" },
-                    { label: "Shots", home: match.statistics.homeShots ?? 0, away: match.statistics.awayShots ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
-                    { label: "Shots on Target", home: match.statistics.homeShotsOnTarget ?? 0, away: match.statistics.awayShotsOnTarget ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
-                    { label: "Corners", home: match.statistics.homeCorners ?? 0, away: match.statistics.awayCorners ?? 0, homeColor: "var(--accent)", awayColor: "var(--primary)" },
-                    { label: "Yellow Cards", home: match.statistics.homeYellowCards ?? 0, away: match.statistics.awayYellowCards ?? 0, homeColor: "var(--warning)", awayColor: "var(--warning)" },
-                    { label: "Fouls", home: match.statistics.homeFouls ?? 0, away: match.statistics.awayFouls ?? 0, homeColor: "var(--danger)", awayColor: "var(--danger)" },
-                  ].map((stat) => (
-                    <StatRow key={stat.label} {...stat} />
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Ad below player */}
             <AdBanner placement="FOOTER" className="h-16 sm:h-20 rounded-xl" />
           </div>
@@ -386,9 +360,6 @@ export default async function LiveMatchPage({ params }: Props) {
           <div className="space-y-4">
             <AdBanner placement="SIDEBAR" className="h-20 sm:h-24 rounded-xl" />
             <LiveMatchSidebar
-              matchId={match.id}
-              enableChat={match.enableChat}
-              enableComments={match.enableComments}
               events={match.events.map((e) => ({
                 id: e.id,
                 type: e.type,
@@ -397,42 +368,9 @@ export default async function LiveMatchPage({ params }: Props) {
                 teamId: e.teamId,
                 description: e.description,
               }))}
-              prediction={match.prediction ? {
-                homeWinProb: match.prediction.homeWinProb,
-                drawProb: match.prediction.drawProb,
-                awayWinProb: match.prediction.awayWinProb,
-                confidence: match.prediction.confidence,
-                aiExplanation: match.prediction.aiExplanation,
-                expectedHomeGoals: match.prediction.expectedHomeGoals,
-                expectedAwayGoals: match.prediction.expectedAwayGoals,
-              } : null}
-              homeTeam={match.homeTeam?.name ?? match.participant1 ?? ""}
-              awayTeam={match.awayTeam?.name ?? match.participant2 ?? ""}
             />
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function StatRow({
-  label, home, away, unit = "", homeColor, awayColor,
-}: {
-  label: string; home: number; away: number; unit?: string; homeColor: string; awayColor: string;
-}) {
-  const total = home + away || 1;
-  const homeWidth = Math.round((home / total) * 100);
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-black tabular-nums" style={{ color: homeColor }}>{home}{unit}</span>
-        <span className="text-xs text-white/50 font-medium">{label}</span>
-        <span className="font-black tabular-nums" style={{ color: awayColor }}>{away}{unit}</span>
-      </div>
-      <div className="flex h-1.5 rounded-full overflow-hidden bg-white/5">
-        <div className="rounded-l-full transition-all duration-500" style={{ width: `${homeWidth}%`, background: homeColor }} />
-        <div className="rounded-r-full transition-all duration-500 flex-1" style={{ background: awayColor, opacity: 0.5 }} />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "About Us",
-  description: "Learn about LiveGoali — your destination for football coverage, live scores, match updates, statistics, predictions, and news from around the world.",
+  description: "Learn about LiveGoali — your destination for football coverage, live scores, match updates, statistics, and news from around the world.",
 };
 
 export default function AboutPage() {
@@ -12,7 +12,7 @@ export default function AboutPage() {
       <div className="mb-10">
         <h1 className="text-4xl font-black text-white mb-3">About LiveGoali</h1>
         <p className="text-white/75 mt-4 leading-relaxed">
-          Welcome to <span className="text-white font-semibold">LiveGoali</span>, your destination for football coverage, live scores, match updates, statistics, predictions, and football news from around the world.
+          Welcome to <span className="text-white font-semibold">LiveGoali</span>, your destination for football coverage, live scores, match updates, statistics, and football news from around the world.
         </p>
       </div>
 
@@ -33,9 +33,7 @@ export default function AboutPage() {
             <li>Match schedules and fixtures</li>
             <li>League tables and standings</li>
             <li>Team and player statistics</li>
-            <li>Match predictions and analysis</li>
             <li>Football news and updates</li>
-            <li>Fan discussions and comments</li>
             <li>Coverage of major leagues and international competitions</li>
           </ul>
           <p className="text-white/75 text-sm">Our goal is to make football information accessible and easy to follow for fans across the globe.</p>
@@ -53,7 +51,7 @@ export default function AboutPage() {
           <h2 className="text-white font-bold mb-3">Community First</h2>
           <div className="text-white/75 text-sm leading-relaxed space-y-3">
             <p>Football is more than a sport—it&apos;s a community. LiveGoali encourages respectful discussion and engagement among fans from different countries, clubs, and backgrounds.</p>
-            <p>Users who create accounts can participate in comments, predictions, and other community features while helping build a positive football environment.</p>
+            <p>Users who create accounts can participate in favorites and other community features while helping build a positive football environment.</p>
           </div>
         </div>
 
